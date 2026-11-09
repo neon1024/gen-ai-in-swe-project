@@ -1,0 +1,1004 @@
+{
+  "checked_at": "2026-11-10T00:51:13.148275+02:00",
+  "timezone": "Europe/Bucharest",
+  "method": "Read-only public GitHub REST API via CLI; no assignments changed",
+  "repository": "neon1024/gen-ai-in-swe-project",
+  "issues": [
+    {
+      "number": 57,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/57",
+      "title": "US-50 Export the event report",
+      "state": "open",
+      "assignees": [
+        "DuarteLagoela"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:30:32Z"
+    },
+    {
+      "number": 56,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/56",
+      "title": "US-49 View the event report",
+      "state": "open",
+      "assignees": [
+        "DuarteLagoela"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:30:35Z"
+    },
+    {
+      "number": 55,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/55",
+      "title": "US-48 View feedback",
+      "state": "open",
+      "assignees": [
+        "DuarteLagoela"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:30:38Z"
+    },
+    {
+      "number": 54,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/54",
+      "title": "US-47 Give feedback",
+      "state": "open",
+      "assignees": [
+        "DuarteLagoela"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:30:41Z"
+    },
+    {
+      "number": 53,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/53",
+      "title": "US-46 Check in manually and correct attendance",
+      "state": "open",
+      "assignees": [
+        "lucianvaleanu"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:30:44Z"
+    },
+    {
+      "number": 52,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/52",
+      "title": "US-45 Check in by QR code",
+      "state": "open",
+      "assignees": [
+        "lucianvaleanu"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:30:47Z"
+    },
+    {
+      "number": 51,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/51",
+      "title": "US-44 Get a personal QR code",
+      "state": "open",
+      "assignees": [
+        "lucianvaleanu"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:30:50Z"
+    },
+    {
+      "number": 50,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/50",
+      "title": "WF-06 Event day and follow-up",
+      "state": "open",
+      "assignees": [],
+      "milestone": "Final",
+      "parent": null,
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:24:55Z"
+    },
+    {
+      "number": 49,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/49",
+      "title": "US-43 Receive activity reminders",
+      "state": "open",
+      "assignees": [
+        "lucianvaleanu"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:30:53Z"
+    },
+    {
+      "number": 48,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/48",
+      "title": "US-42 Send an announcement",
+      "state": "open",
+      "assignees": [
+        "jose03pedro"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:30:56Z"
+    },
+    {
+      "number": 47,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/47",
+      "title": "US-41 Complete tasks and track status",
+      "state": "open",
+      "assignees": [
+        "All16"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:30:59Z"
+    },
+    {
+      "number": 46,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/46",
+      "title": "US-40 Create and assign tasks",
+      "state": "open",
+      "assignees": [
+        "All16"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:01Z"
+    },
+    {
+      "number": 45,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/45",
+      "title": "US-39 Transfer event ownership",
+      "state": "open",
+      "assignees": [
+        "All16"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:04Z"
+    },
+    {
+      "number": 44,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/44",
+      "title": "US-38 Manage Staff and Editors",
+      "state": "open",
+      "assignees": [
+        "All16"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:07Z"
+    },
+    {
+      "number": 43,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/43",
+      "title": "WF-05 Event preparation",
+      "state": "open",
+      "assignees": [],
+      "milestone": "Final",
+      "parent": null,
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:24:34Z"
+    },
+    {
+      "number": 42,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/42",
+      "title": "US-37 Receive notifications by email",
+      "state": "open",
+      "assignees": [
+        "neon1024"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:10Z"
+    },
+    {
+      "number": 41,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/41",
+      "title": "US-36 Use the inbox",
+      "state": "open",
+      "assignees": [
+        "neon1024"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:13Z"
+    },
+    {
+      "number": 40,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/40",
+      "title": "US-35 Respond to an invitation",
+      "state": "open",
+      "assignees": [
+        "jose03pedro"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:16Z"
+    },
+    {
+      "number": 39,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/39",
+      "title": "US-34 Invite users to a private activity",
+      "state": "open",
+      "assignees": [
+        "jose03pedro"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:19Z"
+    },
+    {
+      "number": 38,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/38",
+      "title": "US-33 Make an activity private",
+      "state": "open",
+      "assignees": [
+        "jose03pedro"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:22Z"
+    },
+    {
+      "number": 37,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/37",
+      "title": "US-32 Invite a user to an organization",
+      "state": "open",
+      "assignees": [
+        "All16"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:25Z"
+    },
+    {
+      "number": 36,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/36",
+      "title": "WF-04 Invitations and inbox",
+      "state": "open",
+      "assignees": [],
+      "milestone": "Final",
+      "parent": null,
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:24:13Z"
+    },
+    {
+      "number": 35,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/35",
+      "title": "US-31 View my activities",
+      "state": "open",
+      "assignees": [
+        "lucianvaleanu"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:28Z"
+    },
+    {
+      "number": 34,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/34",
+      "title": "US-30 Notify promoted participants",
+      "state": "open",
+      "assignees": [
+        "lucianvaleanu"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:31Z"
+    },
+    {
+      "number": 33,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/33",
+      "title": "US-29 Promote from the waitlist automatically",
+      "state": "open",
+      "assignees": [
+        "lucianvaleanu"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:34Z"
+    },
+    {
+      "number": 32,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/32",
+      "title": "US-28 Cancel a signup or leave a waitlist",
+      "state": "open",
+      "assignees": [
+        "lucianvaleanu"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:37Z"
+    },
+    {
+      "number": 31,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/31",
+      "title": "US-27 Sign up for an activity",
+      "state": "open",
+      "assignees": [
+        "lucianvaleanu"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:40Z"
+    },
+    {
+      "number": 30,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/30",
+      "title": "US-26 View event details",
+      "state": "open",
+      "assignees": [
+        "lucianvaleanu"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:43Z"
+    },
+    {
+      "number": 29,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/29",
+      "title": "US-25 Filter events",
+      "state": "open",
+      "assignees": [
+        "DuarteLagoela"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:46Z"
+    },
+    {
+      "number": 28,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/28",
+      "title": "US-24 Browse and search events",
+      "state": "open",
+      "assignees": [
+        "DuarteLagoela"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:48Z"
+    },
+    {
+      "number": 27,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/27",
+      "title": "WF-03 Discovery and registration",
+      "state": "open",
+      "assignees": [],
+      "milestone": "Mid-term",
+      "parent": null,
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:23:44Z"
+    },
+    {
+      "number": 26,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/26",
+      "title": "US-23 Complete events automatically",
+      "state": "open",
+      "assignees": [
+        "DuarteLagoela"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:51Z"
+    },
+    {
+      "number": 25,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/25",
+      "title": "US-22 Delete a draft event",
+      "state": "open",
+      "assignees": [
+        "DuarteLagoela"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:54Z"
+    },
+    {
+      "number": 24,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/24",
+      "title": "US-21 Cancel an event",
+      "state": "open",
+      "assignees": [
+        "DuarteLagoela"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:31:57Z"
+    },
+    {
+      "number": 23,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/23",
+      "title": "US-20 Cancel an activity",
+      "state": "open",
+      "assignees": [
+        "DuarteLagoela"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:00Z"
+    },
+    {
+      "number": 22,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/22",
+      "title": "US-19 Notify participants of changes and cancellations",
+      "state": "open",
+      "assignees": [
+        "jose03pedro"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:03Z"
+    },
+    {
+      "number": 21,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/21",
+      "title": "US-18 Edit a published event",
+      "state": "open",
+      "assignees": [
+        "jose03pedro"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:06Z"
+    },
+    {
+      "number": 20,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/20",
+      "title": "US-17 Publish an event",
+      "state": "open",
+      "assignees": [
+        "jose03pedro"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:10Z"
+    },
+    {
+      "number": 19,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/19",
+      "title": "US-16 Manage an activity's agenda",
+      "state": "open",
+      "assignees": [
+        "jose03pedro"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:12Z"
+    },
+    {
+      "number": 18,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/18",
+      "title": "US-15 Add and edit activities",
+      "state": "open",
+      "assignees": [
+        "jose03pedro"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:16Z"
+    },
+    {
+      "number": 17,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/17",
+      "title": "US-14 Create a draft event",
+      "state": "open",
+      "assignees": [
+        "jose03pedro"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:19Z"
+    },
+    {
+      "number": 16,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/16",
+      "title": "WF-02 Event lifecycle",
+      "state": "open",
+      "assignees": [],
+      "milestone": "Mid-term",
+      "parent": null,
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:23:10Z"
+    },
+    {
+      "number": 15,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/15",
+      "title": "US-13 Deactivate organizations",
+      "state": "open",
+      "assignees": [
+        "neon1024"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:22Z"
+    },
+    {
+      "number": 14,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/14",
+      "title": "US-12 Manage Platform Admins",
+      "state": "open",
+      "assignees": [
+        "neon1024"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:25Z"
+    },
+    {
+      "number": 13,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/13",
+      "title": "US-11 Deactivate user accounts",
+      "state": "open",
+      "assignees": [
+        "neon1024"
+      ],
+      "milestone": "Final",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:28Z"
+    },
+    {
+      "number": 12,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/12",
+      "title": "US-10 Leave an organization",
+      "state": "open",
+      "assignees": [
+        "All16"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:30Z"
+    },
+    {
+      "number": 11,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/11",
+      "title": "US-09 Remove a member",
+      "state": "open",
+      "assignees": [
+        "All16"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:34Z"
+    },
+    {
+      "number": 10,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/10",
+      "title": "US-08 Change member roles",
+      "state": "open",
+      "assignees": [
+        "All16"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:37Z"
+    },
+    {
+      "number": 9,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/9",
+      "title": "US-07 Handle join requests",
+      "state": "open",
+      "assignees": [
+        "All16"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:40Z"
+    },
+    {
+      "number": 8,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/8",
+      "title": "US-06 Ask to join an organization",
+      "state": "open",
+      "assignees": [
+        "All16"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:42Z"
+    },
+    {
+      "number": 7,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/7",
+      "title": "US-05 Edit the organization profile",
+      "state": "open",
+      "assignees": [
+        "neon1024"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:45Z"
+    },
+    {
+      "number": 6,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/6",
+      "title": "US-04 Review organization requests",
+      "state": "open",
+      "assignees": [
+        "neon1024"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:48Z"
+    },
+    {
+      "number": 5,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/5",
+      "title": "US-03 Request organization registration",
+      "state": "open",
+      "assignees": [
+        "neon1024"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:51Z"
+    },
+    {
+      "number": 4,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/4",
+      "title": "US-02 Log in, log out and reset password",
+      "state": "open",
+      "assignees": [
+        "neon1024"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:53Z"
+    },
+    {
+      "number": 3,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/3",
+      "title": "US-01 Register an account",
+      "state": "open",
+      "assignees": [
+        "neon1024"
+      ],
+      "milestone": "Mid-term",
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:32:56Z"
+    },
+    {
+      "number": 2,
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/2",
+      "title": "WF-01 Account and organization onboarding",
+      "state": "open",
+      "assignees": [],
+      "milestone": "Mid-term",
+      "parent": null,
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "updated_at": "2026-11-09T22:22:23Z"
+    }
+  ]
+}

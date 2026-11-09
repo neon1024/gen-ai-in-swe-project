@@ -1,0 +1,1539 @@
+{
+  "consulted_on": "2026-11-10",
+  "method": "Public GitHub REST API via CLI; gh installed but unauthenticated",
+  "repository": "neon1024/gen-ai-in-swe-project",
+  "issues": [
+    {
+      "number": 57,
+      "title": "US-50 Export the event report",
+      "state": "open",
+      "body": "**As a** staff member, **I want** to export the report as CSV, **so that** the organization can keep its own records.\n\n**Workflow:** WF-06 · **Traces:** UC-30, FR-RPT-02\n\n### Acceptance criteria\n- [ ] The report downloads as a CSV file with one row per activity.\n- [ ] The export contains aggregate figures only, no personal data.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/57",
+      "labels": [
+        "user-story",
+        "WF-06"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:25:16Z"
+    },
+    {
+      "number": 56,
+      "title": "US-49 View the event report",
+      "state": "open",
+      "body": "**As a** staff member, **I want** an event report, **so that** the organization knows how the event went.\n\n**Workflow:** WF-06 · **Traces:** UC-30, FR-RPT-01\n\n### Acceptance criteria\n- [ ] For each activity the report shows confirmed signups, waitlist size, cancellations, attendance rate and average rating.\n- [ ] Attendance rate is the share of confirmed participants marked Attended.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/56",
+      "labels": [
+        "user-story",
+        "WF-06"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:25:13Z"
+    },
+    {
+      "number": 55,
+      "title": "US-48 View feedback",
+      "state": "open",
+      "body": "**As a** staff member, **I want** to see the feedback on each activity, **so that** the team learns what worked.\n\n**Workflow:** WF-06 · **Traces:** UC-30, FR-FBK-02, BR-17\n\n### Acceptance criteria\n- [ ] For each activity I see the average rating, the rating distribution and the comments.\n- [ ] Feedback never shows who wrote it.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/55",
+      "labels": [
+        "user-story",
+        "WF-06"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:25:10Z"
+    },
+    {
+      "number": 54,
+      "title": "US-47 Give feedback",
+      "state": "open",
+      "body": "**As an** attendee, **I want** to rate an activity, **so that** organizers can improve future events.\n\n**Workflow:** WF-06 · **Traces:** UC-29, FR-FBK-01, BR-16\n\n### Acceptance criteria\n- [ ] I can give a 1–5 rating with an optional comment, once per activity I attended.\n- [ ] Feedback is accepted only within 7 days after the activity ends.\n- [ ] Participants not marked present cannot give feedback.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/54",
+      "labels": [
+        "user-story",
+        "WF-06"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:25:07Z"
+    },
+    {
+      "number": 53,
+      "title": "US-46 Check in manually and correct attendance",
+      "state": "open",
+      "body": "**As a** staff member, **I want** to mark attendance by hand and fix mistakes, **so that** attendance is right even without a QR code.\n\n**Workflow:** WF-06 · **Traces:** UC-28, FR-ATT-03, BR-15\n\n### Acceptance criteria\n- [ ] I can search the activity's confirmed signups by display name or username and mark someone present.\n- [ ] I can unmark a participant marked by mistake.\n- [ ] Changes are refused more than 7 days after the activity ends.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/53",
+      "labels": [
+        "user-story",
+        "WF-06"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:25:03Z"
+    },
+    {
+      "number": 52,
+      "title": "US-45 Check in by QR code",
+      "state": "open",
+      "body": "**As a** staff member, **I want** to scan participants' QR codes, **so that** check-in is fast.\n\n**Workflow:** WF-06 · **Traces:** UC-28, FR-ATT-02, BR-15\n\n### Acceptance criteria\n- [ ] Scanning a valid code for this activity marks the participant Attended.\n- [ ] Codes for another activity, or for cancelled or waitlisted signups, are refused with the reason.\n- [ ] Scanning a code already marked Attended says so.\n- [ ] Check-in is possible from one hour before the start until 7 days after the end.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/52",
+      "labels": [
+        "user-story",
+        "WF-06"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:25:00Z"
+    },
+    {
+      "number": 51,
+      "title": "US-44 Get a personal QR code",
+      "state": "open",
+      "body": "**As a** participant, **I want** a personal QR code for each confirmed signup, **so that** I can check in quickly.\n\n**Workflow:** WF-06 · **Traces:** UC-28, FR-ATT-01\n\n### Acceptance criteria\n- [ ] Each confirmed signup has a unique QR code visible only to its participant.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/51",
+      "labels": [
+        "user-story",
+        "WF-06"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/50",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:57Z"
+    },
+    {
+      "number": 50,
+      "title": "WF-06 Event day and follow-up",
+      "state": "open",
+      "body": "Staff record attendance, attendees give feedback, and the team reviews the results.\n\nThe user stories of this workflow are linked as sub-issues.\n\n- US-44 Get a personal QR code (Final)\n- US-45 Check in by QR code (Final)\n- US-46 Check in manually and correct attendance (Final)\n- US-47 Give feedback (Final)\n- US-48 View feedback (Final)\n- US-49 View the event report (Final)\n- US-50 Export the event report (Final)\n\nWorkflow diagram: [05-workflows.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/05-workflows.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/50",
+      "labels": [
+        "epic",
+        "WF-06"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": null,
+      "sub_issues": {
+        "total": 7,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:55Z"
+    },
+    {
+      "number": 49,
+      "title": "US-43 Receive activity reminders",
+      "state": "open",
+      "body": "**As a** participant, **I want** a reminder before my activity starts, **so that** I do not forget it.\n\n**Workflow:** WF-05 · **Traces:** UC-25, FR-NTF-06\n\n### Acceptance criteria\n- [ ] Confirmed participants receive a reminder 24 hours before the activity starts.\n- [ ] Signups made less than 24 hours before the start receive no reminder.\n- [ ] Cancelled activities send no reminders.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/49",
+      "labels": [
+        "user-story",
+        "WF-05"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:52Z"
+    },
+    {
+      "number": 48,
+      "title": "US-42 Send an announcement",
+      "state": "open",
+      "body": "**As an** editor, **I want** to message everyone signed up, **so that** I can share practical information.\n\n**Workflow:** WF-05 · **Traces:** UC-24, FR-NTF-05\n\n### Acceptance criteria\n- [ ] I choose the audience: the whole event or one activity.\n- [ ] Everyone with a confirmed or waitlisted signup in that audience receives the announcement.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/48",
+      "labels": [
+        "user-story",
+        "WF-05"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:48Z"
+    },
+    {
+      "number": 47,
+      "title": "US-41 Complete tasks and track status",
+      "state": "open",
+      "body": "**As a** staff member, **I want** to mark my tasks done and see the team's tasks, **so that** the team knows what is left.\n\n**Workflow:** WF-05 · **Traces:** UC-27, FR-TEAM-04\n\n### Acceptance criteria\n- [ ] Assignees can mark their tasks Done and reopen them.\n- [ ] The whole team sees all tasks with assignees, due dates and status.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/47",
+      "labels": [
+        "user-story",
+        "WF-05"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:45Z"
+    },
+    {
+      "number": 46,
+      "title": "US-40 Create and assign tasks",
+      "state": "open",
+      "body": "**As an** editor, **I want** to create tasks and assign them to team members, **so that** everyone knows their responsibilities.\n\n**Workflow:** WF-05 · **Traces:** UC-27, FR-TEAM-03\n\n### Acceptance criteria\n- [ ] A task has title, description, one or more assignees from the event team, optional due date and optional activity.\n- [ ] New tasks are To do.\n- [ ] Editors can edit, reassign and delete tasks.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/46",
+      "labels": [
+        "user-story",
+        "WF-05"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:42Z"
+    },
+    {
+      "number": 45,
+      "title": "US-39 Transfer event ownership",
+      "state": "open",
+      "body": "**As an** owner, **I want** to hand my event to an Editor, **so that** it stays managed if I step away.\n\n**Workflow:** WF-05 · **Traces:** UC-26, FR-TEAM-02, BR-23\n\n### Acceptance criteria\n- [ ] The Owner can transfer ownership to an Editor of the event.\n- [ ] The previous Owner becomes an Editor.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/45",
+      "labels": [
+        "user-story",
+        "WF-05"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:39Z"
+    },
+    {
+      "number": 44,
+      "title": "US-38 Manage Staff and Editors",
+      "state": "open",
+      "body": "**As an** editor, **I want** to add and remove Staff, **so that** the event has enough people to run it.\n\n**Workflow:** WF-05 · **Traces:** UC-26, FR-TEAM-01, BR-22\n\n### Acceptance criteria\n- [ ] Owner and Editors can add organization members as Staff and remove Staff.\n- [ ] Only the Owner can promote Staff to Editor or remove Editors.\n- [ ] Users outside the organization cannot join the team.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/44",
+      "labels": [
+        "user-story",
+        "WF-05"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/43",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:36Z"
+    },
+    {
+      "number": 43,
+      "title": "WF-05 Event preparation",
+      "state": "open",
+      "body": "The event team organizes itself, shares tasks and keeps participants informed.\n\nThe user stories of this workflow are linked as sub-issues.\n\n- US-38 Manage Staff and Editors (Final)\n- US-39 Transfer event ownership (Final)\n- US-40 Create and assign tasks (Final)\n- US-41 Complete tasks and track status (Final)\n- US-42 Send an announcement (Final)\n- US-43 Receive activity reminders (Final)\n\nWorkflow diagram: [05-workflows.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/05-workflows.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/43",
+      "labels": [
+        "epic",
+        "WF-05"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": null,
+      "sub_issues": {
+        "total": 6,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:34Z"
+    },
+    {
+      "number": 42,
+      "title": "US-37 Receive notifications by email",
+      "state": "open",
+      "body": "**As a** user, **I want** every notification by email too, **so that** I do not miss it when I am not using the platform.\n\n**Workflow:** WF-04 · **Traces:** UC-23, FR-NTF-02, BR-19\n\n### Acceptance criteria\n- [ ] Every inbox notification and invitation is also sent to my email address.\n- [ ] Emails never contain other users' email addresses.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/42",
+      "labels": [
+        "user-story",
+        "WF-04"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:31Z"
+    },
+    {
+      "number": 41,
+      "title": "US-36 Use the inbox",
+      "state": "open",
+      "body": "**As a** user, **I want** an inbox with my notifications and invitations, **so that** I have one place for everything the platform tells me.\n\n**Workflow:** WF-04 · **Traces:** UC-23, FR-NTF-01\n\n### Acceptance criteria\n- [ ] The inbox lists notifications and pending invitations, newest first.\n- [ ] Unread items are marked; opening an item marks it read.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/41",
+      "labels": [
+        "user-story",
+        "WF-04"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:28Z"
+    },
+    {
+      "number": 40,
+      "title": "US-35 Respond to an invitation",
+      "state": "open",
+      "body": "**As a** participant, **I want** to accept or decline invitations in my inbox, **so that** I decide whether to join.\n\n**Workflow:** WF-04 · **Traces:** UC-22, FR-PRV-03, FR-ORG-05, BR-10, BR-11\n\n### Acceptance criteria\n- [ ] Accepting an activity invitation signs me up: confirmed, waitlisted if full, or refused if it overlaps a confirmed signup.\n- [ ] Accepting an organization invitation makes me a Member.\n- [ ] Declining closes the invitation.\n- [ ] Invitations to started or cancelled activities cannot be accepted.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/40",
+      "labels": [
+        "user-story",
+        "WF-04"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:24Z"
+    },
+    {
+      "number": 39,
+      "title": "US-34 Invite users to a private activity",
+      "state": "open",
+      "body": "**As an** editor, **I want** to invite specific people to a private activity, **so that** non-members can attend without making it public.\n\n**Workflow:** WF-04 · **Traces:** UC-21, FR-PRV-02, BR-19\n\n### Acceptance criteria\n- [ ] I find users by username or display name; their email is never shown.\n- [ ] Each invited user receives the invitation in the inbox and by email, and can then see the activity.\n- [ ] Organization members and already-invited users cannot be invited.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/39",
+      "labels": [
+        "user-story",
+        "WF-04"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:21Z"
+    },
+    {
+      "number": 38,
+      "title": "US-33 Make an activity private",
+      "state": "open",
+      "body": "**As an** editor, **I want** to make an activity private, **so that** only members and invited people can see and join it.\n\n**Workflow:** WF-04 · **Traces:** UC-21, FR-PRV-01, BR-18\n\n### Acceptance criteria\n- [ ] Activities are public by default.\n- [ ] A private activity is visible to and joinable by organization members and invited users only.\n- [ ] An event whose activities are all private is hidden from everyone else.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/38",
+      "labels": [
+        "user-story",
+        "WF-04"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:18Z"
+    },
+    {
+      "number": 37,
+      "title": "US-32 Invite a user to an organization",
+      "state": "open",
+      "body": "**As an** org admin, **I want** to invite a user to my organization, **so that** I can recruit people directly.\n\n**Workflow:** WF-04 · **Traces:** UC-20, FR-ORG-05, BR-19\n\n### Acceptance criteria\n- [ ] I find users by username or display name; their email is never shown.\n- [ ] The invitation appears in the user's inbox and is sent by email.\n- [ ] Members and users with a pending invitation cannot be invited again.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/37",
+      "labels": [
+        "user-story",
+        "WF-04"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/36",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:15Z"
+    },
+    {
+      "number": 36,
+      "title": "WF-04 Invitations and inbox",
+      "state": "open",
+      "body": "Organizations and event teams invite people through an in-app inbox; every notification also arrives by email.\n\nThe user stories of this workflow are linked as sub-issues.\n\n- US-32 Invite a user to an organization (Final)\n- US-33 Make an activity private (Final)\n- US-34 Invite users to a private activity (Final)\n- US-35 Respond to an invitation (Final)\n- US-36 Use the inbox (Final)\n- US-37 Receive notifications by email (Final)\n\nWorkflow diagram: [05-workflows.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/05-workflows.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/36",
+      "labels": [
+        "epic",
+        "WF-04"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": null,
+      "sub_issues": {
+        "total": 6,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:13Z"
+    },
+    {
+      "number": 35,
+      "title": "US-31 View my activities",
+      "state": "open",
+      "body": "**As a** participant, **I want** to see all my signups, **so that** I know where I am going.\n\n**Workflow:** WF-03 · **Traces:** UC-18, FR-DSC-05\n\n### Acceptance criteria\n- [ ] I see upcoming and past signups with their status: Confirmed, Waitlisted (with position), Cancelled or Attended.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/35",
+      "labels": [
+        "user-story",
+        "WF-03"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:10Z"
+    },
+    {
+      "number": 34,
+      "title": "US-30 Notify promoted participants",
+      "state": "open",
+      "body": "**As a** participant, **I want** to be told when I get a place from the waitlist, **so that** I can plan to attend or cancel.\n\n**Workflow:** WF-03 · **Traces:** UC-17, FR-NTF-04\n\n### Acceptance criteria\n- [ ] A promoted participant receives a notification naming the activity, its time and location.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/34",
+      "labels": [
+        "user-story",
+        "WF-03"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:06Z"
+    },
+    {
+      "number": 33,
+      "title": "US-29 Promote from the waitlist automatically",
+      "state": "open",
+      "body": "**As a** participant on a waitlist, **I want** to get a place automatically when one frees up, **so that** I do not have to keep checking.\n\n**Workflow:** WF-03 · **Traces:** UC-17, FR-REG-04, BR-12\n\n### Acceptance criteria\n- [ ] When a confirmed signup is cancelled before the activity starts, the first person on the waitlist becomes confirmed.\n- [ ] A waitlisted person who now has an overlapping confirmed signup is removed, and the next person is promoted.\n- [ ] Raising capacity promotes as many people as there are new places.\n- [ ] No promotions happen after the activity starts.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/33",
+      "labels": [
+        "user-story",
+        "WF-03"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:24:03Z"
+    },
+    {
+      "number": 32,
+      "title": "US-28 Cancel a signup or leave a waitlist",
+      "state": "open",
+      "body": "**As a** participant, **I want** to cancel a signup or leave a waitlist, **so that** my place goes to someone else.\n\n**Workflow:** WF-03 · **Traces:** UC-17, FR-REG-03, BR-13\n\n### Acceptance criteria\n- [ ] I can cancel a confirmed signup or a waitlist entry until the activity starts.\n- [ ] After the activity starts, cancelling is refused.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/32",
+      "labels": [
+        "user-story",
+        "WF-03"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:59Z"
+    },
+    {
+      "number": 31,
+      "title": "US-27 Sign up for an activity",
+      "state": "open",
+      "body": "**As a** participant, **I want** to sign up for individual activities of an event, **so that** I take a place only in the parts I will attend.\n\n**Workflow:** WF-03 · **Traces:** UC-16, FR-REG-01, FR-REG-02, FR-REG-05, BR-09, BR-10, BR-11, BR-18\n\n### Acceptance criteria\n- [ ] Signing up for an open activity with free places creates a confirmed signup.\n- [ ] Signing up for a full activity puts me on the waitlist and shows my position.\n- [ ] Signing up is refused while registration is not open, and the registration window is shown.\n- [ ] Signing up is refused if the activity overlaps one of my confirmed signups, and that activity is named.\n- [ ] I cannot hold two signups for the same activity.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/31",
+      "labels": [
+        "user-story",
+        "WF-03"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:56Z"
+    },
+    {
+      "number": 30,
+      "title": "US-26 View event details",
+      "state": "open",
+      "body": "**As a** participant, **I want** to see an event's full details, **so that** I can decide which activities to attend.\n\n**Workflow:** WF-03 · **Traces:** UC-15, FR-DSC-04, BR-09\n\n### Acceptance criteria\n- [ ] Details show organization, description, category, and each activity's schedule, location or online link, agenda and registration status.\n- [ ] Registration status is Not yet open, Open, Full or Closed.\n- [ ] Guests can view the details of public events.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/30",
+      "labels": [
+        "user-story",
+        "WF-03"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:52Z"
+    },
+    {
+      "number": 29,
+      "title": "US-25 Filter events",
+      "state": "open",
+      "body": "**As a** participant, **I want** to filter events by date range, organization and category, **so that** I see only relevant events.\n\n**Workflow:** WF-03 · **Traces:** UC-15, FR-DSC-03\n\n### Acceptance criteria\n- [ ] I can filter by date range, organization and category, alone or combined with keyword search.\n- [ ] Categories are Workshop, Conference, Training, Social, Competition and Other.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/29",
+      "labels": [
+        "user-story",
+        "WF-03"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:49Z"
+    },
+    {
+      "number": 28,
+      "title": "US-24 Browse and search events",
+      "state": "open",
+      "body": "**As a** guest or participant, **I want** to browse and search published events, **so that** I find the ones that interest me.\n\n**Workflow:** WF-03 · **Traces:** UC-15, FR-DSC-01, FR-DSC-02, BR-03, BR-18\n\n### Acceptance criteria\n- [ ] The list shows upcoming published events visible to me, soonest first.\n- [ ] Keyword search matches event title, description and organization name.\n- [ ] Draft events and private activities I cannot access never appear.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/28",
+      "labels": [
+        "user-story",
+        "WF-03"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/27",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:46Z"
+    },
+    {
+      "number": 27,
+      "title": "WF-03 Discovery and registration",
+      "state": "open",
+      "body": "People find events and sign up for the activities they want; waitlists fill freed places.\n\nThe user stories of this workflow are linked as sub-issues.\n\n- US-24 Browse and search events (Mid-term)\n- US-25 Filter events (Mid-term)\n- US-26 View event details (Mid-term)\n- US-27 Sign up for an activity (Mid-term)\n- US-28 Cancel a signup or leave a waitlist (Mid-term)\n- US-29 Promote from the waitlist automatically (Mid-term)\n- US-30 Notify promoted participants (Final)\n- US-31 View my activities (Mid-term)\n\nWorkflow diagram: [05-workflows.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/05-workflows.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/27",
+      "labels": [
+        "epic",
+        "WF-03"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": null,
+      "sub_issues": {
+        "total": 8,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:44Z"
+    },
+    {
+      "number": 26,
+      "title": "US-23 Complete events automatically",
+      "state": "open",
+      "body": "**As an** organizer, **I want** events to complete on their own, **so that** nobody has to close them by hand.\n\n**Workflow:** WF-02 · **Traces:** UC-19, FR-EVT-08, BR-01, BR-04, BR-06\n\n### Acceptance criteria\n- [ ] An event becomes Completed when its last non-cancelled activity ends.\n- [ ] A completed event is read-only, apart from attendance and feedback until 7 days after each activity ends.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/26",
+      "labels": [
+        "user-story",
+        "WF-02"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:41Z"
+    },
+    {
+      "number": 25,
+      "title": "US-22 Delete a draft event",
+      "state": "open",
+      "body": "**As an** owner, **I want** to delete a draft, **so that** abandoned plans do not clutter the organization.\n\n**Workflow:** WF-02 · **Traces:** UC-14, FR-EVT-07, BR-05\n\n### Acceptance criteria\n- [ ] A draft event is deleted with its activities and agenda items.\n- [ ] Published events cannot be deleted, only cancelled.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/25",
+      "labels": [
+        "user-story",
+        "WF-02"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:38Z"
+    },
+    {
+      "number": 24,
+      "title": "US-21 Cancel an event",
+      "state": "open",
+      "body": "**As an** owner, **I want** to cancel an event, **so that** participants know it will not happen.\n\n**Workflow:** WF-02 · **Traces:** UC-13, FR-EVT-06, BR-01, BR-05\n\n### Acceptance criteria\n- [ ] Only draft and published events can be cancelled.\n- [ ] Cancelling an event cancels all its activities, signups and waitlist entries.\n- [ ] A cancelled event is read-only.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/24",
+      "labels": [
+        "user-story",
+        "WF-02"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:35Z"
+    },
+    {
+      "number": 23,
+      "title": "US-20 Cancel an activity",
+      "state": "open",
+      "body": "**As an** owner, **I want** to cancel a single activity, **so that** the rest of the event can go ahead.\n\n**Workflow:** WF-02 · **Traces:** UC-13, FR-EVT-06, BR-04, BR-14\n\n### Acceptance criteria\n- [ ] Cancelling an activity cancels all its signups and waitlist entries.\n- [ ] When every activity of an event is cancelled, the event is cancelled.\n- [ ] Editors and Staff cannot cancel.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/23",
+      "labels": [
+        "user-story",
+        "WF-02"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:31Z"
+    },
+    {
+      "number": 22,
+      "title": "US-19 Notify participants of changes and cancellations",
+      "state": "open",
+      "body": "**As a** participant, **I want** to be told when an activity I signed up for changes or is cancelled, **so that** I do not go at the wrong time or to the wrong place.\n\n**Workflow:** WF-02 · **Traces:** UC-12, UC-13, FR-NTF-03\n\n### Acceptance criteria\n- [ ] Changing an activity's time or location notifies everyone with a confirmed or waitlisted signup.\n- [ ] Cancelling an activity or event notifies everyone with a confirmed or waitlisted signup.\n- [ ] Other edits do not send notifications.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/22",
+      "labels": [
+        "user-story",
+        "WF-02"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:28Z"
+    },
+    {
+      "number": 21,
+      "title": "US-18 Edit a published event",
+      "state": "open",
+      "body": "**As an** editor, **I want** to change a published event's details, **so that** its information stays correct.\n\n**Workflow:** WF-02 · **Traces:** UC-12, FR-EVT-05, BR-12, BR-14\n\n### Acceptance criteria\n- [ ] Event, activity and agenda details can be edited, and activities can be added.\n- [ ] Capacity cannot be set below the number of confirmed signups.\n- [ ] Raising capacity promotes people from the waitlist.\n- [ ] An activity with signups cannot be deleted, only cancelled.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/21",
+      "labels": [
+        "user-story",
+        "WF-02"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:25Z"
+    },
+    {
+      "number": 20,
+      "title": "US-17 Publish an event",
+      "state": "open",
+      "body": "**As an** editor, **I want** to publish an event, **so that** people can find it and sign up.\n\n**Workflow:** WF-02 · **Traces:** UC-11, FR-EVT-04, BR-01, BR-02\n\n### Acceptance criteria\n- [ ] Publishing requires at least one activity, each with start, end, location or online link, and capacity.\n- [ ] If the requirements are not met, publishing is refused with the list of problems.\n- [ ] A published event appears in search, and its activities follow their registration windows.\n- [ ] Staff cannot publish.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/20",
+      "labels": [
+        "user-story",
+        "WF-02"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:22Z"
+    },
+    {
+      "number": 19,
+      "title": "US-16 Manage an activity's agenda",
+      "state": "open",
+      "body": "**As an** editor, **I want** to add agenda items to an activity, **so that** participants know what happens and when.\n\n**Workflow:** WF-02 · **Traces:** UC-10, FR-EVT-03, BR-07\n\n### Acceptance criteria\n- [ ] An agenda item has a time, a title and an optional speaker.\n- [ ] An agenda item outside the activity's start and end is refused.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/19",
+      "labels": [
+        "user-story",
+        "WF-02"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:18Z"
+    },
+    {
+      "number": 18,
+      "title": "US-15 Add and edit activities",
+      "state": "open",
+      "body": "**As an** editor, **I want** to add, edit and remove activities, **so that** each part of the event has its own schedule, place and capacity.\n\n**Workflow:** WF-02 · **Traces:** UC-10, FR-EVT-02, BR-07, BR-08\n\n### Acceptance criteria\n- [ ] An activity has title, description, start, end, location and/or online link, capacity, optional registration open and close times, and visibility.\n- [ ] An activity that ends before it starts, or has capacity below 1, is refused.\n- [ ] Without explicit times, registration opens at publication and closes at activity start.\n- [ ] A registration close time after the activity start is refused.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/18",
+      "labels": [
+        "user-story",
+        "WF-02"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:15Z"
+    },
+    {
+      "number": 17,
+      "title": "US-14 Create a draft event",
+      "state": "open",
+      "body": "**As an** organizer, **I want** to create a draft event for my organization, **so that** my team can plan it before publishing.\n\n**Workflow:** WF-02 · **Traces:** UC-10, FR-EVT-01, BR-03\n\n### Acceptance criteria\n- [ ] A draft requires title, description, category, and an organization where I am Organizer or Org Admin.\n- [ ] I become the event's Owner.\n- [ ] The draft is visible only to its event team and the organization's Org Admins.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/17",
+      "labels": [
+        "user-story",
+        "WF-02"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/16",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:12Z"
+    },
+    {
+      "number": 16,
+      "title": "WF-02 Event lifecycle",
+      "state": "open",
+      "body": "Organizers plan events as activities with agendas, publish them and keep them up to date; the system completes them.\n\nThe user stories of this workflow are linked as sub-issues.\n\n- US-14 Create a draft event (Mid-term)\n- US-15 Add and edit activities (Mid-term)\n- US-16 Manage an activity's agenda (Mid-term)\n- US-17 Publish an event (Mid-term)\n- US-18 Edit a published event (Mid-term)\n- US-19 Notify participants of changes and cancellations (Final)\n- US-20 Cancel an activity (Mid-term)\n- US-21 Cancel an event (Mid-term)\n- US-22 Delete a draft event (Mid-term)\n- US-23 Complete events automatically (Mid-term)\n\nWorkflow diagram: [05-workflows.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/05-workflows.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/16",
+      "labels": [
+        "epic",
+        "WF-02"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": null,
+      "sub_issues": {
+        "total": 10,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:10Z"
+    },
+    {
+      "number": 15,
+      "title": "US-13 Deactivate organizations",
+      "state": "open",
+      "body": "**As a** platform admin, **I want** to deactivate and reactivate organizations, **so that** inactive or abusive organizations stop appearing.\n\n**Workflow:** WF-01 · **Traces:** UC-31, FR-ORG-08, BR-24\n\n### Acceptance criteria\n- [ ] Events of a deactivated organization are hidden and closed to signups.\n- [ ] Reactivating an organization makes its events visible again.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/15",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:07Z"
+    },
+    {
+      "number": 14,
+      "title": "US-12 Manage Platform Admins",
+      "state": "open",
+      "body": "**As a** platform admin, **I want** to grant and revoke the Platform Admin role, **so that** administration does not depend on one person.\n\n**Workflow:** WF-01 · **Traces:** UC-31, FR-ACC-05, BR-25\n\n### Acceptance criteria\n- [ ] I can grant the Platform Admin role to any active user and revoke it.\n- [ ] Revoking the last Platform Admin is refused.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/14",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:23:03Z"
+    },
+    {
+      "number": 13,
+      "title": "US-11 Deactivate user accounts",
+      "state": "open",
+      "body": "**As a** platform admin, **I want** to deactivate and reactivate user accounts, **so that** I can stop abuse of the platform.\n\n**Workflow:** WF-01 · **Traces:** UC-31, FR-ACC-04, BR-12\n\n### Acceptance criteria\n- [ ] A deactivated user cannot log in.\n- [ ] Deactivation cancels the user's signups for activities that have not started, and the freed places go to the waitlists.\n- [ ] Reactivation restores login but not the cancelled signups.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/13",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Final",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:59Z"
+    },
+    {
+      "number": 12,
+      "title": "US-10 Leave an organization",
+      "state": "open",
+      "body": "**As a** member, **I want** to leave an organization, **so that** I am no longer part of it.\n\n**Workflow:** WF-01 · **Traces:** UC-09, FR-ORG-07, BR-21, BR-22, BR-23\n\n### Acceptance criteria\n- [ ] Leaving removes my membership and my roles in the organization's event teams.\n- [ ] The last Org Admin cannot leave.\n- [ ] The Owner of a draft or published event cannot leave until ownership is transferred.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/12",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:56Z"
+    },
+    {
+      "number": 11,
+      "title": "US-09 Remove a member",
+      "state": "open",
+      "body": "**As an** org admin, **I want** to remove a member, **so that** people who left the organization lose access.\n\n**Workflow:** WF-01 · **Traces:** UC-08, FR-ORG-06, BR-21, BR-22, BR-23\n\n### Acceptance criteria\n- [ ] Removing a member also removes them from the organization's event teams.\n- [ ] Removing the last Org Admin is refused.\n- [ ] Removing the Owner of a draft or published event is refused until ownership is transferred.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/11",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:53Z"
+    },
+    {
+      "number": 10,
+      "title": "US-08 Change member roles",
+      "state": "open",
+      "body": "**As an** org admin, **I want** to change members' roles, **so that** the right people can create events and manage the organization.\n\n**Workflow:** WF-01 · **Traces:** UC-08, FR-ORG-06, BR-21\n\n### Acceptance criteria\n- [ ] I can set any member's role to Member, Organizer or Org Admin.\n- [ ] A change that would leave the organization without an Org Admin is refused.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/10",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:50Z"
+    },
+    {
+      "number": 9,
+      "title": "US-07 Handle join requests",
+      "state": "open",
+      "body": "**As an** org admin, **I want** to approve or reject join requests, **so that** I control who becomes a member.\n\n**Workflow:** WF-01 · **Traces:** UC-07, FR-ORG-04\n\n### Acceptance criteria\n- [ ] I see all pending join requests for my organization.\n- [ ] Approving adds the user as Member.\n- [ ] Rejecting closes the request; the user may ask again later.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/9",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:46Z"
+    },
+    {
+      "number": 8,
+      "title": "US-06 Ask to join an organization",
+      "state": "open",
+      "body": "**As a** participant, **I want** to ask to join an organization, **so that** I can take part in its private activities and event teams.\n\n**Workflow:** WF-01 · **Traces:** UC-06, FR-ORG-04\n\n### Acceptance criteria\n- [ ] I can send a join request to an organization I am not a member of.\n- [ ] I cannot send a second request while one is pending, and I can withdraw a pending request.\n- [ ] I can see whether my request is pending, approved or rejected.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/8",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:43Z"
+    },
+    {
+      "number": 7,
+      "title": "US-05 Edit the organization profile",
+      "state": "open",
+      "body": "**As an** org admin, **I want** to edit my organization's name, description and contact email, **so that** its information stays accurate.\n\n**Workflow:** WF-01 · **Traces:** UC-05, FR-ORG-03\n\n### Acceptance criteria\n- [ ] Only Org Admins of the organization can edit it.\n- [ ] A name used by another organization is refused.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/7",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:39Z"
+    },
+    {
+      "number": 6,
+      "title": "US-04 Review organization requests",
+      "state": "open",
+      "body": "**As a** platform admin, **I want** to approve or reject organization requests, **so that** only genuine UBB student organizations use the platform.\n\n**Workflow:** WF-01 · **Traces:** UC-04, FR-ORG-02\n\n### Acceptance criteria\n- [ ] I see all pending requests.\n- [ ] Approving creates the organization and makes the requester its Org Admin.\n- [ ] Rejecting requires a reason, which the requester can see.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/6",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:36Z"
+    },
+    {
+      "number": 5,
+      "title": "US-03 Request organization registration",
+      "state": "open",
+      "body": "**As a** participant, **I want** to request registration of my student organization, **so that** it can publish events on the platform.\n\n**Workflow:** WF-01 · **Traces:** UC-03, FR-ORG-01\n\n### Acceptance criteria\n- [ ] The request requires the organization's name, description and contact email.\n- [ ] A name used by an active organization or a pending request is refused.\n- [ ] I can see the status of my request: Pending, Approved, or Rejected with the reason.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/5",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:32Z"
+    },
+    {
+      "number": 4,
+      "title": "US-02 Log in, log out and reset password",
+      "state": "open",
+      "body": "**As a** user, **I want** to log in, log out and reset a forgotten password, **so that** I can access my account securely.\n\n**Workflow:** WF-01 · **Traces:** UC-02, FR-ACC-03\n\n### Acceptance criteria\n- [ ] I can log in with my confirmed email and password, and log out.\n- [ ] Wrong credentials are refused without saying which one is wrong.\n- [ ] Unconfirmed and deactivated accounts cannot log in, and the reason is shown.\n- [ ] I can request a password reset link by email and set a new password with it.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/4",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:29Z"
+    },
+    {
+      "number": 3,
+      "title": "US-01 Register an account",
+      "state": "open",
+      "body": "**As a** guest, **I want** to create an account with my email, a username and a display name, **so that** I can sign up for activities and join organizations.\n\n**Workflow:** WF-01 · **Traces:** UC-01, FR-ACC-01, FR-ACC-02, BR-20\n\n### Acceptance criteria\n- [ ] Registration requires email, password, username and display name.\n- [ ] A username already taken, ignoring case, is refused.\n- [ ] I cannot log in until I confirm my email through the link sent to me.\n- [ ] Registering with an email that already has an account does not reveal that the account exists.\n\nSource: [08-user-stories.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/08-user-stories.md) · Traceability: [07-traceability.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/07-traceability.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/3",
+      "labels": [
+        "user-story",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": "https://api.github.com/repos/neon1024/gen-ai-in-swe-project/issues/2",
+      "sub_issues": {
+        "total": 0,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:26Z"
+    },
+    {
+      "number": 2,
+      "title": "WF-01 Account and organization onboarding",
+      "state": "open",
+      "body": "Users create accounts; organizations are registered, approved, and staffed with members and roles.\n\nThe user stories of this workflow are linked as sub-issues.\n\n- US-01 Register an account (Mid-term)\n- US-02 Log in, log out and reset password (Mid-term)\n- US-03 Request organization registration (Mid-term)\n- US-04 Review organization requests (Mid-term)\n- US-05 Edit the organization profile (Mid-term)\n- US-06 Ask to join an organization (Mid-term)\n- US-07 Handle join requests (Mid-term)\n- US-08 Change member roles (Mid-term)\n- US-09 Remove a member (Mid-term)\n- US-10 Leave an organization (Mid-term)\n- US-11 Deactivate user accounts (Final)\n- US-12 Manage Platform Admins (Final)\n- US-13 Deactivate organizations (Final)\n\nWorkflow diagram: [05-workflows.md](https://github.com/neon1024/gen-ai-in-swe-project/blob/main/docs/requirements/05-workflows.md)\n",
+      "url": "https://github.com/neon1024/gen-ai-in-swe-project/issues/2",
+      "labels": [
+        "epic",
+        "WF-01"
+      ],
+      "milestone": "Mid-term",
+      "assignees": [],
+      "parent": null,
+      "sub_issues": {
+        "total": 13,
+        "completed": 0,
+        "percent_completed": 0
+      },
+      "dependencies": {
+        "blocked_by": 0,
+        "total_blocked_by": 0,
+        "blocking": 0,
+        "total_blocking": 0
+      },
+      "comments": 0,
+      "updated_at": "2026-11-09T22:22:23Z"
+    }
+  ],
+  "milestones": [
+    {
+      "number": 1,
+      "title": "Mid-term",
+      "state": "open",
+      "open_issues": 29,
+      "closed_issues": 0,
+      "due_on": null,
+      "html_url": "https://github.com/neon1024/gen-ai-in-swe-project/milestone/1"
+    },
+    {
+      "number": 2,
+      "title": "Final",
+      "state": "open",
+      "open_issues": 27,
+      "closed_issues": 0,
+      "due_on": null,
+      "html_url": "https://github.com/neon1024/gen-ai-in-swe-project/milestone/2"
+    }
+  ]
+}
