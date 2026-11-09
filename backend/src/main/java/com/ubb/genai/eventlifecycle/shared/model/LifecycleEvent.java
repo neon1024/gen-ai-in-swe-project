@@ -53,7 +53,7 @@ public class LifecycleEvent {
     private Instant completedAt;
 
     @Version
-    private long version;
+    private Long version;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LifecycleActivity> activities = new ArrayList<>();
@@ -159,7 +159,7 @@ public class LifecycleEvent {
         return completedAt;
     }
 
-    public long getVersion() {
+    public Long getVersion() {
         return version;
     }
 
