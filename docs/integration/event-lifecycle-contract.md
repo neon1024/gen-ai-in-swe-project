@@ -53,3 +53,48 @@ Migrations live in `backend/src/main/resources/db/migration/eventlifecycle/` and
 | Instants | Stored as `timestamptz`, handled as `java.time.Instant` (UTC). |
 | Identifiers | `UUID` for events, activities and agenda items. |
 | Flyway | Default `classpath:db/migration` location; Flyway scans subfolders, so each share keeps its own subfolder. |
+
+## Interfaces stubbed
+
+Ports live in `shared.port`; each has a `@Component` stub in `shared.port.stub` whose Javadoc names the owning share. A real implementation replaces the stub bean at reconciliation.
+
+| Port | Method | Semantics | Owning share | Stub behaviour |
+|---|---|---|---|---|
+| `CurrentUserProvider` | `Optional<UUID> currentUserId()` | Caller of the current request; empty for a guest. | neon1024 | `HeaderCurrentUserProvider`: reads `X-User-Id` through `RequestContextHolder`; empty when missing or not a UUID. |
+| `OrganizationDirectory` | `boolean isMember(orgId, userId)` | User belongs to the organization. | All16 | `false` |
+| | `boolean isOrgAdmin(orgId, userId)` | User is an Org Admin of the organization. | All16 | `false` |
+| | `Optional<String> organizationName(orgId)` | Display name of the organization. | All16 | empty |
+| | `Set<UUID> organizationIdsWithNameContaining(keyword)` | Organizations whose name contains the keyword, case-insensitive. | All16 | empty set |
+| `EventTeamDirectory` | `Optional<EventRole> roleOf(eventId, userId)` | Event-team role (`OWNER`, `EDITOR`, `STAFF`). | All16 | empty |
+| `PrivateActivityInvitations` | `boolean isInvited(activityId, userId)` | User holds an invitation to a private activity. | jose03pedro | `false` |
+| `SignupPort` | `Set<UUID> cancelAllSignups(activityId)` | Cancels all signups; returns users who held a Confirmed or Waitlisted signup. | lucianvaleanu | empty set |
+| | `SignupFigures figures(activityId)` | `confirmed`, `waitlisted`, `cancelled`, `attended` counts. | lucianvaleanu | all zero |
+| | `boolean wasMarkedPresent(activityId, userId)` | User was marked present at the activity. | lucianvaleanu | `false` |
+| `NotificationPort` | `void activityCancelled(activityId, recipients)` | Notify users of an activity cancellation. | neon1024 | logs ids at INFO |
+| | `void eventCancelled(eventId, recipients)` | Notify users of an event cancellation. | neon1024 | logs ids at INFO |
+
+## Authorization assumptions
+
+| Topic | Decision |
+|---|---|
+| Current user | Taken from the `X-User-Id` header (UUID). A missing or malformed header means a guest. |
+| Owner rights | Event role `OWNER`, or Org Admin of the event's organization. |
+| Team member | Any event role (`OWNER`, `EDITOR`, `STAFF`), or Org Admin of the event's organization. |
+| Draft visibility (BR-03) | A DRAFT event is visible only to team members; anyone else gets 404, never 403. |
+| Private activities (BR-18) | Visible when PUBLIC, or when the user is a member of the event's organization or is invited. |
+
+`shared.access.EventAccessPolicy` implements these rules: `hasOwnerRights`, `isTeamMember`, `canSeeEvent`, `canSeeActivity`, `requireUser` (401 `UNAUTHENTICATED`), `requireVisibleEvent` (404 `EVENT_NOT_FOUND`), `requireOwnerRights` (403 `OWNER_RIGHTS_REQUIRED`), `requireTeamMember` (403 `TEAM_MEMBER_REQUIRED`).
+
+## Error format
+
+Errors are RFC 9457 `ProblemDetail` bodies with an extra `code` property (UPPER_SNAKE), produced by `shared.web.EventLifecycleExceptionHandler` (scoped to `com.ubb.genai.eventlifecycle`).
+
+| Status | Cause | `code` |
+|---|---|---|
+| 400 | Bean validation, argument type mismatch, method validation | `VALIDATION_FAILED` |
+| 401 | No current user | `UNAUTHENTICATED` |
+| 403 | Insufficient role | `OWNER_RIGHTS_REQUIRED`, `TEAM_MEMBER_REQUIRED` |
+| 404 | Not found or hidden | `EVENT_NOT_FOUND` and other `*_NOT_FOUND` |
+| 409 | `IllegalEventTransitionException` | the exception's `code()` |
+| 409 | `LifecycleProblem.conflict` | caller-supplied |
+| 409 | Optimistic locking failure | `CONCURRENT_MODIFICATION` |
