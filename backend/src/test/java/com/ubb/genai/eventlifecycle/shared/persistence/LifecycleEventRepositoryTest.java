@@ -68,4 +68,12 @@ class LifecycleEventRepositoryTest {
                 UUID.randomUUID()))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
+
+    @Test
+    @DisplayName("BR-01 saving a new event persists the same instance")
+    void br01_savingNewEventPersistsSameInstance() {
+        LifecycleEvent event = EventLifecycleFixtures.draftEvent(UUID.randomUUID());
+
+        assertThat(events.save(event)).isSameAs(event);
+    }
 }
