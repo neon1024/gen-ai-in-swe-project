@@ -73,4 +73,50 @@ public class EventAuthoringController {
   public EventView get(@PathVariable UUID eventId) {
     return service.getEvent(eventId);
   }
+  @PostMapping("/{eventId}/activities")
+  @ApiResponse(responseCode = "201", description = "Activity created",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventView.class)))
+  public ResponseEntity<EventView> addActivity(@PathVariable UUID eventId,
+      @RequestBody AuthoringRequests.ActivityWrite request) {
+    return ResponseEntity.status(201).body(service.addActivity(eventId, activityCommand(request)));
+  }
+
+  @org.springframework.web.bind.annotation.PutMapping("/{eventId}/activities/{activityId}")
+  public EventView updateActivity(@PathVariable UUID eventId, @PathVariable UUID activityId,
+      @RequestBody AuthoringRequests.ActivityWrite request) {
+    return service.updateActivity(eventId, activityId, activityCommand(request));
+  }
+
+  @org.springframework.web.bind.annotation.DeleteMapping("/{eventId}/activities/{activityId}")
+  public EventView removeActivity(@PathVariable UUID eventId, @PathVariable UUID activityId,
+      @org.springframework.web.bind.annotation.RequestParam String expectedVersion) {
+    return service.removeActivity(eventId, activityId, version(expectedVersion));
+  }
+
+  private static long version(String value) {
+    try {
+      if (!value.matches("[0-9]+")) throw new IllegalArgumentException();
+      return Long.parseLong(value);
+    } catch (IllegalArgumentException exception) {
+      throw new AuthoringException(400, "INVALID_INPUT", "Invalid version");
+    }
+  }
+
+  private static EventAuthoringService.ActivityCommand activityCommand(AuthoringRequests.ActivityWrite r) {
+    return new EventAuthoringService.ActivityCommand(r.title(), r.description(), date(r.start()),
+        date(r.end()), r.location(), r.onlineLink(), r.capacity(), date(r.registrationOpen()),
+        date(r.registrationClose()), r.visibility(), r.expectedVersion());
+  }
+
+  private static java.time.OffsetDateTime date(String value) {
+    if (value == null) return null;
+    try {
+      if (!value.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})"))
+        throw new java.time.format.DateTimeParseException("RFC3339 timestamp required", value, 0);
+      return java.time.OffsetDateTime.parse(value);
+    } catch (java.time.format.DateTimeParseException exception) {
+      throw new AuthoringException(400, "INVALID_INPUT", "Offset timestamp is required");
+    }
+  }
+
 }

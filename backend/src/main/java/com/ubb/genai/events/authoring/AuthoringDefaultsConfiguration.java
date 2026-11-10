@@ -7,6 +7,7 @@ import com.ubb.genai.events.authoring.ports.AuthoringIdentityPort;
 import com.ubb.genai.events.authoring.ports.EventTeamAccessPort;
 import com.ubb.genai.events.authoring.ports.OrganizationAccessPort;
 import java.time.Clock;
+import com.ubb.genai.events.authoring.ports.RegistrationAuthoringPort;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +40,17 @@ public class AuthoringDefaultsConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
+  RegistrationAuthoringPort authoringRegistration() {
+    return new RegistrationAuthoringPort() {
+      public <T> T withLockedActivity(GuardRequest request,
+          java.util.function.Function<RegistrationContext, T> mutation) {
+        throw AuthoringException.unavailable();
+      }
+    };
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
   Clock authoringClock() {
     return Clock.systemUTC();
   }
@@ -50,7 +62,7 @@ public class AuthoringDefaultsConfiguration {
       OrganizationAccessPort org,
       EventTeamAccessPort team,
       AuthoringEventRepository repository,
-      Clock clock) {
-    return new EventAuthoringService(identity, org, team, repository, clock);
+      Clock clock, RegistrationAuthoringPort registration) {
+    return new EventAuthoringService(identity, org, team, repository, clock, registration);
   }
 }
