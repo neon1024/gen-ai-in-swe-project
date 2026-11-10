@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { ApiError } from '../api/client'
-import { getReport, reportCsvUrl } from '../api/reports'
+import { downloadReportCsv, getReport } from '../api/reports'
 import type { ActivityState, EventReport } from '../api/types'
 import { FeedbackPanel } from './FeedbackPanel'
 
@@ -48,6 +48,15 @@ export function EventReportPage() {
     }
   }, [eventId])
 
+  async function download() {
+    try {
+      await downloadReportCsv(eventId)
+      setError(null)
+    } catch (e: unknown) {
+      setError(e instanceof ApiError ? e.message : 'Something went wrong. Please try again.')
+    }
+  }
+
   function toggle(activityId: string) {
     setExpanded((previous) => {
       // A key stays after the first open so the loaded summary is kept while collapsed.
@@ -69,9 +78,9 @@ export function EventReportPage() {
       {report && (
         <>
           <h1 className="mb-2 text-2xl font-semibold">Report: {report.eventTitle}</h1>
-          <a href={reportCsvUrl(report.eventId)} download className="mb-4 inline-block text-blue-700 underline">
+          <button type="button" onClick={download} className="mb-4 rounded border border-gray-400 px-3 py-1">
             Download CSV
-          </a>
+          </button>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>

@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -81,12 +81,37 @@ describe('EventReportPage', () => {
     expect(dashes).toEqual(['Finals', '—', 'Cancelled', '0', '0', '3', '—', '—'])
   })
 
-  it('US-50 offers the CSV download link for the event', async () => {
+  it('US-50 the Download CSV button fetches the CSV through the API client', async () => {
+    const user = userEvent.setup()
+    URL.createObjectURL = vi.fn(() => 'blob:report')
+    URL.revokeObjectURL = vi.fn()
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    fetchMock.mockImplementation((url: string) =>
+      url.endsWith('/csv')
+        ? Promise.resolve(new Response('a,b', { status: 200 }))
+        : url.endsWith('/summary') ? jsonResponse(summary) : jsonResponse(report),
+    )
     renderPage()
 
-    const link = await screen.findByRole('link', { name: 'Download CSV' })
-    expect(link).toHaveAttribute('href', `/api/reports/events/${EVENT_ID}/csv`)
-    expect(link).toHaveAttribute('download')
+    await user.click(await screen.findByRole('button', { name: 'Download CSV' }))
+
+    await waitFor(() => expect(click).toHaveBeenCalledTimes(1))
+    expect(requests()).toContain(`GET /api/reports/events/${EVENT_ID}/csv`)
+    expect(URL.createObjectURL).toHaveBeenCalledTimes(1)
+  })
+
+  it('US-50 a refused CSV download shows the error in the alert region', async () => {
+    const user = userEvent.setup()
+    fetchMock.mockImplementation((url: string) =>
+      url.endsWith('/csv')
+        ? jsonResponse({ code: 'TEAM_MEMBER_REQUIRED', detail: 'Team members only' }, 403)
+        : jsonResponse(report),
+    )
+    renderPage()
+
+    await user.click(await screen.findByRole('button', { name: 'Download CSV' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Team members only')
   })
 
   it('US-48 feedback panel shows average, distribution and comments without authors', async () => {

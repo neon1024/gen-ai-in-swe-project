@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -132,5 +132,58 @@ describe('EventSearchPage', () => {
     )
     renderPage()
     expect(await screen.findByRole('alert')).toHaveTextContent('from must not be after to')
+  })
+
+  it('US-24 next page requests page=1', async () => {
+    const user = userEvent.setup()
+    fetchMock.mockImplementation(() => jsonResponse({ ...RESULT, totalItems: 45 }))
+    renderPage()
+    await screen.findAllByRole('listitem')
+
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+
+    await waitFor(() => expect(lastUrl().searchParams.get('page')).toBe('1'))
+    await user.click(screen.getByRole('button', { name: 'Previous' }))
+    await waitFor(() => expect(lastUrl().searchParams.get('page')).toBeNull())
+  })
+
+  it('US-24 Previous is disabled on the first page and Next on the last', async () => {
+    fetchMock.mockImplementation(() => jsonResponse({ ...RESULT, totalItems: 45 }))
+    const first = renderPage()
+    await screen.findAllByRole('listitem')
+    expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled()
+    first.unmount()
+
+    fetchMock.mockImplementation(() => jsonResponse({ ...RESULT, page: 2, totalItems: 45 }))
+    renderPage('/events?page=2')
+    await screen.findAllByRole('listitem')
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Previous' })).toBeEnabled()
+  })
+
+  it('US-24 a new search resets to the first page', async () => {
+    const user = userEvent.setup()
+    fetchMock.mockImplementation(() => jsonResponse({ ...RESULT, page: 1, totalItems: 45 }))
+    renderPage('/events?page=1')
+    await screen.findAllByRole('listitem')
+    expect(lastUrl().searchParams.get('page')).toBe('1')
+
+    await user.type(screen.getByLabelText('Keyword'), 'java')
+    await user.click(screen.getByRole('button', { name: 'Search' }))
+
+    await waitFor(() => expect(lastUrl().searchParams.get('q')).toBe('java'))
+    expect(lastUrl().searchParams.get('page')).toBeNull()
+  })
+
+  it('US-24 an event without a start date shows Not scheduled', async () => {
+    fetchMock.mockImplementation(() =>
+      jsonResponse({ ...RESULT, items: [{ ...RESULT.items[0], nextActivityStartsAt: null }] }),
+    )
+    renderPage()
+    const item = await screen.findByRole('listitem')
+    expect(within(item).getByText(/Not scheduled/)).toBeInTheDocument()
+    expect(item).not.toHaveTextContent('1970')
+    expect(item).not.toHaveTextContent('Invalid')
   })
 })

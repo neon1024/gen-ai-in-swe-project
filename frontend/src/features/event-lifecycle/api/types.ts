@@ -10,7 +10,7 @@ export interface EventSummary {
   category: EventCategory
   organizationId: string
   organizationName: string
-  nextActivityStartsAt: string
+  nextActivityStartsAt: string | null
 }
 
 export interface OrganizationOption {
@@ -29,8 +29,8 @@ export interface EventSearchResult {
 export interface ActivityView {
   id: string
   title: string
-  startsAt: string
-  endsAt: string
+  startsAt: string | null
+  endsAt: string | null
   state: ActivityState
 }
 
