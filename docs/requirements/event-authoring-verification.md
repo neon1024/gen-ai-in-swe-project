@@ -2,7 +2,7 @@
 
 Status: **Approved slice and executable plan; EA-01 infrastructure verified; EA-02 draft backend verified under fixtures; EA-03 activity/agenda backend verified under fixtures; UI and real integration pending**. Scope: all 17 acceptance criteria of #17–#21 / US-14–18 in [the approved stories](08-user-stories.md). The [integration contract](../integration/event-authoring-contract.md) defines approved for this isolated slice components, external dependencies and approval questions. Test identifiers below are planned Java/TypeScript-safe names, not claims that files/tests exist. Actual feature files, commands and results will be added as each TDD task and its reviews finish. EA-01 migration/constraint and shell checks do not complete a story criterion. Human Review Status: Pending student review.
 
-#17 has backend-only fixture evidence below; UI and real integration remain pending. #18/#19 have backend-only fixture evidence below; #20/#21 story checks are not yet run. No full-story completion is claimed. A fixture is not production identity, membership, search or FIFO integration. The labels distinguish the intended level; they do not claim passing tests.
+#17 has backend-only fixture evidence below; UI and real integration remain pending. #18/#19 have backend-only fixture evidence below; #20 has backend-only fixture evidence below; #21 is explicitly Deferred with separate unreviewed local WIP. No full-story completion is claimed. A fixture is not production identity, membership, search or FIFO integration. The labels distinguish the intended level; they do not claim passing tests.
 
 | Issue | Story | FR | BR | Acceptance criterion | Planned test identifier | Proposed component / test type | Integration dependency |
 |---|---|---|---|---|---|---|---|
@@ -58,3 +58,16 @@ Independent specification/quality re-reviews approved 4ecc06f; coordinator 123 b
 | BR07 agenda interval | ActivityAgendaApiTests.US16_invalidAgendaInputNeverWritesOrBumpsVersion and US16_scheduleReplacementCannotStrandAgendaOrExplicitClose | UI |
 
 Cross-cutting: ActivityAgendaApiTests.foreignNestedResourcesStayConcealedBeforeStaleVersionOrStaffDenial covers ordering/concealment. AgendaAuthoringTests verifies competing writes and guard rollback. AggregateReadConsistencyTests verifies coherent root/activity/agenda snapshots across committed concurrent writes. Guard fixtures do not prove actual signup preservation/FIFO. Student review remains pending.
+
+## Publication #20 backend evidence — current stopping point (2026-11-10)
+
+Independent Terra specification/quality reviews approved db799b9. Coordinator Maven verify passed 140 tests, 0 failures/errors/skips. Identity/org/team remain explicit fixtures; publication, versions, transactions and projection use real PostgreSQL. No full US-17 delivery is claimed.
+
+| Criterion | Actual checks | Status / remaining acceptance |
+|---|---|---|
+| Activity readiness | PublicationTests.US17_revalidatesEveryActivityAndAccumulatesAllProblems; PublicationApiTests.US17_emptyReadinessUses422Envelope | Backend verified; UI pending |
+| Complete problems list | Same readiness tests include separate opening/closing errors and Public-only visibility | Backend verified; UI pending |
+| Search visibility and windows | PublicationApiTests.US17_publicationPersistsTimestampWindowsAndVersion; PublicationTests.US17_latePublicationKeepsAlreadyEndedRegistrationWindowClosed; AuthoringConcurrencyTests.US17_projectionOnlyShowsCommittedPublishedAggregates; AggregateReadConsistencyTests.publishedProjectionKeepsRootAndChildrenInOneCommittedSnapshot | Local committed projection/windows verified; actual discovery and registration consumers pending |
+| Staff cannot publish | PublicationTests.US17_staffDeniedBeforeVersionAndReadiness; PublicationApiTests.US17_sessionCsrfAndStaffAuthorizationRemainDistinct | Backend fixture verified; real access integration/UI pending |
+
+AuthoringConcurrencyTests.US17_concurrentPublishesSerializeAndOnlyOneWins verifies concurrent publication. PublicationApiTests.US17_publishedMutationsRemainUnavailableWhileIssue21IsDeferred verifies the temporary409/capability gate, foreign404/Staff403 and unchanged rows/version. #21 tests saved at 437cd5f were not independently reviewed and do not establish current-branch #21 completion. Human Review Status: Pending student review.
