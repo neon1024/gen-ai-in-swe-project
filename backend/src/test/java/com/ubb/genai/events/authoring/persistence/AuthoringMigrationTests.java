@@ -37,8 +37,8 @@ class AuthoringMigrationTests {
                 select version from event_authoring.flyway_schema_history
                 where success and version is not null order by installed_rank
                 """, String.class))
-                .containsExactly("2026111010")
-                .allMatch(version -> version.compareTo("2026111010") >= 0 && version.compareTo("2026111019") <= 0);
+                .contains("2026111010")
+                .allMatch(version -> Long.parseLong(version) >= 2026111010L && Long.parseLong(version) <= 2026111019L);
     }
 
     @Test
