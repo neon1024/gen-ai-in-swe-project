@@ -253,8 +253,8 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
+- Development status: Open on GitHub; application implementation Not Started. The latest #17–#21 mission authorizes isolated progress, but the requesting student approved the isolated slice design; the written executable plan is awaiting review. See docs/integration/event-authoring-contract.md.
+- Branch: feat/issue-17-jose03pedro-create-draft-event (created for this share’s design preparation; no application changes yet).
 - PR: Not recorded; PRs were not inspected/linked in this update.
 - Verification: Not verified for implementation; tests above are a future strategy.
 - Human review: Pending student review.
@@ -270,7 +270,7 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; equal/earlier end, minimum capacity, invalid windows.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
+- Development status: Open on GitHub; application implementation Not Started. The latest #17–#21 mission authorizes isolated progress, but the requesting student approved the isolated slice design; the written executable plan is awaiting review. See docs/integration/event-authoring-contract.md.
 - Branch: Not recorded; confirm a dedicated branch before implementation.
 - PR: Not recorded; PRs were not inspected/linked in this update.
 - Verification: Not verified for implementation; tests above are a future strategy.
@@ -287,7 +287,7 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
+- Development status: Open on GitHub; application implementation Not Started. The latest #17–#21 mission authorizes isolated progress, but the requesting student approved the isolated slice design; the written executable plan is awaiting review. See docs/integration/event-authoring-contract.md.
 - Branch: Not recorded; confirm a dedicated branch before implementation.
 - PR: Not recorded; PRs were not inspected/linked in this update.
 - Verification: Not verified for implementation; tests above are a future strategy.
@@ -304,7 +304,7 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
+- Development status: Open on GitHub; application implementation Not Started. The latest #17–#21 mission authorizes isolated progress, but the requesting student approved the isolated slice design; the written executable plan is awaiting review. See docs/integration/event-authoring-contract.md.
 - Branch: Not recorded; confirm a dedicated branch before implementation.
 - PR: Not recorded; PRs were not inspected/linked in this update.
 - Verification: Not verified for implementation; tests above are a future strategy.
@@ -321,7 +321,7 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; capacity below confirmed signups, promotion and preservation of signups.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
+- Development status: Open on GitHub; application implementation Not Started. The latest #17–#21 mission authorizes isolated progress, but the requesting student approved the isolated slice design; the written executable plan is awaiting review. See docs/integration/event-authoring-contract.md.
 - Branch: Not recorded; confirm a dedicated branch before implementation.
 - PR: Not recorded; PRs were not inspected/linked in this update.
 - Verification: Not verified for implementation; tests above are a future strategy.
@@ -889,3 +889,7 @@ The snapshot does not establish branch, PR or verification; `Not recorded` does 
 Follow [ADR-001–008](../decisions/README.md). Requesting-student technical authorization is recorded; independent Duarte review is not fabricated. Per-story “technical design awaits approval” refers to the detailed slice, not an unselected stack. Shared foundation P-04 has no issue number; a student must associate/authorize its coordinated execution before implementation. No setup issue is invented.
 
 First planned owned issues: jose03pedro #17 (US-14), after M1/M2 and #10; DuarteLagoela #25 (US-22), after #17. Neither is currently implementation-ready because the foundation and prerequisites are not implemented. See [kickoff](baseline-and-kickoff.md) and the model-specific prompts; ownership is unchanged. Conditional parallel candidates are #18 with #25 after #17 and agreed Event/Activity/delete contracts.
+
+## Mid-term Event Authoring mission
+
+The later explicit user mission covers jose03pedro’s #17–#21 and authorizes independently testable authoring work through safe external ports despite incomplete M1/M2; it does not authorize implementation of other owners’ modules. Whole-system prerequisites in the earlier roadmap still apply to actual production integration/acceptance, not as a blanket prohibition on isolated authoring development. Review the [proposed slice design](../superpowers/specs/2026-11-10-event-authoring-design.md), [integration contract](../integration/event-authoring-contract.md) and [verification matrix](../requirements/event-authoring-verification.md). Required slice/design and incompatible shared-contract approvals remain in effect. No five-story implementation plan is claimed to be approved or executed.
