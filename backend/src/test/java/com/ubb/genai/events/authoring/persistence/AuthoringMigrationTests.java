@@ -31,6 +31,17 @@ class AuthoringMigrationTests {
     }
 
     @Test
+    @DisplayName("NFR-002: authoring migrations use the reserved V2026111010-V2026111019 range")
+    void appliesAuthoringMigrationsOnlyWithinTheReservedVersionRange() {
+        assertThat(jdbc.queryForList("""
+                select version from event_authoring.flyway_schema_history
+                where success and version is not null order by installed_rank
+                """, String.class))
+                .containsExactly("2026111010")
+                .allMatch(version -> version.compareTo("2026111010") >= 0 && version.compareTo("2026111019") <= 0);
+    }
+
+    @Test
     @DisplayName("NFR-002: authoring parent references have foreign keys and indexes")
     void createsParentForeignKeysAndIndexes() {
         assertThat(jdbc.queryForList("""
