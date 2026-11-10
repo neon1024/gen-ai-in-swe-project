@@ -1,6 +1,6 @@
 # Event Authoring integration contract
 
-Status: **Accepted by the requesting student for isolated Event Authoring implementation, 2026-11-10**. Section H interpretations and minimum setup were explicitly approved. Cross-owner API/schema/lock agreements and independent student review remain pending; no agreement by Duarte or another owner is invented. Date: 2026-11-10. Owner: jose03pedro. Scope: #17–#21 only. This is a concrete review proposal, not an accepted agreement with Duarte or another contributor. No code, API, table, adapter or test described below exists yet unless explicitly identified as existing. Human Review Status: Pending student review.
+Status: **Accepted by the requesting student for isolated Event Authoring implementation, 2026-11-10**. Section H interpretations and minimum setup were explicitly approved. Cross-owner API/schema/lock agreements and independent student review remain pending; no agreement by Duarte or another owner is invented. Date: 2026-11-10. Owner: jose03pedro. Scope: #17–#21 only. This is a concrete review proposal, not an accepted agreement with Duarte or another contributor. EA-01 setup, migration and infrastructure tests now exist as recorded in section G; authoring domain/API/UI behavior and external adapters remain unimplemented unless explicitly identified below. Human Review Status: Pending student review.
 
 ## A. Scope, evidence and ownership
 
@@ -40,9 +40,9 @@ Read Draft only for the actual event team (including Staff) and that organizatio
 
 ## C. Persistence and concurrency proposal
 
-Proposed isolated PostgreSQL schema event_authoring with tables event, activity and agenda_item. All aggregate IDs use UUID; external identity/organization references use text, with no invented foreign keys to absent tables. activity.event_id and agenda_item.activity_id are real internal foreign keys. Required data uses NOT NULL/check constraints; end > start and capacity >=1 are constrained. Parent/date listing indexes are added only for actual authoring reads. The Owner is an event field; no event-team administration table is introduced. Real team/Org Admin lookup remains external.
+EA-01 introduces PostgreSQL schema event_authoring and tables event, activity and agenda_item through the initial migration. Logical domain/JPA/API integration is still forthcoming. All aggregate IDs use UUID; external identity/organization references use text, with no invented foreign keys to absent tables. activity.event_id and agenda_item.activity_id are real internal foreign keys. Required data uses NOT NULL/check constraints; end > start and capacity >=1 are constrained. Parent/date listing indexes are added only for actual authoring reads. The Owner is an event field; no event-team administration table is introduced. Real team/Org Admin lookup remains external.
 
-Reserve one initial Flyway migration version only after a final collision check: backend/src/main/resources/db/migration/V2026111001__event_authoring_initial.sql. Schema/version names are proposals, not shared reservations already accepted by other students. Retain one common Flyway mechanism; do not introduce a conflicting migration runner or destructive Hibernate schema updates. Discuss exact table adoption with Duarte before his lifecycle migration uses it.
+EA-01 checked that no migrations existed and added backend/src/main/resources/db/migration/V2026111001__event_authoring_initial.sql. No cross-owner reservation is assumed. Schema/version names are proposals, not shared reservations already accepted by other students. Retain one common Flyway mechanism; do not introduce a conflicting migration runner or destructive Hibernate schema updates. Discuss exact table adoption with Duarte before his lifecycle migration uses it.
 
 Local authoring-only writes are transactional and lock the parent Event before nested rows. This local order is not an accepted cross-module lock order. A version precondition prevents stale authoring submissions. Publish and capacity changes serialize with other aggregate changes. For signup-sensitive operations, merely reading a count then saving is unsafe: the real registration adapter must participate in the same transaction and approved activity/participant lock protocol used by signup/cancellation/promotion. The exact cross-module locking contract requires the registration owner; test doubles verify authoring call semantics only. Missing/failed registration adapter must refuse affected operations, not return zero signups or silently skip promotion. No parallel signup/FIFO implementation, fake production count adapter or asynchronous promotion claim is permitted.
 
@@ -105,11 +105,11 @@ The real registration port must use the same database transaction and a jointly 
 
 | Proposed shared change | Reason / boundary | Owner/coordination status |
 |---|---|---|
-| backend/pom.xml | Approved JPA/PostgreSQL/Flyway/security and test dependencies, compatible managed versions | Minimum isolated feature setup approved by requesting student; not yet changed |
-| backend resource configuration / Flyway location | isolated test database and selected schema; no destructive updates/credentials | Coordinate with foundation and lifecycle owners; no change yet |
+| backend/pom.xml | Approved JPA/PostgreSQL/Flyway/security and test dependencies, compatible managed versions | Implemented in EA-01 commits f41c52a and f967285; specification review passed, quality review passed at 2b8163f |
+| backend resource configuration / Flyway location | isolated test database and selected schema; no destructive updates/credentials | EA-01 added migration and opt-in event-authoring.properties; integration coordination remains pending |
 | Feature-scoped security wiring | session/CSRF protection for authoring, never parallel login/signup or permissive missing adapter | Shared foundation boundary; minimum scoped wiring approved for this isolated slice, cross-owner integration pending |
-| frontend package/tool config and host entry | test/build real feature with approved React/Vite tools | Known Next.js branch overlap; minimum isolated Vite setup approved by requesting student, no files changed |
-| Project-local test infrastructure | independent PostgreSQL containers; never use unrelated opsrelay database on localhost | Docker exists; project infrastructure absent; no container started |
+| frontend package/tool config and host entry | test/build real feature with approved React/Vite tools | EA-01 created isolated Vite host/toolchain on this branch; develop/frontend untouched |
+| Project-local test infrastructure | independent PostgreSQL containers; never use unrelated opsrelay database on localhost | EA-01 used disposable Testcontainers postgres:17.6-alpine on a dynamic port; no unrelated database used |
 
 Do not add global mail/CI/team/search setup that this share does not need. All shared changes must be listed with actual files/commits once implemented.
 
@@ -130,6 +130,32 @@ Named timezone policy remains Q-05; proposed UI explicitly labels UTC inputs and
 
 ## I. Verification and implementation status
 
-All five stories: **Not Started — executable-plan review pending**. The requesting student approved this isolated slice design; cross-module integration approvals remain pending. No production code, migration or frontend scaffold created. No backend/frontend/DB/browser tests executed in this investigation. Documentation baseline checks pass; actual tool/environment availability is recorded in the session log. Authentication, org/team lookup, discovery and signup/FIFO are **Pending integration**, not working dependencies.
+All five story implementations remain **Not Started** while EA-01 minimum setup is **Complete at 2b8163f — specification and quality reviews passed**. The requesting student approved the slice and written plan. Commit f41c52a adds the physical migration/test infrastructure and minimum frontend host, not completed authoring behavior. Real database migration tests and an RTL shell test were executed; no authoring business workflow or browser integration is claimed. Cross-module integration approvals remain pending. Documentation checks pass; test evidence and review findings are recorded below and in the session log. Authentication, org/team lookup, discovery and signup/FIFO are **Pending integration**, not working dependencies.
 
 After approval, produce one writing-plans implementation plan, then use a fresh implementer per small task followed by independent spec review and code-quality review in that order. Use TDD, PostgreSQL integration where runnable, real UI/API tests where real adapters exist, and explicitly separate fixture verification from real E2E. Every acceptance criterion maps to a named test and a real/double/pending status. No issue closure/merge without the applicable human steps.
+
+## EA-01 implementation evidence (not story completion)
+
+Initial setup commit: f41c52a. JDK21 and Boot4.1.1/Maven3.9.16/Jupiter6.0.3 preserved. Resolved managed dependencies include Hibernate7.4.5.Final, Security7.1.1, Flyway12.4.0, Testcontainers2.0.5 and PostgreSQL JDBC42.7.13. springdoc is deliberately deferred until real endpoints in EA-02. Frontend locked versions: React19.3.1, React Router7.18.5, Vite8.3.7, Vitest5.1.0, Tailwind4.3.5 and TypeScript7.0.2; Node engines are aligned to ^22.22.2 || ^24.15.0 || >=26.0.0 in f967285.
+
+Actual shared/setup files: root .gitignore; backend/pom.xml; existing BackendApplicationTests.java test wiring; authoring support/PostgresTestConfiguration.java; persistence/AuthoringMigrationTests.java; initial SQL migration; main/resources/event-authoring.properties; frontend/package.json and package-lock.json, tsconfig.json, vite.config.ts, index.html, src/main.tsx, src/App.tsx, src/App.test.tsx, src/index.css and src/test/setup.ts. These changes are feature test/build prerequisites, not another owner's account/org implementation.
+
+The authoring resource is opt-in and currently loaded by test configuration: Hibernate validate (not destructive updates), open-in-view=false and Flyway history/default schema event_authoring. JPA entity mappings must explicitly use event_authoring; connection default is public. Production import/scoped fail-closed security are EA-02 work. Security starter currently has Boot's development default configuration; no authoring endpoint or authentication workflow is claimed.
+
+Observed implementer RED: real PostgreSQL table inventory was empty (1 failure, 0 errors); frontend lacked accessible authoring main. Implementer GREEN and inspected Surefire reports: 20 migration/constraint tests plus contextLoads, no errors/failures/skips; frontend 1 test, typecheck/build passed. Fresh spec review found whitespace-only SQL metadata, timestamp/offset pair and Node-engine gaps. Same-worker correction f967285 added regression tests and fixed these gaps. Re-review found EA-01 specification compliant. Coordinator rerun on 2026-11-10 passed 34 backend tests (33 migration plus context), 1 frontend test, typecheck and build. Independent quality review passed with no critical/important findings; the minor TypeScript/Vitest globals alignment was resolved in 2b8163f, independently re-reviewed and verified by repeated coordinator frontend checks. EA-01 is complete.
+
+Actual backend invocation:
+
+```bash
+rtk proxy env JAVA_HOME=/usr/lib/jvm/java-21-openjdk MAVEN_USER_HOME=/home/zpt17/ERASMUS/GenAI/gen-ai-in-swe-project/.cache/event-authoring/maven-user bash backend/mvnw -B -ntp -f backend/pom.xml -Dmaven.repo.local=/home/zpt17/ERASMUS/GenAI/gen-ai-in-swe-project/.cache/event-authoring/maven-repository test
+```
+
+For another clone, replace the two absolute cache paths with paths inside that clone's ignored .cache directory. Frontend scripts now actually exist:
+
+```bash
+rtk proxy npm --prefix frontend run test -- --run
+rtk proxy npm --prefix frontend run typecheck
+rtk proxy npm --prefix frontend run build
+```
+
+All external identity/org/team/signup/discovery adapter and real production E2E statuses remain pending. Docker containers belong only to isolated test runs. The independent review evidence is AI-assisted verification; Human Review Status remains Pending student review.

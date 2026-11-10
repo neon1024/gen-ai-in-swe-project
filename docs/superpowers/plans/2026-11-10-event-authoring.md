@@ -1,6 +1,6 @@
 # Mid-term Event Authoring Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development, explicitly selected by the user. Execute task-by-task with fresh implementers and independent spec then quality reviews. Steps use checkbox (`- [ ]`) tracking. Do not execute before the requesting student reviews this written plan.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development, explicitly selected by the user. Execute task-by-task with fresh implementers and independent spec then quality reviews. Steps use checkbox (`- [ ]`) tracking. The requesting student explicitly approved this written plan and execution in this session (2026-11-10). Routine tasks now proceed through SDD; no further plan-method approval is required.
 
 **Goal:** Implement all safely executable backend, persistence, API and React authoring functionality for #17–#21, with honest pending-integration status for absent production identity/org/signup/search modules.
 
@@ -61,12 +61,12 @@ Every task: observed expected RED → minimal GREEN → meaningful targeted/regr
 **Dependencies:** Written-plan approval; requesting-student slice approval recorded. Preserve unrelated remote frontend work.
 **Files:** modify backend/pom.xml and backend/src/test/java/com/ubb/genai/BackendApplicationTests.java for real test DB wiring; create root .gitignore; create backend/src/test/java/com/ubb/genai/events/authoring/support/PostgresTestConfiguration.java; create backend/src/test/java/com/ubb/genai/events/authoring/persistence/AuthoringMigrationTests.java; create backend/src/main/resources/db/migration/V2026111001__event_authoring_initial.sql; add minimum datasource/Flyway configuration in an authoring-owned resource file imported only as needed. Create frontend/package.json, lockfile, tsconfig files, index.html, vite.config.ts, src/main.tsx, src/App.tsx, src/index.css, src/test/setup.ts and minimum test configuration. Record every shared change in the contract.
 **Interfaces produced:** selected schema above; real PostgreSQL test fixture reusable by later tasks; configured actual frontend test/typecheck/build commands. No production auth/org adapter, login screen, demo fake API or generic foundation feature is added.
-- [ ] Inspect/lock compatible dependencies using primary registries/docs; use Boot BOM for managed backend dependencies, including test infrastructure. Configure only necessary JPA/PostgreSQL/Flyway/security/OpenAPI/testing dependencies. Record exact added versions and migration collision check.
-- [ ] Write AuthoringMigrationTests first: real database information_schema must contain event/activity/agenda_item with parent FKs and strict interval/capacity checks; external references accept opaque strings. Initial schema-table assertion must fail before migration, with DB running and dependencies resolved.
-- [ ] Run targeted migration test and record expected RED (missing authoring tables), not a Docker/download error.
-- [ ] Add the migration and minimum resource/test wiring; rerun to GREEN and existing contextLoads against isolated PostgreSQL. No destructive schema updates or unrelated database reuse.
-- [ ] Configure the minimum isolated Vite feature host/toolchain. Before shell behavior, add an RTL shell test for the accessible authoring mount point/empty unavailable state, observe the missing behavior, then render the minimum host without fake product success. Configure actual test/typecheck/build scripts. Verify configured typecheck/build and test harness setup; do not write later feature behavior early.
-- [ ] Run backend tests, actual frontend checks and documentation validation; commit only verified setup with honest scope. Completion: schema/test/build foundations work; all external production integrations remain absent.
+- [x] Inspect/lock compatible dependencies using primary registries/docs; use Boot BOM for managed backend dependencies, including test infrastructure. Configure only necessary JPA/PostgreSQL/Flyway/security/OpenAPI/testing dependencies. Record exact added versions and migration collision check.
+- [x] Write AuthoringMigrationTests first: real database information_schema must contain event/activity/agenda_item with parent FKs and strict interval/capacity checks; external references accept opaque strings. Initial schema-table assertion must fail before migration, with DB running and dependencies resolved.
+- [x] Run targeted migration test and record expected RED (missing authoring tables), not a Docker/download error.
+- [x] Add the migration and minimum resource/test wiring; rerun to GREEN and existing contextLoads against isolated PostgreSQL. No destructive schema updates or unrelated database reuse.
+- [x] Configure the minimum isolated Vite feature host/toolchain. Before shell behavior, add an RTL shell test for the accessible authoring mount point/empty unavailable state, observe the missing behavior, then render the minimum host without fake product success. Configure actual test/typecheck/build scripts. Verify configured typecheck/build and test harness setup; do not write later feature behavior early.
+- [x] Run backend tests, actual frontend checks and documentation validation; commit only verified setup with honest scope. Completion: schema/test/build foundations work; all external production integrations remain absent.
 
 ## EA-02 — Draft domain, authorization, persistence and API (#17)
 
@@ -138,4 +138,12 @@ Every task: observed expected RED → minimal GREEN → meaningful targeted/regr
 
 ## Self-review and execution gate
 
-This single plan covers all five issues, 17 criteria and the schema/API/UI/test/integration surfaces. Detailed signatures above are shared inputs for fresh workers; refine only with documented evidence, without conflicting plans or silent contract changes. The requesting student selected SDD; do not ask them to choose another execution method. **Written-plan review is still required by writing-plans before execution.** Approval of this plan authorizes routine configured setup downloads and project-isolated test containers, not access to unrelated services or changes to other contributors' branches.
+This single plan covers all five issues, 17 criteria and the schema/API/UI/test/integration surfaces. Detailed signatures above are shared inputs for fresh workers; refine only with documented evidence, without conflicting plans or silent contract changes. The requesting student selected SDD; do not ask them to choose another execution method. **Written-plan review completed: the requesting student explicitly selected “Approve and execute the plan” on 2026-11-10.** Approval of this plan authorizes routine configured setup downloads and project-isolated test containers, not access to unrelated services or changes to other contributors' branches.
+
+## Execution record
+
+- Requesting-student slice approval: confirmed.
+- Written-plan approval and SDD execution: confirmed.
+- EA-01: Implementer committed f41c52a with reported RED/GREEN evidence; independent spec review requested corrections. Interrupted correction resumed on 2026-11-10: 32 migration tests observed with 12 expected assertion failures and no errors, demonstrating whitespace and timestamp/offset-pair gaps. Correction f967285 passed independent spec and quality reviews and coordinator checks: 34 backend tests, 1 RTL test, typecheck/build. Minor Vitest/TypeScript alignment resolved in 2b8163f and independently re-reviewed; coordinator repeated all frontend checks successfully. EA-01 complete.
+- EA-02–07: Not Started.
+- Independent peer/cross-owner integration acceptance and student implementation review: pending; no production integration is fabricated.
