@@ -1,20 +1,25 @@
 package com.ubb.genai.events.authoring.application;
 
+import com.ubb.genai.events.authoring.api.AuthoringViews.ActivityView;
+import com.ubb.genai.events.authoring.api.AuthoringViews.AgendaView;
 import com.ubb.genai.events.authoring.api.AuthoringViews.Capabilities;
 import com.ubb.genai.events.authoring.api.AuthoringViews.EventView;
+import com.ubb.genai.events.authoring.domain.ActivitySchedule;
+import com.ubb.genai.events.authoring.domain.ActivityVisibility;
+import com.ubb.genai.events.authoring.domain.AgendaItem;
+import com.ubb.genai.events.authoring.domain.AuthoringActivity;
 import com.ubb.genai.events.authoring.domain.AuthoringEvent;
 import com.ubb.genai.events.authoring.domain.EventCategory;
 import com.ubb.genai.events.authoring.domain.EventState;
+import com.ubb.genai.events.authoring.domain.RegistrationWindow;
 import com.ubb.genai.events.authoring.persistence.AuthoringEventRepository;
 import com.ubb.genai.events.authoring.ports.AuthoringIdentityPort;
 import com.ubb.genai.events.authoring.ports.EventTeamAccessPort;
 import com.ubb.genai.events.authoring.ports.OrganizationAccessPort;
+import com.ubb.genai.events.authoring.ports.RegistrationAuthoringPort;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import com.ubb.genai.events.authoring.domain.*;
-import com.ubb.genai.events.authoring.api.AuthoringViews.ActivityView;
-import com.ubb.genai.events.authoring.ports.RegistrationAuthoringPort;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -32,11 +37,12 @@ public class EventAuthoringService {
   private final Clock clock;
   private final RegistrationAuthoringPort registration;
 
+  public record AgendaCommand(OffsetDateTime time, String title, String speaker, Long expectedVersion) {}
+
   public record ActivityCommand(String title, String description, OffsetDateTime start,
       OffsetDateTime end, String location, String onlineLink, Integer capacity,
       OffsetDateTime registrationOpen, OffsetDateTime registrationClose, String visibility,
       Long expectedVersion) {}
-
 
   public EventAuthoringService(
       AuthoringIdentityPort identity,
@@ -135,7 +141,9 @@ public class EventAuthoringService {
     checkCommand(command);
     var event = writable(eventId, command.expectedVersion());
     var previous = activity(event, activityId);
-    var replacement = activity(command, activityId, previous.createdAt(), previous.cancelled());
+    var replacement = activity(command, activityId, previous.createdAt(), previous.cancelled()).withAgenda(previous.agenda());
+    if (previous.agenda().stream().anyMatch(item -> !replacement.schedule().contains(item.time())))
+      throw invalid("schedule", "Activity schedule would exclude an existing agenda item");
     var activities = event.activities().stream().map(a -> a.id().equals(activityId) ? replacement : a).toList();
     return view(repository.replace(event.withActivities(activities)), true);
   }
@@ -151,6 +159,60 @@ public class EventAuthoringService {
       var remaining = event.activities().stream().filter(a -> !a.id().equals(activityId)).toList();
       return view(repository.replace(event.withActivities(remaining)), true);
     });
+  }
+
+  @Transactional
+  public EventView addAgenda(UUID eventId, UUID activityId, AgendaCommand command) {
+    checkAgendaCommand(command);
+    var event = writable(eventId, command.expectedVersion());
+    var activity = activity(event, activityId);
+    var items = new ArrayList<>(activity.agenda());
+    items.add(agenda(command, UUID.randomUUID(), activity.schedule()));
+    return replaceActivity(event, activity.withAgenda(items));
+  }
+
+  @Transactional
+  public EventView updateAgenda(UUID eventId, UUID activityId, UUID itemId, AgendaCommand command) {
+    checkAgendaCommand(command);
+    var event = writable(eventId, command.expectedVersion());
+    var activity = activity(event, activityId);
+    agendaItem(activity, itemId);
+    var replacement = agenda(command, itemId, activity.schedule());
+    var items = activity.agenda().stream().map(i -> i.id().equals(itemId) ? replacement : i).toList();
+    return replaceActivity(event, activity.withAgenda(items));
+  }
+
+  @Transactional
+  public EventView removeAgenda(UUID eventId, UUID activityId, UUID itemId, long expectedVersion) {
+    var event = writable(eventId, expectedVersion);
+    var activity = activity(event, activityId);
+    agendaItem(activity, itemId);
+    return replaceActivity(event, activity.withAgenda(activity.agenda().stream()
+        .filter(i -> !i.id().equals(itemId)).toList()));
+  }
+
+  private EventView replaceActivity(AuthoringEvent event, AuthoringActivity replacement) {
+    var activities = event.activities().stream().map(a -> a.id().equals(replacement.id()) ? replacement : a).toList();
+    return view(repository.replace(event.withActivities(activities)), true);
+  }
+
+  private static AgendaItem agendaItem(AuthoringActivity activity, UUID itemId) {
+    return activity.agenda().stream().filter(i -> i.id().equals(itemId)).findFirst().orElseThrow(EventAuthoringService::notFound);
+  }
+
+  private static void checkAgendaCommand(AgendaCommand command) {
+    if (command == null) throw invalid("agenda", "Agenda item is required");
+    if (command.expectedVersion() == null || command.expectedVersion() < 0)
+      throw invalid("expectedVersion", "Nonnegative version is required");
+  }
+
+  private static AgendaItem agenda(AgendaCommand command, UUID id, ActivitySchedule schedule) {
+    var violations = new ArrayList<AuthoringException.Violation>();
+    required(violations, "title", command.title());
+    optionalText(violations, "speaker", command.speaker());
+    if (!violations.isEmpty()) throw new AuthoringException(400, "INVALID_INPUT", "Invalid request", violations);
+    if (!schedule.contains(command.time())) throw invalid("time", "Agenda time must be within activity interval");
+    return new AgendaItem(id, microseconds(command.time()), command.title(), command.speaker());
   }
 
   private static AuthoringActivity activity(AuthoringEvent event, UUID id) {
@@ -179,8 +241,11 @@ public class EventAuthoringService {
     if (command.visibility() != null && !command.visibility().equals("Public"))
       throw invalid("visibility", "Only Public visibility is available");
     try {
-      var schedule = new ActivitySchedule(command.start(), command.end());
-      var window = new RegistrationWindow(command.registrationOpen(), command.registrationClose());
+      var submittedSchedule = new ActivitySchedule(command.start(), command.end());
+      var submittedWindow = new RegistrationWindow(command.registrationOpen(), command.registrationClose());
+      submittedWindow.validate(submittedSchedule);
+      var schedule = new ActivitySchedule(microseconds(command.start()), microseconds(command.end()));
+      var window = new RegistrationWindow(microseconds(command.registrationOpen()), microseconds(command.registrationClose()));
       window.validate(schedule);
       return new AuthoringActivity(id, command.title(), command.description(), schedule,
           command.location(), command.onlineLink(), command.capacity(), window,
@@ -188,6 +253,10 @@ public class EventAuthoringService {
     } catch (IllegalArgumentException exception) {
       throw invalid("schedule", exception.getMessage());
     }
+  }
+
+  private static OffsetDateTime microseconds(OffsetDateTime value) {
+    return value == null ? null : value.truncatedTo(ChronoUnit.MICROS);
   }
 
   private static void optionalText(List<AuthoringException.Violation> violations, String path, String value) {
@@ -245,7 +314,8 @@ public class EventAuthoringService {
             activity.location(), activity.onlineLink(), activity.capacity(), activity.registration().open(),
             activity.registration().close(), wire(activity.visibility().name()), activity.cancelled(),
             activity.createdAt(), activity.registration().effectiveOpen(event.publishedAt(), activity.createdAt()),
-            activity.registration().effectiveClose(activity.schedule()))).toList(),
+            activity.registration().effectiveClose(activity.schedule()),
+            activity.agenda().stream().map(item -> new AgendaView(item.id(), item.time(), item.title(), item.speaker())).toList())).toList(),
         new Capabilities(writable, edit && event.state() == EventState.DRAFT));
   }
 
