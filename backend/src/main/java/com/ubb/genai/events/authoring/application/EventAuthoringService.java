@@ -71,6 +71,19 @@ public class EventAuthoringService {
   }
 
   @Transactional
+  public EventView publish(UUID eventId, long expectedVersion) {
+    var actor = actor();
+    var event = lockEvent(eventId);
+    requireWritable(actor, event, expectedVersion);
+    if (event.state() != EventState.DRAFT)
+      throw new AuthoringException(409, "STATE_CONFLICT", "Only Draft events can be published");
+    var violations = PublicationReadiness.violations(event);
+    if (!violations.isEmpty())
+      throw new AuthoringException(422, "PUBLICATION_NOT_READY", "Event is not ready for publication", violations);
+    return view(repository.replace(event.publish(clock.instant())), true);
+  }
+
+  @Transactional
   public EventView createDraft(CreateEventCommand command) {
     var actor = actor();
     var violations = new ArrayList<AuthoringException.Violation>();

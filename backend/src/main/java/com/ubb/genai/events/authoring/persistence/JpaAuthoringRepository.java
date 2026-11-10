@@ -12,11 +12,27 @@ import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JpaAuthoringRepository implements AuthoringEventRepository {
+public class JpaAuthoringRepository implements AuthoringEventRepository, com.ubb.genai.events.authoring.ports.PublishedEventsReadContract {
   private final EntityManager em;
 
   public JpaAuthoringRepository(EntityManager em) {
     this.em = em;
+  }
+
+  @org.springframework.transaction.annotation.Transactional(readOnly = true,
+      isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
+  public List<PublishedEvent> publishedEvents() {
+    return em.createQuery("select e from EventEntity e where e.state=:state order by e.id", EventEntity.class)
+        .setParameter("state", com.ubb.genai.events.authoring.domain.EventState.PUBLISHED)
+        .getResultList().stream().map(this::domain).map(event ->
+            new PublishedEvent(event.id(), event.organizationRef(), event.title(), event.description(),
+                event.category(), event.state(), event.publishedAt(), event.version(),
+                event.activities().stream().map(activity -> new PublishedActivity(activity.id(),
+                    activity.title(), activity.description(), activity.visibility(), activity.cancelled(),
+                    activity.schedule().start(), activity.schedule().end(), activity.location(),
+                    activity.onlineLink(), activity.capacity(),
+                    activity.registration().effectiveOpen(event.publishedAt(), activity.createdAt()),
+                    activity.registration().effectiveClose(activity.schedule()))).toList())).toList();
   }
 
   public AuthoringEvent save(AuthoringEvent event) {
@@ -38,7 +54,12 @@ public class JpaAuthoringRepository implements AuthoringEventRepository {
   public AuthoringEvent replace(AuthoringEvent event) {
     // The service holds the Event lock. Explicitly bump the root even for child-only writes.
     int changed = em.createNativeQuery(
-            "update event_authoring.event set version=version+1 where id=:id and version=:version")
+            "update event_authoring.event set version=version+1, title=:title, description=:description, category=:category, state=:state, published_at=:published where id=:id and version=:version")
+        .setParameter("title", event.title())
+        .setParameter("description", event.description())
+        .setParameter("category", event.category().name())
+        .setParameter("state", event.state().name())
+        .setParameter("published", event.publishedAt())
         .setParameter("id", event.id())
         .setParameter("version", event.version())
         .executeUpdate();

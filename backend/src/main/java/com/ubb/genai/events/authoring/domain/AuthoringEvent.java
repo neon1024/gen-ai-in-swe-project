@@ -33,6 +33,12 @@ public record AuthoringEvent(
         state, createdAt, publishedAt, version, replacements);
   }
 
+  public AuthoringEvent publish(Instant now) {
+    if (state != EventState.DRAFT) throw new IllegalStateException("Only Draft events can be published");
+    return new AuthoringEvent(id, organizationRef, ownerSubject, title, description, category,
+        EventState.PUBLISHED, createdAt, now.truncatedTo(ChronoUnit.MICROS), version, activities);
+  }
+
   public static AuthoringEvent draft(
       String org,
       String owner,
