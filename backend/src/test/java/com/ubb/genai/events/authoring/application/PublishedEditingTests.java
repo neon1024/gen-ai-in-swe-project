@@ -288,4 +288,126 @@ class PublishedEditingTests {
     assertEquals(3, service.getEvent(id).version());
     assertEquals(0, probe.calls);
   }
+
+  /**
+   * Cancellation is owned by issue #23 and has no authoring command; it is simulated here by
+   * setting the persisted {@code cancelled} flag directly.
+   */
+  void simulateCancellationOwnedBy23(UUID activityId) {
+    jdbc.update("update event_authoring.activity set cancelled = true where id = ?", activityId);
+  }
+
+  /** Published event (version 4) with two activities; the first one has an agenda item. */
+  EventView publishedWithTwoActivitiesAndAgenda() {
+    var draft = ready(false);
+    var first = draft.activities().getFirst();
+    service.addActivity(draft.id(), command(1));
+    service.addAgenda(
+        draft.id(),
+        first.id(),
+        new EventAuthoringService.AgendaCommand(first.start(), "Talk", null, 2L));
+    return service.publish(draft.id(), 3);
+  }
+
+  static AuthoringException conflict(Runnable mutation) {
+    return assertThrows(AuthoringException.class, mutation::run);
+  }
+
+  @Test
+  void BR06_cancelledActivityIsReadOnlyForAuthoring_cancellationSimulatedAsOwnedBy23() {
+    var published = publishedWithTwoActivitiesAndAgenda();
+    var id = published.id();
+    var cancelled =
+        published.activities().stream().filter(a -> !a.agenda().isEmpty()).findFirst().orElseThrow();
+    var item = cancelled.agenda().getFirst().id();
+    simulateCancellationOwnedBy23(cancelled.id());
+    var before = service.getEvent(id);
+    probe.confirmed = 0;
+    for (Runnable mutation :
+        List.<Runnable>of(
+            () -> service.updateActivity(id, cancelled.id(), command(4)),
+            () -> {
+              var larger = command(4);
+              service.updateActivity(
+                  id,
+                  cancelled.id(),
+                  new EventAuthoringService.ActivityCommand(
+                      larger.title(), larger.description(), larger.start(), larger.end(),
+                      larger.location(), larger.onlineLink(), 20, null, null, null, 4L));
+            },
+            () -> service.removeActivity(id, cancelled.id(), 4),
+            () ->
+                service.addAgenda(
+                    id,
+                    cancelled.id(),
+                    new EventAuthoringService.AgendaCommand(cancelled.start(), "New", null, 4L)),
+            () ->
+                service.updateAgenda(
+                    id,
+                    cancelled.id(),
+                    item,
+                    new EventAuthoringService.AgendaCommand(cancelled.start(), "Changed", null, 4L)),
+            () -> service.removeAgenda(id, cancelled.id(), item, 4))) {
+      var failure = conflict(mutation);
+      assertEquals(409, failure.status());
+      assertEquals("STATE_CONFLICT", failure.code());
+    }
+    assertEquals(before, service.getEvent(id));
+    assertEquals(4, service.getEvent(id).version());
+    assertEquals(0, probe.calls);
+    assertEquals(0, probe.promotions);
+  }
+
+  @Test
+  void BR06_cancelledActivityChecksKeepNotFoundPermissionAndVersionPrecedence_simulatedFor23() {
+    var published = publishedWithTwoActivitiesAndAgenda();
+    var other = ready(true);
+    var id = published.id();
+    var cancelled =
+        published.activities().stream().filter(a -> !a.agenda().isEmpty()).findFirst().orElseThrow();
+    simulateCancellationOwnedBy23(cancelled.id());
+    var before = service.getEvent(id);
+    assertEquals(
+        404, conflict(() -> service.updateActivity(other.id(), cancelled.id(), command(2))).status());
+    assertEquals(
+        404, conflict(() -> service.removeActivity(other.id(), cancelled.id(), 2)).status());
+    assertEquals("VERSION_CONFLICT", conflict(() -> service.removeActivity(id, cancelled.id(), 3)).code());
+    assertEquals(
+        "VERSION_CONFLICT",
+        conflict(() -> service.updateActivity(id, cancelled.id(), command(9))).code());
+    probe.subject = "staff";
+    probe.organization = OrganizationAccessPort.Role.MEMBER;
+    probe.team = EventTeamAccessPort.Role.STAFF;
+    assertEquals(403, conflict(() -> service.updateActivity(id, cancelled.id(), command(4))).status());
+    assertEquals(403, conflict(() -> service.removeActivity(id, cancelled.id(), 4)).status());
+    assertEquals(
+        403,
+        conflict(
+                () ->
+                    service.addAgenda(
+                        id,
+                        cancelled.id(),
+                        new EventAuthoringService.AgendaCommand(cancelled.start(), "New", null, 4L)))
+            .status());
+    probe.reset();
+    assertEquals(before, service.getEvent(id));
+    assertEquals(0, probe.calls);
+  }
+
+  @Test
+  void BR14_lastNonCancelledPublishedActivityCannotBeRemoved_cancellationSimulatedFor23() {
+    var published = publishedWithTwoActivitiesAndAgenda();
+    var id = published.id();
+    var cancelled =
+        published.activities().stream().filter(a -> !a.agenda().isEmpty()).findFirst().orElseThrow();
+    var remaining =
+        published.activities().stream().filter(a -> a.agenda().isEmpty()).findFirst().orElseThrow();
+    simulateCancellationOwnedBy23(cancelled.id());
+    var before = service.getEvent(id);
+    var failure = conflict(() -> service.removeActivity(id, remaining.id(), 4));
+    assertEquals(409, failure.status());
+    assertEquals("STATE_CONFLICT", failure.code());
+    assertEquals(before, service.getEvent(id));
+    assertEquals(0, probe.calls);
+  }
 }

@@ -4,7 +4,10 @@ import com.ubb.genai.events.authoring.domain.AuthoringEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Revalidates the complete aggregate and returns every actionable publication problem. */
+/**
+ * Revalidates the complete aggregate and returns every actionable publication problem. Cancelled
+ * activities (cancellation owned by #23) are neither counted nor revalidated.
+ */
 public final class PublicationReadiness {
   private PublicationReadiness() {}
 
@@ -16,10 +19,11 @@ public final class PublicationReadiness {
     check(
         problems,
         "activities",
-        !event.activities().isEmpty(),
-        "At least one valid activity is required");
+        event.activities().stream().anyMatch(activity -> !activity.cancelled()),
+        "At least one valid non-cancelled activity is required");
     for (int index = 0; index < event.activities().size(); index++) {
       var activity = event.activities().get(index);
+      if (activity.cancelled()) continue;
       String path = "activities[" + index + "]";
       text(problems, path + ".title", activity.title());
       text(problems, path + ".description", activity.description());
