@@ -304,11 +304,12 @@ The event-authoring share should call `requireEditable` before every edit of an 
 
 ## Frontend
 
-Folder `frontend/` (React, TypeScript, Vite, React Router 7, Tailwind CSS; tests with Vitest and React Testing Library). Share code is in `frontend/src/features/event-lifecycle/`: `api/` (`client.ts`, `types.ts` mirroring the backend records, `discovery.ts`), `search/`, `categories.ts`, `routes.tsx`. `App.tsx` mounts `eventLifecycleRoutes`.
+Folder `frontend/` (React, TypeScript, Vite, React Router 7, Tailwind CSS; tests with Vitest and React Testing Library). Share code is in `frontend/src/features/event-lifecycle/`: `api/` (`client.ts`, `types.ts` mirroring the backend records, `discovery.ts`, `lifecycle.ts`), `search/`, `lifecycle/`, `categories.ts`, `routes.tsx`. `App.tsx` mounts `eventLifecycleRoutes`.
 
 | Route | Page |
 |---|---|
 | `/events` | `EventSearchPage`: keyword, date range, organization and category filters (US-24, US-25), mirrored into the URL query string. |
+| `/events/:eventId/lifecycle` | `EventLifecyclePage`: event state, activity states, and the confirmed actions cancel event, cancel activity and delete draft, shown according to `permissions` (US-20, US-21, US-22). |
 
 `apiFetch` calls relative `/api/...` paths; the Vite dev server proxies them to `http://localhost:8080`. Provisional: when `localStorage` holds `devUserId`, it is sent as the `X-User-Id` header; the authentication share replaces this. A non-2xx response throws `ApiError { status, code, message }`, with `message` taken from the ProblemDetail `detail` (fallback `title`). Date filters are sent as ISO instants: `from` is the local start of day and `to` the local end of day (23:59:59.999).
 
