@@ -315,4 +315,54 @@ class ActivityAgendaApiTests {
     write("POST", agendaPath(event, activity), agenda(3, "2026-12-01T10:00:00+02:00", "Current owner", null)).andExpect(status().isCreated());
   }
 
+  @Test void foreignNestedResourcesStayConcealedBeforeStaleVersionOrStaffDenial() throws Exception {
+    String event = event();
+    String activity = activityId(add(event));
+    String ownAgenda = response(write("POST", agendaPath(event, activity),
+        agenda(1, "2026-12-01T10:00:00+02:00", "Own talk", null))
+        .andExpect(status().isCreated()));
+    String ownItem = JsonPath.read(ownAgenda, "$.activities[0].agenda[0].id");
+    String other = event();
+    String foreignActivity = activityId(add(other));
+    String foreignAgenda = response(write("POST", agendaPath(other, foreignActivity),
+        agenda(1, "2026-12-01T10:00:00+02:00", "Foreign talk", null))
+        .andExpect(status().isCreated()));
+    String foreignItem = JsonPath.read(foreignAgenda, "$.activities[0].agenda[0].id");
+    String foreignActivityPath = BASE + "/" + event + "/activities/" + foreignActivity;
+    String ownAgendaPath = agendaPath(event, activity);
+    String staleAgenda = agenda(0, "2026-12-01T10:00:00+02:00", "Attempt", null);
+    for (String subject : new String[] {"creator", "staff"}) {
+      fixture.subject = subject;
+      if (subject.equals("staff")) {
+        fixture.organization("staff", "opaque-org", OrganizationAccessPort.Role.MEMBER);
+        fixture.team("staff", event, EventTeamAccessPort.Role.STAFF);
+      }
+      write("PUT", foreignActivityPath, ACTIVITY).andExpect(status().isNotFound());
+      write("DELETE", foreignActivityPath + "?expectedVersion=0", "")
+          .andExpect(status().isNotFound());
+      write("POST", foreignActivityPath + "/agenda", staleAgenda)
+          .andExpect(status().isNotFound());
+      write("PUT", foreignActivityPath + "/agenda/" + foreignItem, staleAgenda)
+          .andExpect(status().isNotFound());
+      write("DELETE", foreignActivityPath + "/agenda/" + foreignItem + "?expectedVersion=0", "")
+          .andExpect(status().isNotFound());
+      write("PUT", ownAgendaPath + "/" + foreignItem, staleAgenda)
+          .andExpect(status().isNotFound());
+      write("DELETE", ownAgendaPath + "/" + foreignItem + "?expectedVersion=0", "")
+          .andExpect(status().isNotFound());
+    }
+    write("PUT", BASE + "/" + event + "/activities/" + activity,
+        ACTIVITY.replace("Version\":0", "Version\":2"))
+        .andExpect(status().isForbidden());
+    write("PUT", ownAgendaPath + "/" + ownItem,
+        agenda(2, "2026-12-01T10:00:00+02:00", "Denied", null))
+        .andExpect(status().isForbidden());
+    assertEquals(2, jdbc.queryForObject("select count(*) from event_authoring.activity", Integer.class));
+    assertEquals(2, jdbc.queryForObject("select count(*) from event_authoring.agenda_item", Integer.class));
+    assertEquals(java.util.List.of(2L, 2L), jdbc.queryForList(
+        "select version from event_authoring.event order by id", Long.class));
+    assertEquals(java.util.List.of("Foreign talk", "Own talk"), jdbc.queryForList(
+        "select title from event_authoring.agenda_item order by title", String.class));
+  }
+
 }

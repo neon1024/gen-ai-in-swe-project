@@ -115,22 +115,26 @@ public class EventAuthoringService {
     return role == EventTeamAccessPort.Role.EDITOR;
   }
 
-  private AuthoringEvent writable(UUID eventId, long expectedVersion) {
-    var actor = actor();
-    var event = repository.findForUpdate(eventId).orElseThrow(EventAuthoringService::notFound);
+  private AuthoringEvent lockEvent(UUID eventId) {
+    return repository.findForUpdate(eventId).orElseThrow(EventAuthoringService::notFound);
+  }
+
+  private void requireWritable(
+      AuthoringIdentityPort.Actor actor, AuthoringEvent event, long expectedVersion) {
     if (!canEdit(actor, event)) throw new AuthoringException(403, "FORBIDDEN", "Action denied");
     if (event.state() != EventState.DRAFT && event.state() != EventState.PUBLISHED)
       throw new AuthoringException(409, "STATE_CONFLICT", "Event is read only");
     if (expectedVersion < 0) throw invalid("expectedVersion", "Version must be nonnegative");
     if (event.version() != expectedVersion)
       throw new AuthoringException(409, "VERSION_CONFLICT", "Version conflict");
-    return event;
   }
 
   @Transactional
   public EventView addActivity(UUID eventId, ActivityCommand command) {
     checkCommand(command);
-    var event = writable(eventId, command.expectedVersion());
+    var actor = actor();
+    var event = lockEvent(eventId);
+    requireWritable(actor, event, command.expectedVersion());
     var activities = new ArrayList<>(event.activities());
     activities.add(activity(command, UUID.randomUUID(), clock.instant().truncatedTo(ChronoUnit.MICROS), false));
     return view(repository.replace(event.withActivities(activities)), true);
@@ -139,8 +143,10 @@ public class EventAuthoringService {
   @Transactional
   public EventView updateActivity(UUID eventId, UUID activityId, ActivityCommand command) {
     checkCommand(command);
-    var event = writable(eventId, command.expectedVersion());
+    var actor = actor();
+    var event = lockEvent(eventId);
     var previous = activity(event, activityId);
+    requireWritable(actor, event, command.expectedVersion());
     var replacement = activity(command, activityId, previous.createdAt(), previous.cancelled()).withAgenda(previous.agenda());
     if (previous.agenda().stream().anyMatch(item -> !replacement.schedule().contains(item.time())))
       throw invalid("schedule", "Activity schedule would exclude an existing agenda item");
@@ -150,8 +156,10 @@ public class EventAuthoringService {
 
   @Transactional
   public EventView removeActivity(UUID eventId, UUID activityId, long expectedVersion) {
-    var event = writable(eventId, expectedVersion);
+    var actor = actor();
+    var event = lockEvent(eventId);
     activity(event, activityId);
+    requireWritable(actor, event, expectedVersion);
     return registration.withLockedActivity(new RegistrationAuthoringPort.GuardRequest(eventId,
         activityId, RegistrationAuthoringPort.MutationKind.REMOVE), context -> {
       if (context == null) throw AuthoringException.unavailable();
@@ -164,8 +172,10 @@ public class EventAuthoringService {
   @Transactional
   public EventView addAgenda(UUID eventId, UUID activityId, AgendaCommand command) {
     checkAgendaCommand(command);
-    var event = writable(eventId, command.expectedVersion());
+    var actor = actor();
+    var event = lockEvent(eventId);
     var activity = activity(event, activityId);
+    requireWritable(actor, event, command.expectedVersion());
     var items = new ArrayList<>(activity.agenda());
     items.add(agenda(command, UUID.randomUUID(), activity.schedule()));
     return replaceActivity(event, activity.withAgenda(items));
@@ -174,9 +184,11 @@ public class EventAuthoringService {
   @Transactional
   public EventView updateAgenda(UUID eventId, UUID activityId, UUID itemId, AgendaCommand command) {
     checkAgendaCommand(command);
-    var event = writable(eventId, command.expectedVersion());
+    var actor = actor();
+    var event = lockEvent(eventId);
     var activity = activity(event, activityId);
     agendaItem(activity, itemId);
+    requireWritable(actor, event, command.expectedVersion());
     var replacement = agenda(command, itemId, activity.schedule());
     var items = activity.agenda().stream().map(i -> i.id().equals(itemId) ? replacement : i).toList();
     return replaceActivity(event, activity.withAgenda(items));
@@ -184,9 +196,11 @@ public class EventAuthoringService {
 
   @Transactional
   public EventView removeAgenda(UUID eventId, UUID activityId, UUID itemId, long expectedVersion) {
-    var event = writable(eventId, expectedVersion);
+    var actor = actor();
+    var event = lockEvent(eventId);
     var activity = activity(event, activityId);
     agendaItem(activity, itemId);
+    requireWritable(actor, event, expectedVersion);
     return replaceActivity(event, activity.withAgenda(activity.agenda().stream()
         .filter(i -> !i.id().equals(itemId)).toList()));
   }
