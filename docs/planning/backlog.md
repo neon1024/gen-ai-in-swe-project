@@ -253,7 +253,7 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; application implementation Not Started. The requesting student approved the isolated slice design and executable SDD plan. EA-01 foundation is in its specification-correction loop; EA-02–07 story implementation has not started. Production integration dependencies remain pending. See docs/integration/event-authoring-contract.md.
+- Development status: Open on GitHub; application implementation Not Started. The requesting student approved the isolated slice design and executable SDD plan. EA-01 foundation is complete at 2b8163f after independent reviews. EA-02 draft backend is verified at 7263e0c after spec/quality reviews and 95 backend tests; UI/upstream integration remain pending. EA-03–07 are not started. Production integration dependencies remain pending. See docs/integration/event-authoring-contract.md.
 - Branch: feat/issue-17-jose03pedro-create-draft-event (preserved for this share; EA-01 setup committed as f41c52a, specification corrections pending).
 - PR: Not recorded; PRs were not inspected/linked in this update.
 - Verification: Not verified for implementation; tests above are a future strategy.
@@ -270,7 +270,7 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; equal/earlier end, minimum capacity, invalid windows.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; application implementation Not Started. The requesting student approved the isolated slice design and executable SDD plan. EA-01 foundation is in its specification-correction loop; EA-02–07 story implementation has not started. Production integration dependencies remain pending. See docs/integration/event-authoring-contract.md.
+- Development status: Open on GitHub; application implementation Not Started. The requesting student approved the isolated slice design and executable SDD plan. EA-01 foundation is complete at 2b8163f after independent reviews. EA-02 draft backend is verified at 7263e0c after spec/quality reviews and 95 backend tests; UI/upstream integration remain pending. EA-03–07 are not started. Production integration dependencies remain pending. See docs/integration/event-authoring-contract.md.
 - Branch: Not recorded; confirm a dedicated branch before implementation.
 - PR: Not recorded; PRs were not inspected/linked in this update.
 - Verification: Not verified for implementation; tests above are a future strategy.
@@ -287,7 +287,7 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; application implementation Not Started. The requesting student approved the isolated slice design and executable SDD plan. EA-01 foundation is in its specification-correction loop; EA-02–07 story implementation has not started. Production integration dependencies remain pending. See docs/integration/event-authoring-contract.md.
+- Development status: Open on GitHub; application implementation Not Started. The requesting student approved the isolated slice design and executable SDD plan. EA-01 foundation is complete at 2b8163f after independent reviews. EA-02 draft backend is verified at 7263e0c after spec/quality reviews and 95 backend tests; UI/upstream integration remain pending. EA-03–07 are not started. Production integration dependencies remain pending. See docs/integration/event-authoring-contract.md.
 - Branch: Not recorded; confirm a dedicated branch before implementation.
 - PR: Not recorded; PRs were not inspected/linked in this update.
 - Verification: Not verified for implementation; tests above are a future strategy.
@@ -304,7 +304,7 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; application implementation Not Started. The requesting student approved the isolated slice design and executable SDD plan. EA-01 foundation is in its specification-correction loop; EA-02–07 story implementation has not started. Production integration dependencies remain pending. See docs/integration/event-authoring-contract.md.
+- Development status: Open on GitHub; application implementation Not Started. The requesting student approved the isolated slice design and executable SDD plan. EA-01 foundation is complete at 2b8163f after independent reviews. EA-02 draft backend is verified at 7263e0c after spec/quality reviews and 95 backend tests; UI/upstream integration remain pending. EA-03–07 are not started. Production integration dependencies remain pending. See docs/integration/event-authoring-contract.md.
 - Branch: Not recorded; confirm a dedicated branch before implementation.
 - PR: Not recorded; PRs were not inspected/linked in this update.
 - Verification: Not verified for implementation; tests above are a future strategy.
@@ -321,7 +321,7 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; capacity below confirmed signups, promotion and preservation of signups.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; application implementation Not Started. The requesting student approved the isolated slice design and executable SDD plan. EA-01 foundation is in its specification-correction loop; EA-02–07 story implementation has not started. Production integration dependencies remain pending. See docs/integration/event-authoring-contract.md.
+- Development status: Open on GitHub; application implementation Not Started. The requesting student approved the isolated slice design and executable SDD plan. EA-01 foundation is complete at 2b8163f after independent reviews. EA-02 draft backend is verified at 7263e0c after spec/quality reviews and 95 backend tests; UI/upstream integration remain pending. EA-03–07 are not started. Production integration dependencies remain pending. See docs/integration/event-authoring-contract.md.
 - Branch: Not recorded; confirm a dedicated branch before implementation.
 - PR: Not recorded; PRs were not inspected/linked in this update.
 - Verification: Not verified for implementation; tests above are a future strategy.
