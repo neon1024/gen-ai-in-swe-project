@@ -20,7 +20,8 @@ public class JpaAuthoringRepository implements AuthoringEventRepository, com.ubb
   }
 
   @org.springframework.transaction.annotation.Transactional(readOnly = true,
-      isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
+      isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ,
+      propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
   public List<PublishedEvent> publishedEvents() {
     return em.createQuery("select e from EventEntity e where e.state=:state order by e.id", EventEntity.class)
         .setParameter("state", com.ubb.genai.events.authoring.domain.EventState.PUBLISHED)
