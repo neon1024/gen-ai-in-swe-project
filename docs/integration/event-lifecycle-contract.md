@@ -191,6 +191,7 @@ Base path `/api/feedback`. Responses never contain user ids (BR-17). Feedback sk
 |---|---|---|---|
 | `GET /activities/{activityId}/eligibility` | Whether the caller may give feedback | 200 `{ "eligible": true, "reason": null }` or `{ "eligible": false, "reason": "NOT_ATTENDED" }` | 401 `UNAUTHENTICATED`, 404 `ACTIVITY_NOT_FOUND` |
 | `POST /activities/{activityId}` | Give feedback (US-47). Body `{ "rating": 1..5, "comment": "optional, max 2000" }` | 201 `{ "id": "..." }` | 400 `VALIDATION_FAILED`, 401 `UNAUTHENTICATED`, 403 `NOT_ATTENDED`, 404 `ACTIVITY_NOT_FOUND`, 409 `ACTIVITY_CANCELLED`, `FEEDBACK_NOT_OPEN`, `FEEDBACK_WINDOW_CLOSED` or `FEEDBACK_ALREADY_GIVEN` |
+| `GET /activities/{activityId}/summary` | Anonymous summary for the event team (US-48), see below | 200 `FeedbackSummary` | 401 `UNAUTHENTICATED`, 403 `TEAM_MEMBER_REQUIRED`, 404 `ACTIVITY_NOT_FOUND` or `EVENT_NOT_FOUND` (draft event hidden from a non-team user) |
 
 | Rule | Behaviour |
 |---|---|
@@ -199,6 +200,20 @@ Base path `/api/feedback`. Responses never contain user ids (BR-17). Feedback sk
 | Attendance | Depends on `SignupPort.wasMarkedPresent(activityId, userId)`. |
 | Comment | A blank comment is stored as null; any other comment is trimmed. |
 | Concurrency | A concurrent duplicate hits the unique constraint and is answered with 409 `FEEDBACK_ALREADY_GIVEN`. |
+| Summary access | Any team member (OWNER, EDITOR, STAFF or Org Admin of the organization). |
+| Summary values | `averageRating` is rounded half up to 2 decimals and is `null` when `count` is 0. `distribution` always has the keys `1` to `5`. `comments` holds only entries with a comment, newest first. |
+| Anonymity (BR-17) | The summary contains no author id, username or email, and no per-entry identifier or timestamp. Authors are stored only to enforce one feedback per participant. |
+
+```json
+{
+  "activityId": "6f1c...",
+  "activityTitle": "Opening talk",
+  "count": 4,
+  "averageRating": 3.5,
+  "distribution": { "1": 1, "2": 0, "3": 0, "4": 2, "5": 1 },
+  "comments": [ { "rating": 4, "comment": "Clear and well paced" } ]
+}
+```
 
 ## Cancellation rules
 

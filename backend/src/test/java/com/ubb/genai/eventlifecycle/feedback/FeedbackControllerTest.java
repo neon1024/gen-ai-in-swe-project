@@ -1,5 +1,6 @@
 package com.ubb.genai.eventlifecycle.feedback;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -10,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ubb.genai.eventlifecycle.shared.port.CurrentUserProvider;
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +22,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @WebMvcTest(FeedbackController.class)
 class FeedbackControllerTest {
@@ -85,5 +89,46 @@ class FeedbackControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.eligible").value(false))
                 .andExpect(jsonPath("$.reason").value("NOT_ATTENDED"));
+    }
+
+    @Test
+    @DisplayName("US-48 the summary endpoint returns the aggregated view")
+    void us48_summaryEndpointReturnsView() throws Exception {
+        when(currentUser.currentUserId()).thenReturn(Optional.of(userId));
+        when(service.summary(activityId, Optional.of(userId)))
+                .thenReturn(FeedbackSummaryCalculator.summarize(activityId, "Talk", List.of(
+                        new Feedback(activityId, UUID.randomUUID(), 5, "Great", Instant.parse("2027-04-01T12:00:00Z")),
+                        new Feedback(activityId, UUID.randomUUID(), 4, null, Instant.parse("2027-04-01T12:01:00Z")))));
+
+        mvc.perform(get("/api/feedback/activities/{id}/summary", activityId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activityId").value(activityId.toString()))
+                .andExpect(jsonPath("$.activityTitle").value("Talk"))
+                .andExpect(jsonPath("$.count").value(2))
+                .andExpect(jsonPath("$.averageRating").value(4.5))
+                .andExpect(jsonPath("$.distribution['5']").value(1))
+                .andExpect(jsonPath("$.distribution['1']").value(0))
+                .andExpect(jsonPath("$.comments.length()").value(1))
+                .andExpect(jsonPath("$.comments[0].rating").value(5))
+                .andExpect(jsonPath("$.comments[0].comment").value("Great"));
+    }
+
+    @Test
+    @DisplayName("BR-17 the summary never exposes who wrote the feedback")
+    void br17_summaryNeverExposesAuthor() throws Exception {
+        UUID author = UUID.randomUUID();
+        when(currentUser.currentUserId()).thenReturn(Optional.of(userId));
+        when(service.summary(activityId, Optional.of(userId)))
+                .thenReturn(FeedbackSummaryCalculator.summarize(activityId, "Talk", List.of(
+                        new Feedback(activityId, author, 5, "Great", Instant.parse("2027-04-01T12:00:00Z")))));
+
+        MvcResult result = mvc.perform(get("/api/feedback/activities/{id}/summary", activityId))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String body = result.getResponse().getContentAsString();
+        assertThat(body).contains("Great").doesNotContain(author.toString());
+        assertThat(body).doesNotContain("\"author\"", "\"authorId\"", "\"userId\"");
+        assertThat(body).doesNotContainIgnoringCase("author");
     }
 }

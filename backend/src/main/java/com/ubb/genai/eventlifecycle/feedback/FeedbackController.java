@@ -30,6 +30,11 @@ public class FeedbackController {
         return service.eligibility(activityId, currentUser.currentUserId());
     }
 
+    @GetMapping("/activities/{activityId}/summary")
+    public FeedbackSummary summary(@PathVariable UUID activityId) {
+        return service.summary(activityId, currentUser.currentUserId());
+    }
+
     @PostMapping("/activities/{activityId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Map<String, UUID> give(@PathVariable UUID activityId, @Valid @RequestBody GiveFeedbackRequest request) {
