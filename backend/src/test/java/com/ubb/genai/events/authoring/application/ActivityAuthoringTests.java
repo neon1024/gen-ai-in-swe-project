@@ -42,7 +42,7 @@ class ActivityAuthoringTests {
     @Bean OrganizationAccessPort organizations() { return (s, o) -> OrganizationAccessPort.Role.ORGANIZER; }
     @Bean EventTeamAccessPort team() { return (s, e) -> EventTeamAccessPort.Role.NONE; }
     @Bean Guard guard() { return new Guard(); }
-    @Bean Clock clock() { return Clock.fixed(Instant.parse("2026-11-10T10:00:00Z"), ZoneOffset.UTC); }
+    @Bean @org.springframework.context.annotation.Primary Clock authoringTestClock() { return Clock.fixed(Instant.parse("2026-11-10T10:00:00Z"), ZoneOffset.UTC); }
   }
   @BeforeEach void reset() {
     guard.history = false;

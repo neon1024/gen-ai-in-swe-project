@@ -1,8 +1,14 @@
+import { BrowserRouter, useRoutes } from 'react-router'
+import { eventLifecycleRoutes } from './features/event-lifecycle/routes'
+
+function AppRoutes() {
+  return useRoutes(eventLifecycleRoutes)
+}
+
 export default function App() {
   return (
-    <main aria-labelledby="authoring-title" className="mx-auto max-w-4xl p-6">
-      <h1 id="authoring-title" className="mb-4 text-3xl font-semibold">Event authoring</h1>
-      <p role="status">Authoring is unavailable until the required account and organization integrations are connected.</p>
-    </main>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   )
 }

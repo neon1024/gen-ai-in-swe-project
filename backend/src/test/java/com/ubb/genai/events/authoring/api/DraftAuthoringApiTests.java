@@ -86,6 +86,7 @@ class DraftAuthoringApiTests {
     }
 
     @Bean
+    @org.springframework.context.annotation.Primary
     Clock fixedClock() {
       return Clock.fixed(Instant.parse("2026-11-10T10:00:00.123456789Z"), ZoneOffset.UTC);
     }

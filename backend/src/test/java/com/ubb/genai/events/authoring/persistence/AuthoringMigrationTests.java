@@ -26,7 +26,7 @@ class AuthoringMigrationTests {
     void createsTheThreeAuthoringTables() {
         assertThat(jdbc.queryForList("""
                 select table_name from information_schema.tables
-                where table_schema = 'event_authoring' and table_name <> 'flyway_schema_history' order by table_name
+                where table_schema = 'event_authoring' order by table_name
                 """, String.class)).containsExactly("activity", "agenda_item", "event");
     }
 
@@ -34,8 +34,8 @@ class AuthoringMigrationTests {
     @DisplayName("NFR-002: authoring migrations use the reserved V2026111010-V2026111019 range")
     void appliesAuthoringMigrationsOnlyWithinTheReservedVersionRange() {
         assertThat(jdbc.queryForList("""
-                select version from event_authoring.flyway_schema_history
-                where success and version is not null order by installed_rank
+                select version from flyway_schema_history
+                where success and version is not null and script like '%event_authoring%' order by installed_rank
                 """, String.class))
                 .contains("2026111010")
                 .allMatch(version -> Long.parseLong(version) >= 2026111010L && Long.parseLong(version) <= 2026111019L);

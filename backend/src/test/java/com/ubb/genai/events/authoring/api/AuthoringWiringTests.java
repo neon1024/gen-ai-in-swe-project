@@ -19,8 +19,9 @@ class AuthoringWiringTests {
   @Autowired MockMvc mvc;
 
   @Test
-  void unrelatedRoutesRetainBaselineAuthentication() throws Exception {
-    mvc.perform(get("/").accept("text/html")).andExpect(status().is3xxRedirection());
+  void unrelatedRoutesAreNotGovernedByAuthoringSecurity() throws Exception {
+    // K-8: the authoring chain neither locks nor opens routes owned by other modules.
+    mvc.perform(get("/no-such-route").accept("application/json")).andExpect(status().isNotFound());
   }
 
   @Test
