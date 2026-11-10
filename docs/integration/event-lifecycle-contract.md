@@ -10,7 +10,7 @@ This document lists everything the event-lifecycle share (`com.ubb.genai.eventli
 |---|---|
 | `backend/pom.xml` | Enabled `spring-boot-starter-data-jpa` and `spring-boot-starter-data-jpa-test`. Added `spring-boot-starter-flyway`, `flyway-database-postgresql`, `postgresql` (runtime), and test-scope `spring-boot-testcontainers`, `testcontainers-postgresql`, `testcontainers-junit-jupiter`. |
 | `backend/src/main/resources/application.properties` | Added datasource (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD` with local defaults), `spring.jpa.hibernate.ddl-auto=validate`, `spring.jpa.open-in-view=false`. |
-| `backend/src/test/resources/application.properties` | New. Testcontainers JDBC URL `jdbc:tc:postgresql:17-alpine:///ubb_events_test`, `ddl-auto=validate`, `open-in-view=false`, `eventlifecycle.completion.enabled=false`. |
+| `backend/src/test/resources/application.properties` | New. It shadows the main file entirely, so any test-only property must be duplicated there and any main property the tests need must be copied. Testcontainers JDBC URL `jdbc:tc:postgresql:17-alpine:///ubb_events_test`, `ddl-auto=validate`, `open-in-view=false`, `eventlifecycle.completion.enabled=false`. |
 | `frontend/` | New SPA scaffold (React, TypeScript, Vite, React Router 7, Tailwind CSS, Vitest). Share code lives in `frontend/src/features/event-lifecycle/`; `package.json`, `package-lock.json`, `vite.config.ts` (dev proxy `/api` to `localhost:8080`, Vitest setup), `index.html`, `src/main.tsx`, `src/App.tsx`, `src/index.css`, `src/test/setup.ts`. |
 
 ## Provisional model
@@ -19,7 +19,7 @@ Package `com.ubb.genai.eventlifecycle.shared.model`. Every class is marked provi
 
 | Class | Table | Notes |
 |---|---|---|
-| `LifecycleEvent` | `lifecycle_event` | `@Version long version`; `activities` one-to-many (cascade ALL, orphan removal). Transitions: `publish` (DRAFT to PUBLISHED, fixtures only), `cancel` (DRAFT or PUBLISHED to CANCELLED, cancels SCHEDULED activities), `complete` (PUBLISHED to COMPLETED). Queries: `isReadOnly`, `allActivitiesCancelled`, `lastScheduledActivityEnd`. |
+| `LifecycleEvent` | `lifecycle_event` | `@Version Long version`; `activities` one-to-many (cascade ALL, orphan removal). Transitions: `publish` (DRAFT to PUBLISHED, fixtures only), `cancel` (DRAFT or PUBLISHED to CANCELLED, cancels SCHEDULED activities), `complete` (PUBLISHED to COMPLETED). Queries: `isReadOnly`, `allActivitiesCancelled`, `lastScheduledActivityEnd`. |
 | `LifecycleActivity` | `lifecycle_activity` | `cancel(now)`, `isCancelled`, `hasEnded(now)` (`endsAt != null && now >= endsAt`), `getEventId`. |
 | `LifecycleAgendaItem` | `lifecycle_agenda_item` | Registers itself on its activity at construction. |
 | `EventState` | | `DRAFT, PUBLISHED, COMPLETED, CANCELLED` |
@@ -56,6 +56,8 @@ Migrations live in `backend/src/main/resources/db/migration/eventlifecycle/` and
 | Instants | Stored as `timestamptz`, handled as `java.time.Instant` (UTC). |
 | Identifiers | `UUID` for events, activities and agenda items. |
 | Flyway | Default `classpath:db/migration` location; Flyway scans subfolders, so each share keeps its own subfolder. |
+| Flyway versions | `V2026111001` and `V2026111002` are timestamp versions and sort after teammates' small integer versions. Integration needs an agreed version scheme, or `spring.flyway.out-of-order=true`. |
+| Scheduling | `@EnableScheduling` on `EventLifecycleConfiguration` enables scheduling for the whole application, not only this share. |
 
 ## Interfaces stubbed
 
@@ -87,8 +89,9 @@ Ports live in `shared.port`; each has a `@Component` stub in `shared.port.stub` 
 | Team member | Any event role (`OWNER`, `EDITOR`, `STAFF`), or Org Admin of the event's organization. |
 | Draft visibility (BR-03) | A DRAFT event is visible only to team members; anyone else gets 404, never 403. |
 | Private activities (BR-18) | Visible when PUBLIC, or when the user is a member of the event's organization or is invited. |
+| All-private events (BR-18) | An event whose activities are all private is hidden from everyone else: search, the lifecycle view, the cancel endpoints and the feedback endpoints answer 404 (`EVENT_NOT_FOUND`, or `ACTIVITY_NOT_FOUND` for feedback). Team members always see the event. An event with no activities counts as visible unless it is a draft. |
 
-`shared.access.EventAccessPolicy` implements these rules: `hasOwnerRights`, `isTeamMember`, `canSeeEvent`, `canSeeActivity`, `requireUser` (401 `UNAUTHENTICATED`), `requireVisibleEvent` (404 `EVENT_NOT_FOUND`), `requireOwnerRights` (403 `OWNER_RIGHTS_REQUIRED`), `requireTeamMember` (403 `TEAM_MEMBER_REQUIRED`).
+`shared.access.EventAccessPolicy` implements these rules: `hasOwnerRights`, `isTeamMember`, `canSeeEvent`, `canSeeEventDetails`, `canSeeActivity`, `requireUser` (401 `UNAUTHENTICATED`), `requireVisibleEvent` (404 `EVENT_NOT_FOUND`, applies `canSeeEventDetails`), `requireOwnerRights` (403 `OWNER_RIGHTS_REQUIRED`), `requireTeamMember` (403 `TEAM_MEMBER_REQUIRED`).
 
 ## Error format
 
@@ -313,7 +316,7 @@ Folder `frontend/` (React, TypeScript, Vite, React Router 7, Tailwind CSS; tests
 | `/events` | `EventSearchPage`: keyword, date range, organization and category filters (US-24, US-25), mirrored into the URL query string. |
 | `/events/:eventId/lifecycle` | `EventLifecyclePage`: event state, activity states, and the confirmed actions cancel event, cancel activity and delete draft, shown according to `permissions` (US-20, US-21, US-22). |
 | `/activities/:activityId/feedback` | `GiveFeedbackPage`: loads the eligibility, shows the message for the ineligibility reason or a required 1-5 rating with an optional comment (max 2000 characters) (US-47, BR-16). |
-| `/events/:eventId/report` | `EventReportPage`: per-activity table (attendance shown as a percent with one decimal, a dash for missing values), a CSV download link, and an expandable feedback summary per activity with distribution and anonymous comments (US-48, US-49, US-50). |
+| `/events/:eventId/report` | `EventReportPage`: per-activity table (attendance shown as a percent with one decimal, a dash for missing values), a CSV download button (the CSV is fetched with the shared auth header, turned into a Blob and saved through an object URL), and an expandable feedback summary per activity with distribution and anonymous comments (US-48, US-49, US-50). |
 
 `apiFetch` calls relative `/api/...` paths; the Vite dev server proxies them to `http://localhost:8080`. Provisional: when `localStorage` holds `devUserId`, it is sent as the `X-User-Id` header; the authentication share replaces this. A non-2xx response throws `ApiError { status, code, message }`, with `message` taken from the ProblemDetail `detail` (fallback `title`). Date filters are sent as ISO instants: `from` is the local start of day and `to` the local end of day (23:59:59.999).
 
@@ -348,8 +351,7 @@ Folder `frontend/` (React, TypeScript, Vite, React Router 7, Tailwind CSS; tests
 ## Known limitations
 
 - Search runs in memory: candidate events are loaded in one query and filtered, sorted and paged in Java.
-- The search UI shows only the first page, at most 20 results.
-- Ports are called inside the service transaction. Real adapters must join the transaction or defer their side effects until after commit, otherwise a rollback leaves the side effects behind.
+- Ports are called inside the service transaction. Real adapters must join the transaction or defer their side effects until after commit, otherwise a rollback leaves the side effects behind. At reconciliation, move the `NotificationPort` calls after commit (for example `@TransactionalEventListener(AFTER_COMMIT)`).
 - The completion job runs in a single transaction per run; one failing event rolls back the whole run until the next tick.
 - `X-User-Id` is a provisional header with no authentication; any caller can impersonate any user.
 - All ports are stubbed: signup figures are zero, no one is attended, and no notification leaves the process until the real beans exist.
