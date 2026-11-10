@@ -138,6 +138,49 @@ Error response (`409`, `application/problem+json`):
 
 `permissions.canCancel` is true for callers with owner rights while the event is DRAFT or PUBLISHED. `permissions.canDelete` is true for callers with owner rights while the event is DRAFT. Callers who are not team members only see PUBLIC activities, or private ones they may see (BR-18).
 
+## Discovery
+
+`GET /api/discovery/events` lists upcoming published events (US-24, US-25). The caller comes from `CurrentUserProvider`; a guest is allowed.
+
+| Query parameter | Meaning |
+|---|---|
+| `q` | Keyword, trimmed; blank means none. Case-insensitive literal substring of the title, description or organization name. |
+| `from`, `to` | ISO-8601 instants. Either may be omitted. |
+| `organizationId` | UUID of the organizing organization. |
+| `category` | One of `WORKSHOP, CONFERENCE, TRAINING, SOCIAL, COMPETITION, OTHER`. |
+| `page` | Zero-based, default 0. |
+| `size` | 1 to 100, default 20. |
+
+Errors: 400 `VALIDATION_FAILED` for an unknown category, a malformed instant or UUID, `page < 0`, `size` outside 1 to 100, or `from` after `to`.
+
+Response:
+
+```json
+{
+  "items": [
+    { "id": "0d5c4a52-6a0e-4a38-9f3e-2f0f1c8a7b11", "title": "Chess night", "description": "Casual games",
+      "category": "SOCIAL", "organizationId": "5e2b9c47-1d3a-4c8e-b0a6-9f4d2e7a1c33",
+      "organizationName": "Chess Club", "nextActivityStartsAt": "2027-02-01T18:00:00Z" }
+  ],
+  "page": 0,
+  "size": 20,
+  "totalItems": 1,
+  "organizations": [
+    { "id": "5e2b9c47-1d3a-4c8e-b0a6-9f4d2e7a1c33", "name": "Chess Club" }
+  ]
+}
+```
+
+| Rule | Behaviour |
+|---|---|
+| Listed events | PUBLISHED events with at least one activity that is SCHEDULED, visible to the caller (BR-18) and has `endsAt > now`. DRAFT, COMPLETED and CANCELLED events never appear (BR-03). |
+| Order | Ascending by the earliest `startsAt` among those activities, then title, then id. `nextActivityStartsAt` is that value. |
+| Date filter | An event matches when one of those activities satisfies `startsAt <= to` and `endsAt >= from`. Private activities the caller cannot see never count. |
+| Filters | Keyword, organization, category and date range must all hold. |
+| `organizations` | Distinct organizations of every event visible to the caller, before the organization and keyword filters, sorted by name. Feeds the filter dropdown. |
+| `organizationName` | Empty string when `OrganizationDirectory` has no name for the organization. |
+| Limitation | Candidates are loaded in one fetch-join query and filtered, sorted and paged in memory. Acceptable at course scale; move filtering into the query if the event count grows. |
+
 ## Cancellation rules
 
 | Rule | Behaviour |

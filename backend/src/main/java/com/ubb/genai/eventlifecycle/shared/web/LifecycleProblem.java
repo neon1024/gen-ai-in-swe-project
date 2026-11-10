@@ -14,6 +14,10 @@ public class LifecycleProblem extends RuntimeException {
         this.code = code;
     }
 
+    public static LifecycleProblem badRequest(String code, String message) {
+        return new LifecycleProblem(HttpStatus.BAD_REQUEST, code, message);
+    }
+
     public static LifecycleProblem notFound(String code) {
         return new LifecycleProblem(HttpStatus.NOT_FOUND, code, "Resource not found");
     }
