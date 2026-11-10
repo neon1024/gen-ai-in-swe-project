@@ -253,10 +253,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
-- PR: Not recorded; PRs were not inspected/linked in this update.
-- Verification: Not verified for implementation; tests above are a future strategy.
+- Development status: Open on GitHub. Partial: draft backend verified in EA-02; activity/agenda foundation verified in EA-03. UI and real identity/organization integration remain pending. No full-story delivery claimed. See docs/integration/event-authoring-contract.md.
+- Branch: feat/issue-17-jose03pedro-create-draft-event (preserved current authoring branch).
+- PR: Not opened for this share; student review remains pending.
+- Verification: Coordinator backend suite at 4ecc06f: 123 tests, 0 failures/errors/skips; independent task reviews passed. UI/real upstream acceptance is pending.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 
@@ -270,10 +270,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; equal/earlier end, minimum capacity, invalid windows.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
-- PR: Not recorded; PRs were not inspected/linked in this update.
-- Verification: Not verified for implementation; tests above are a future strategy.
+- Development status: Open on GitHub. Partial: activity backend verified through 4ecc06f after independent specification/quality reviews. UI, real access adapters and signup guard integration remain pending. See docs/integration/event-authoring-contract.md.
+- Branch: feat/issue-17-jose03pedro-create-draft-event (preserved current authoring branch); feat/issue-18-jose03pedro-activities at a9e7701 is a local milestone checkpoint; correction commits remain on the current branch.
+- PR: Not opened for this share; student review remains pending.
+- Verification: Coordinator backend suite at 4ecc06f: 123 tests, 0 failures/errors/skips; independent task reviews passed. UI/real upstream acceptance is pending.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 
@@ -287,10 +287,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
-- PR: Not recorded; PRs were not inspected/linked in this update.
-- Verification: Not verified for implementation; tests above are a future strategy.
+- Development status: Open on GitHub. Partial: agenda backend verified through 4ecc06f after independent specification/quality reviews. UI and real access integration remain pending. See docs/integration/event-authoring-contract.md.
+- Branch: feat/issue-17-jose03pedro-create-draft-event (preserved current authoring branch); feat/issue-19-jose03pedro-agenda at aa6fd30 is a local milestone checkpoint; correction commits remain on the current branch.
+- PR: Not opened for this share; student review remains pending.
+- Verification: Coordinator backend suite at 4ecc06f: 123 tests, 0 failures/errors/skips; independent task reviews passed. UI/real upstream acceptance is pending.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 
@@ -304,10 +304,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
-- PR: Not recorded; PRs were not inspected/linked in this update.
-- Verification: Not verified for implementation; tests above are a future strategy.
+- Development status: Open on GitHub (read-only recheck 2026-11-10; assignment unchanged). Partial: publication backend reviewed at db799b9 and 140-test Maven verify passed. UI, actual discovery/registration consumers and student review remain pending. Current user boundary stops after this backend handoff.
+- Branch: feat/issue-17-jose03pedro-create-draft-event preserved; feat/issue-20-jose03pedro-publish-event is the owned fast-forwarded handoff checkpoint.
+- PR: Not opened for this share; student review remains pending.
+- Verification: 140 backend tests, 0 failures/errors/skips; Maven verify/JAR packaging and independent Terra specification/quality reviews passed. Actual discovery acceptance pending.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 
@@ -321,10 +321,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; capacity below confirmed signups, promotion and preservation of signups.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
-- PR: Not recorded; PRs were not inspected/linked in this update.
-- Verification: Not verified for implementation; tests above are a future strategy.
+- Development status: Open on GitHub. Partial: Published editing backend verified and independently reviewed at 4cce076 (170 tests, Maven verify). UI, real registration/FIFO adapter and shared locking remain pending; production capacity changes/removal on Published events fail closed (503) until then.
+- Branch: feat/issue-21-jose03pedro-edit-published-event (stacked on the #20 branch); feat/issue-21-jose03pedro-deferred 437cd5f is superseded history.
+- PR: Opened against main together with the stacked #17–#20 work (see the session GenAI log); non-closing references; student review pending.
+- Verification: 170 backend tests, 0 failures/errors/skips; independent specification and quality reviews passed. Real acceptance pending.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 
@@ -889,3 +889,7 @@ The snapshot does not establish branch, PR or verification; `Not recorded` does 
 Follow [ADR-001–008](../decisions/README.md). Requesting-student technical authorization is recorded; independent Duarte review is not fabricated. Per-story “technical design awaits approval” refers to the detailed slice, not an unselected stack. Shared foundation P-04 has no issue number; a student must associate/authorize its coordinated execution before implementation. No setup issue is invented.
 
 First planned owned issues: jose03pedro #17 (US-14), after M1/M2 and #10; DuarteLagoela #25 (US-22), after #17. Neither is currently implementation-ready because the foundation and prerequisites are not implemented. See [kickoff](baseline-and-kickoff.md) and the model-specific prompts; ownership is unchanged. Conditional parallel candidates are #18 with #25 after #17 and agreed Event/Activity/delete contracts.
+
+## Mid-term Event Authoring mission
+
+The later explicit user mission covers jose03pedro’s #17–#21 and authorizes independently testable authoring work through safe external ports despite incomplete M1/M2; it does not authorize implementation of other owners’ modules. Whole-system prerequisites in the earlier roadmap still apply to actual production integration/acceptance, not as a blanket prohibition on isolated authoring development. Review the [proposed slice design](../superpowers/specs/2026-11-10-event-authoring-design.md), [integration contract](../integration/event-authoring-contract.md) and [verification matrix](../requirements/event-authoring-verification.md). Required slice/design and incompatible shared-contract approvals remain in effect. The requesting student explicitly approved the existing seven-task five-story plan and its SDD execution. EA-01 is under specification correction; no story completion is claimed.
