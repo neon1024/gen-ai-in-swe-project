@@ -51,7 +51,7 @@ public class EventCancellationService {
     public LifecycleEventView cancelActivity(UUID activityId, Optional<UUID> userId) {
         LifecycleActivity activity = activities.findById(activityId)
                 .orElseThrow(() -> LifecycleProblem.notFound("ACTIVITY_NOT_FOUND"));
-        LifecycleEvent event = access.requireVisibleEvent(activity.getEventId(), userId);
+        LifecycleEvent event = requireLockedVisibleEvent(activity.getEventId(), userId);
         access.requireOwnerRights(event, access.requireUser(userId));
         if (event.isReadOnly()) {
             throw LifecycleProblem.conflict("EVENT_READ_ONLY", "The event is " + event.getState() + " and read-only");
@@ -81,7 +81,7 @@ public class EventCancellationService {
 
     @Transactional
     public LifecycleEventView cancelEvent(UUID eventId, Optional<UUID> userId) {
-        LifecycleEvent event = access.requireVisibleEvent(eventId, userId);
+        LifecycleEvent event = requireLockedVisibleEvent(eventId, userId);
         access.requireOwnerRights(event, access.requireUser(userId));
         if (event.isReadOnly()) {
             throw LifecycleProblem.conflict(
@@ -107,6 +107,12 @@ public class EventCancellationService {
     @Transactional(readOnly = true)
     public LifecycleEventView view(UUID eventId, Optional<UUID> userId) {
         return toView(access.requireVisibleEvent(eventId, userId), userId);
+    }
+
+    private LifecycleEvent requireLockedVisibleEvent(UUID eventId, Optional<UUID> userId) {
+        return events.findLockedById(eventId)
+                .filter(e -> access.canSeeEvent(e, userId))
+                .orElseThrow(() -> LifecycleProblem.notFound("EVENT_NOT_FOUND"));
     }
 
     private LifecycleEventView toView(LifecycleEvent event, Optional<UUID> userId) {

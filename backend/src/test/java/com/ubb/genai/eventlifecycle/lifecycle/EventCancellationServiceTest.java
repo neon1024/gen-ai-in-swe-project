@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest
@@ -52,6 +55,9 @@ class EventCancellationServiceTest {
 
     @Autowired
     private MutableClock clock;
+
+    @Autowired
+    private TransactionTemplate tx;
 
     @MockitoBean
     private SignupPort signupPort;
@@ -301,5 +307,38 @@ class EventCancellationServiceTest {
         assertThat(service.view(published.getId(), Optional.empty()).permissions())
                 .isEqualTo(new LifecycleEventView.Permissions(false, false));
         assertProblem(() -> service.view(draft.getId(), Optional.of(stranger)), HttpStatus.NOT_FOUND, "EVENT_NOT_FOUND");
+    }
+
+    @Test
+    @DisplayName("US-20 cancelling an activity without the cascade increments the event version")
+    void us20_cancellingActivityIncrementsEventVersion() {
+        LifecycleEvent event = savePublished(2);
+        long before = reload(event.getId()).getVersion();
+
+        service.cancelActivity(event.getActivities().get(0).getId(), Optional.of(owner));
+
+        assertThat(reload(event.getId()).getVersion()).isGreaterThan(before);
+    }
+
+    @Test
+    @DisplayName("US-20 a stale concurrent activity cancellation is rejected")
+    void us20_concurrentActivityCancellationIsRejected() throws Exception {
+        LifecycleEvent event = savePublished(2);
+        UUID a = event.getActivities().get(0).getId();
+        UUID b = event.getActivities().get(1).getId();
+
+        assertThatThrownBy(() -> tx.executeWithoutResult(status -> {
+            // The stale writer reads the event while both activities are still scheduled.
+            events.findWithActivitiesById(event.getId()).orElseThrow();
+            var executor = Executors.newSingleThreadExecutor();
+            try {
+                executor.submit(() -> service.cancelActivity(b, Optional.of(owner))).get();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            } finally {
+                executor.shutdown();
+            }
+            service.cancelActivity(a, Optional.of(owner));
+        })).isInstanceOf(ObjectOptimisticLockingFailureException.class);
     }
 }
