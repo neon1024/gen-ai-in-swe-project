@@ -10,7 +10,7 @@ This document lists everything the event-lifecycle share (`com.ubb.genai.eventli
 |---|---|
 | `backend/pom.xml` | Enabled `spring-boot-starter-data-jpa` and `spring-boot-starter-data-jpa-test`. Added `spring-boot-starter-flyway`, `flyway-database-postgresql`, `postgresql` (runtime), and test-scope `spring-boot-testcontainers`, `testcontainers-postgresql`, `testcontainers-junit-jupiter`. |
 | `backend/src/main/resources/application.properties` | Added datasource (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD` with local defaults), `spring.jpa.hibernate.ddl-auto=validate`, `spring.jpa.open-in-view=false`. |
-| `backend/src/test/resources/application.properties` | New. Testcontainers JDBC URL `jdbc:tc:postgresql:17-alpine:///ubb_events_test`, `ddl-auto=validate`, `open-in-view=false`. |
+| `backend/src/test/resources/application.properties` | New. Testcontainers JDBC URL `jdbc:tc:postgresql:17-alpine:///ubb_events_test`, `ddl-auto=validate`, `open-in-view=false`, `eventlifecycle.completion.enabled=false`. |
 
 ## Provisional model
 
@@ -157,6 +157,17 @@ Error response (`409`, `application/problem+json`):
 |---|---|
 | Precondition order | event not visible 404, no owner rights 403, event not DRAFT 409 `EVENT_NOT_DRAFT` ("Published events cannot be deleted, only cancelled.", BR-05). |
 | Cascade | Activities and agenda items are removed by JPA cascade and by `on delete cascade` in the database. |
+
+## Scheduled jobs
+
+| Job | Behaviour |
+|---|---|
+| `EventCompletionJob` | Runs `EventCompletionService.completeEndedEvents()` with a fixed delay. Logs the count when at least one event was completed. A failed run is logged and retried on the next tick. |
+| `eventlifecycle.completion.interval` | Delay between runs as an ISO-8601 duration. Default `PT1M`. |
+| `eventlifecycle.completion.enabled` | Set to `false` to disable the job. Default `true`. The test configuration disables it. |
+| Selection | Every PUBLISHED event whose last non-cancelled activity has `endsAt <= now` becomes COMPLETED with `completedAt = now` (US-23, BR-04). Events with no scheduled activity are skipped. DRAFT, COMPLETED and CANCELLED events are never selected (BR-01). |
+| Idempotency | A completed event is no longer selected, so a repeated run completes nothing. |
+| Transaction | One transaction per run. A concurrent cancellation of a selected event fails the save, the run rolls back and the next run retries. |
 
 ## Provided interfaces
 
