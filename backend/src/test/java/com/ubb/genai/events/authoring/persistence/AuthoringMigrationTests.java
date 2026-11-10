@@ -61,7 +61,7 @@ class AuthoringMigrationTests {
     @DisplayName("US-15 / BR-07 / BR-08: invalid activity rows are rejected by PostgreSQL")
     @ValueSource(strings = {"ends_at = starts_at", "ends_at = starts_at - interval '1 second'", "capacity = 0",
             "location = null, online_link = null", "location = '  ', online_link = ' '",
-            "registration_close = starts_at + interval '1 second'", "title = ' '", "description = ''",
+            "registration_close = starts_at + interval '1 second', registration_close_offset_seconds = 0", "title = ' '", "description = ''",
             "visibility = 'UNKNOWN'", "event_id = '00000000-0000-0000-0000-000000000000'"})
     @Transactional
     void rejectsInvalidActivityRows(String change) {
@@ -87,6 +87,59 @@ class AuthoringMigrationTests {
     void rejectsAgendaWithoutAParent() {
         assertThatThrownBy(() -> jdbc.update("insert into event_authoring.agenda_item values (?, ?, '2030-01-01T10:00Z', 0, 'Welcome', null)", UUID.randomUUID(), UUID.randomUUID()))
                 .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @ParameterizedTest
+    @DisplayName("US-14 / BR-03: whitespace-only event metadata and references are rejected")
+    @ValueSource(strings = {"title", "description", "organization_ref", "owner_subject"})
+    @Transactional
+    void rejectsWhitespaceOnlyEventFields(String field) {
+        UUID event = event();
+        assertThatThrownBy(() -> jdbc.update("update event_authoring.event set " + field + " = ? where id = ?", "\t\n\r", event))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @ParameterizedTest
+    @DisplayName("US-15 / BR-07: whitespace-only activity metadata and place are rejected")
+    @ValueSource(strings = {"title", "description", "location"})
+    @Transactional
+    void rejectsWhitespaceOnlyActivityFields(String field) {
+        UUID activity = activity(event());
+        assertThatThrownBy(() -> jdbc.update("update event_authoring.activity set " + field + " = ? where id = ?", "\t\n\r", activity))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    @DisplayName("US-16 / BR-07: whitespace-only agenda title is rejected")
+    @Transactional
+    void rejectsWhitespaceOnlyAgendaTitle() {
+        UUID activity = activity(event());
+        assertThatThrownBy(() -> jdbc.update("insert into event_authoring.agenda_item values (?, ?, '2030-01-01T10:00Z', 0, ?, null)", UUID.randomUUID(), activity, "\t\n\r"))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @ParameterizedTest
+    @DisplayName("US-15 / BR-08: registration timestamps and original offsets must be paired")
+    @ValueSource(strings = {"registration_open = '2029-12-31T10:00Z'", "registration_open_offset_seconds = 7200",
+            "registration_close = '2030-01-01T09:00Z'", "registration_close_offset_seconds = 7200"})
+    @Transactional
+    void rejectsIncompleteRegistrationOffsetPairs(String change) {
+        UUID activity = activity(event());
+        assertThatThrownBy(() -> jdbc.update("update event_authoring.activity set " + change + " where id = ?", activity))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    @DisplayName("US-15 / BR-08: complete optional registration timestamp-offset pairs are accepted")
+    @Transactional
+    void acceptsCompleteRegistrationOffsetPairs() {
+        UUID activity = activity(event());
+        assertThat(jdbc.update("""
+                update event_authoring.activity
+                set registration_open = '2029-12-31T10:00Z', registration_open_offset_seconds = 7200,
+                    registration_close = '2030-01-01T09:00Z', registration_close_offset_seconds = 0
+                where id = ?
+                """, activity)).isEqualTo(1);
     }
 
     private UUID event() {
