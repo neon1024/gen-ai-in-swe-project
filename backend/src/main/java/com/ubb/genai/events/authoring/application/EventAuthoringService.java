@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class EventAuthoringService {
@@ -98,7 +99,7 @@ public class EventAuthoringService {
     return view(event, true);
   }
 
-  @Transactional(readOnly = true)
+  @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
   public EventView getEvent(UUID id) {
     var actor = actor();
     var event = repository.findById(id).orElseThrow(EventAuthoringService::notFound);
