@@ -8,4 +8,10 @@ public interface AuthoringEventRepository {
   AuthoringEvent save(AuthoringEvent event);
 
   Optional<AuthoringEvent> findById(UUID id);
+
+  default Optional<AuthoringEvent> findForUpdate(UUID id) { return findById(id); }
+
+  default AuthoringEvent replace(AuthoringEvent event) {
+    throw new UnsupportedOperationException("Aggregate replacement is required");
+  }
 }

@@ -3,6 +3,7 @@ package com.ubb.genai.events.authoring.domain;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+import java.util.List;
 
 public record AuthoringEvent(
     UUID id,
@@ -14,7 +15,24 @@ public record AuthoringEvent(
     EventState state,
     Instant createdAt,
     Instant publishedAt,
-    long version) {
+    long version,
+    List<AuthoringActivity> activities) {
+  public AuthoringEvent {
+    activities = List.copyOf(activities);
+  }
+
+  public AuthoringEvent(UUID id, String organizationRef, String ownerSubject, String title,
+      String description, EventCategory category, EventState state, Instant createdAt,
+      Instant publishedAt, long version) {
+    this(id, organizationRef, ownerSubject, title, description, category, state, createdAt,
+        publishedAt, version, List.of());
+  }
+
+  public AuthoringEvent withActivities(List<AuthoringActivity> replacements) {
+    return new AuthoringEvent(id, organizationRef, ownerSubject, title, description, category,
+        state, createdAt, publishedAt, version, replacements);
+  }
+
   public static AuthoringEvent draft(
       String org,
       String owner,
