@@ -23,7 +23,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class AggregateReadConsistencyTests {
   @Autowired EventAuthoringService service;
   @Autowired JdbcTemplate jdbc;
-  @Autowired org.springframework.transaction.PlatformTransactionManager transactions;
   @Autowired com.ubb.genai.events.authoring.ports.PublishedEventsReadContract published;
 
   public static class ReadBarrier implements StatementInspector {
@@ -74,20 +73,15 @@ public class AggregateReadConsistencyTests {
       var read = reader.submit(() -> published.publishedEvents());
       try {
         assertTrue(ReadBarrier.rootLoaded.await(10, TimeUnit.SECONDS));
-        // Exercise committed storage concurrency independently of deferred Published commands.
-        new org.springframework.transaction.support.TransactionTemplate(transactions)
-            .executeWithoutResult(status -> {
-              assertEquals(1, jdbc.update("update event_authoring.event set version=version+1 where id=? and version=2", event.id()));
-              assertEquals(1, jdbc.update("update event_authoring.activity set title=? where event_id=?", "Updated session", event.id()));
-            });
+        var changed = service.addActivity(event.id(), activity(2, "New session"));
+        assertEquals(3, changed.version());
       } finally {
         ReadBarrier.resumeChildren.countDown();
       }
       assertEquals(before, read.get(10, TimeUnit.SECONDS));
       var latest = published.publishedEvents().getFirst();
       assertEquals(3, latest.version());
-      assertEquals(1, latest.activities().size());
-      assertEquals("Updated session", latest.activities().getFirst().title());
+      assertEquals(2, latest.activities().size());
     }
   }
 
