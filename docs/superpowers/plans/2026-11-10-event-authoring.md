@@ -74,10 +74,10 @@ Every task: observed expected RED → minimal GREEN → meaningful targeted/regr
 **Dependencies:** EA-01. Production auth/org integrations remain unavailable; tests must state fixtures explicitly.
 **Files:** create domain/EventState.java, EventCategory.java, ActivityVisibility.java, AuthoringEvent.java; ports/AuthoringIdentityPort.java, OrganizationAccessPort.java, EventTeamAccessPort.java; application/EventAuthoringService.java, AuthoringException.java; persistence/EventEntity.java, ActivityEntity.java, AgendaItemEntity.java, AuthoringEventRepository.java, JpaAuthoringRepository.java; api/EventAuthoringController.java, AuthoringRequests.java, AuthoringViews.java, AuthoringExceptionHandler.java; feature-owned fail-closed wiring/security configuration. Add domain/AuthoringEventTests.java, application/DraftAuthoringTests.java and api/DraftAuthoringApiTests.java.
 **Consumed:** schema and PostgreSQL test configuration. **Produced:** createDraft(CreateEventCommand) → EventView; getEvent(UUID) → EventView; immutable current Owner reference initialized from trusted Actor; replaceable safe external ports; REST POST /api/event-authoring/events and GET /api/event-authoring/events/{id}.
-- [ ] Write observed failing tests for all US-14 criteria and Review Focus 1: required fields/category, Organizer/Org Admin eligibility, actual creator assignment, same-org Org Admin/Owner/team reads, unrelated/anonymous/Staff creation denial, missing adapter and client Owner/state injection. Use real domain/service and explicit fixture ports.
-- [ ] Implement only Draft creation/read, current Owner and nested-empty aggregate mapping, validation and transaction/optimistic-version infrastructure. Provide no global auth/membership/team implementation. Use injected Clock; store trusted identity only internally.
-- [ ] Add scoped security/CSRF checks and HTTP error handling, with no login/provider/password bypass. A production session without the required authoritative adapter must not gain access. Test cross-org/nested resource confidentiality and response redaction.
-- [ ] Verify targeted and regression backend tests against real PostgreSQL where persistence is involved. Commit #17 backend slice. Completion: real authoring persistence/API verified under identity/org fixtures; production account/org integration explicitly pending.
+- [x] Write observed failing tests for all US-14 criteria and Review Focus 1: required fields/category, Organizer/Org Admin eligibility, actual creator assignment, same-org Org Admin/Owner/team reads, unrelated/anonymous/Staff creation denial, missing adapter and client Owner/state injection. Use real domain/service and explicit fixture ports.
+- [x] Implement only Draft creation/read, current Owner and nested-empty aggregate mapping, validation and transaction/optimistic-version infrastructure. Provide no global auth/membership/team implementation. Use injected Clock; store trusted identity only internally.
+- [x] Add scoped security/CSRF checks and HTTP error handling, with no login/provider/password bypass. A production session without the required authoritative adapter must not gain access. Test cross-org/nested resource confidentiality and response redaction.
+- [x] Verify targeted and regression backend tests against real PostgreSQL where persistence is involved. Commit #17 backend slice. Completion: real authoring persistence/API verified under identity/org fixtures; production account/org integration explicitly pending.
 
 ## EA-03 — Activity and agenda domain/API (#18/#19)
 
@@ -145,5 +145,8 @@ This single plan covers all five issues, 17 criteria and the schema/API/UI/test/
 - Requesting-student slice approval: confirmed.
 - Written-plan approval and SDD execution: confirmed.
 - EA-01: Implementer committed f41c52a with reported RED/GREEN evidence; independent spec review requested corrections. Interrupted correction resumed on 2026-11-10: 32 migration tests observed with 12 expected assertion failures and no errors, demonstrating whitespace and timestamp/offset-pair gaps. Correction f967285 passed independent spec and quality reviews and coordinator checks: 34 backend tests, 1 RTL test, typecheck/build. Minor Vitest/TypeScript alignment resolved in 2b8163f and independently re-reviewed; coordinator repeated all frontend checks successfully. EA-01 complete.
-- EA-02–07: Not Started.
+- EA-02: Complete at 7263e0c after independent spec and quality correction/re-review loops. Coordinator 95 backend tests passed; actual upstream adapters and UI remain pending.
+- EA-03–07: Not Started.
 - Independent peer/cross-owner integration acceptance and student implementation review: pending; no production integration is fabricated.
+
+Resumption routing constraint: the user explicitly prohibited Astra subagents. Future implementation and review workers use other available models; completed earlier reviews remain historical evidence.
