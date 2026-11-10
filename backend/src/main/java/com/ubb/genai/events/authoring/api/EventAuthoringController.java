@@ -76,8 +76,10 @@ public class EventAuthoringController {
   }
 
   @PostMapping("/{eventId}/publish")
+  @ApiResponse(responseCode = "200", description = "Event published",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventView.class)))
   @ApiResponse(responseCode = "422", description = "Accumulated publication readiness problems",
-      content = @Content(mediaType = "application/json"))
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthoringExceptionHandler.ErrorView.class)))
   public EventView publish(@PathVariable UUID eventId,
       @RequestBody AuthoringRequests.VersionCommand request) {
     if (request.expectedVersion() == null || request.expectedVersion() < 0)

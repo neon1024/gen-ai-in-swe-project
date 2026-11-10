@@ -136,7 +136,10 @@ public class EventAuthoringService {
   private void requireWritable(
       AuthoringIdentityPort.Actor actor, AuthoringEvent event, long expectedVersion) {
     if (!canEdit(actor, event)) throw new AuthoringException(403, "FORBIDDEN", "Action denied");
-    if (event.state() != EventState.DRAFT && event.state() != EventState.PUBLISHED)
+    // Temporary availability boundary while Published editing is deferred by task scope.
+    if (event.state() == EventState.PUBLISHED)
+      throw new AuthoringException(409, "STATE_CONFLICT", "Published editing is deferred");
+    if (event.state() != EventState.DRAFT)
       throw new AuthoringException(409, "STATE_CONFLICT", "Event is read only");
     if (expectedVersion < 0) throw invalid("expectedVersion", "Version must be nonnegative");
     if (event.version() != expectedVersion)
@@ -326,7 +329,7 @@ public class EventAuthoringService {
 
   private static EventView view(AuthoringEvent event, boolean edit) {
     boolean writable =
-        edit && (event.state() == EventState.DRAFT || event.state() == EventState.PUBLISHED);
+        edit && event.state() == EventState.DRAFT;
     return new EventView(
         event.id(),
         event.organizationRef(),
