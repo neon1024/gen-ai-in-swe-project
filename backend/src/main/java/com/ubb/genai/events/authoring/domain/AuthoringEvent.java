@@ -1,6 +1,7 @@
 package com.ubb.genai.events.authoring.domain;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 public record AuthoringEvent(
@@ -31,6 +32,9 @@ public record AuthoringEvent(
         || description.isBlank()
         || category == null
         || now == null) throw new IllegalArgumentException("Required draft metadata missing");
+    if (org.indexOf(0) >= 0 || title.indexOf(0) >= 0 || description.indexOf(0) >= 0) {
+      throw new IllegalArgumentException("Draft metadata contains an unsupported character");
+    }
     return new AuthoringEvent(
         UUID.randomUUID(),
         org,
@@ -39,7 +43,7 @@ public record AuthoringEvent(
         description,
         category,
         EventState.DRAFT,
-        now,
+        now.truncatedTo(ChronoUnit.MICROS),
         null,
         0);
   }
