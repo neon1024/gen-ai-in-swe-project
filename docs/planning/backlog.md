@@ -321,10 +321,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; capacity below confirmed signups, promotion and preservation of signups.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Deferred by the user until a later prompt. Mixed 164-test WIP preserved locally at 437cd5f; independent #21 reviews pending. Excluded from active publication branch, whose Published editing is temporarily unavailable. Real registration/FIFO integration and shared locking remain pending.
-- Branch: feat/issue-21-jose03pedro-deferred at 437cd5f99de83af0e4b3c0a2fa0aabd730261543 (local preserved WIP; not pushed).
-- PR: Not opened for this share; student review remains pending.
-- Verification: Archived mixed snapshot had 164 passing tests; no independent #21 approval or active-branch completion. Later reconciliation requires appropriate targeted/regression checks and reviews.
+- Development status: Open on GitHub. Partial: Published editing backend verified and independently reviewed at 4cce076 (170 tests, Maven verify). UI, real registration/FIFO adapter and shared locking remain pending; production capacity changes/removal on Published events fail closed (503) until then.
+- Branch: feat/issue-21-jose03pedro-edit-published-event (stacked on the #20 branch); feat/issue-21-jose03pedro-deferred 437cd5f is superseded history.
+- PR: Opened against main together with the stacked #17–#20 work (see the session GenAI log); non-closing references; student review pending.
+- Verification: 170 backend tests, 0 failures/errors/skips; independent specification and quality reviews passed. Real acceptance pending.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 

@@ -2,7 +2,7 @@
 
 Status: **Approved slice and executable plan; EA-01 infrastructure verified; EA-02 draft backend verified under fixtures; EA-03 activity/agenda backend verified under fixtures; UI and real integration pending**. Scope: all 17 acceptance criteria of #17–#21 / US-14–18 in [the approved stories](08-user-stories.md). The [integration contract](../integration/event-authoring-contract.md) defines approved for this isolated slice components, external dependencies and approval questions. Test identifiers below are planned Java/TypeScript-safe names, not claims that files/tests exist. Actual feature files, commands and results will be added as each TDD task and its reviews finish. EA-01 migration/constraint and shell checks do not complete a story criterion. Human Review Status: Pending student review.
 
-#17 has backend-only fixture evidence below; UI and real integration remain pending. #18/#19 have backend-only fixture evidence below; #20 has backend-only fixture evidence below; #21 is explicitly Deferred with separate unreviewed local WIP. No full-story completion is claimed. A fixture is not production identity, membership, search or FIFO integration. The labels distinguish the intended level; they do not claim passing tests.
+#17 has backend-only fixture evidence below; UI and real integration remain pending. #18/#19 have backend-only fixture evidence below; #20 has backend-only fixture evidence below; #21 has backend-only fixture evidence below (reviewed at 4cce076). No full-story completion is claimed. A fixture is not production identity, membership, search or FIFO integration. The labels distinguish the intended level; they do not claim passing tests.
 
 | Issue | Story | FR | BR | Acceptance criterion | Planned test identifier | Proposed component / test type | Integration dependency |
 |---|---|---|---|---|---|---|---|
@@ -70,4 +70,17 @@ Independent Terra specification/quality reviews approved db799b9. Coordinator Ma
 | Search visibility and windows | PublicationApiTests.US17_publicationPersistsTimestampWindowsAndVersion; PublicationTests.US17_latePublicationKeepsAlreadyEndedRegistrationWindowClosed; AuthoringConcurrencyTests.US17_projectionOnlyShowsCommittedPublishedAggregates; AggregateReadConsistencyTests.publishedProjectionKeepsRootAndChildrenInOneCommittedSnapshot | Local committed projection/windows verified; actual discovery and registration consumers pending |
 | Staff cannot publish | PublicationTests.US17_staffDeniedBeforeVersionAndReadiness; PublicationApiTests.US17_sessionCsrfAndStaffAuthorizationRemainDistinct | Backend fixture verified; real access integration/UI pending |
 
-AuthoringConcurrencyTests.US17_concurrentPublishesSerializeAndOnlyOneWins verifies concurrent publication. PublicationApiTests.US17_publishedMutationsRemainUnavailableWhileIssue21IsDeferred verifies the temporary409/capability gate, foreign404/Staff403 and unchanged rows/version. #21 tests saved at 437cd5f were not independently reviewed and do not establish current-branch #21 completion. Human Review Status: Pending student review.
+AuthoringConcurrencyTests.US17_concurrentPublishesSerializeAndOnlyOneWins verifies concurrent publication. The temporary gate test was replaced when #21 resumed (see the #21 section below). Human Review Status: Pending student review.
+
+## Issue #21 backend evidence (2026-11-10)
+
+Independent specification review SPEC COMPLIANT and quality review APPROVED; coordinator Maven verify at 4cce076 passed 170 tests, 0 failures/errors/skips. Real PostgreSQL; identity/org/team/registration are explicit fixtures or call probes. No full US-18 delivery is claimed.
+
+| Criterion | Actual checks | Remaining acceptance |
+|---|---|---|
+| Edit Published event/activity/agenda; add activities | PublishedEditingTests.US18_detailsEditPreservesImmutableMetadataAndActivities, US18_publishedActivitiesAndAgendaRemainEditableWithPreservedAgenda, US18_editorAndSameOrganizationAdminCanEditMetadata; PublicationApiTests.US18_eventDetailsEndpointPersistsOnlyAllowedMetadata, US18_publishedMutationsAreAllowedForOwnerEditorAndSameOrganizationAdmin, US18_publishedMutationsKeepStaffForbiddenAndForeignNestedResourcesHidden, US18_publishedActivityEditsRemainPublicOnly | UI; real access integration |
+| Capacity never below confirmed signups | RegistrationAuthoringContractTests.BR12_capacityCannotFallBelowAuthoritativeConfirmedCount, BR12_staleAndConcurrentCapacityWritesCannotBypassRootVersion, BR12_guardOrPromotionFailureRollsBackAuthoringRowsAndVersion; PublicationApiTests.US18_missingProductionRegistrationAdapterRefusesCapacityChange | Real registration adapter and agreed lock protocol |
+| Raising capacity promotes from the waitlist | RegistrationAuthoringContractTests.BR12_everyPublishedCapacityChangeIsGuardedAndIncreasePromotesInTransaction, BR12_neverPromotesAtOrAfterUpdatedStart, BR12_clockIsEvaluatedAfterGuardLocksAndUsesUpdatedStart | Actual FIFO (#33) and real promotion |
+| Activity with signups cannot be deleted | RegistrationAuthoringContractTests.BR14_anySignupHistoryBlocksRemovalWithZeroConfirmed; PublishedEditingTests.US18_lastPublishedActivityCannotBeRemovedEvenWithoutSignups | Real signup guard; cancellation is owned by #23 |
+
+Draft capacity regression: RegistrationAuthoringContractTests.EA03_draftCapacityChangesNeverInvokeRegistrationGuard and PublicationApiTests.EA03_draftCapacityChangeSucceedsWithoutRegistrationAdapter. Human Review Status: Pending student review.
