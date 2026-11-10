@@ -148,3 +148,4 @@ Error response (`409`, `application/problem+json`):
 | Event cancel | `cancelAllSignups` is called once for every activity that was SCHEDULED, the event and those activities become CANCELLED, and `eventCancelled` is called once with the union of the recipients. Already cancelled activities are not touched. |
 | Rejected requests | Nothing is cancelled and no notification is sent. |
 | Notifications | Sent after the state change, in the same transaction, so a failing port rolls the change back. |
+| Concurrency | Both cancel paths load the event with an optimistic force-increment lock, so every cancel bumps the event version and the loser of a race gets 409 `CONCURRENT_MODIFICATION`. |
