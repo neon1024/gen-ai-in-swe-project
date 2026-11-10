@@ -11,6 +11,7 @@ This document lists everything the event-lifecycle share (`com.ubb.genai.eventli
 | `backend/pom.xml` | Enabled `spring-boot-starter-data-jpa` and `spring-boot-starter-data-jpa-test`. Added `spring-boot-starter-flyway`, `flyway-database-postgresql`, `postgresql` (runtime), and test-scope `spring-boot-testcontainers`, `testcontainers-postgresql`, `testcontainers-junit-jupiter`. |
 | `backend/src/main/resources/application.properties` | Added datasource (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD` with local defaults), `spring.jpa.hibernate.ddl-auto=validate`, `spring.jpa.open-in-view=false`. |
 | `backend/src/test/resources/application.properties` | New. Testcontainers JDBC URL `jdbc:tc:postgresql:17-alpine:///ubb_events_test`, `ddl-auto=validate`, `open-in-view=false`, `eventlifecycle.completion.enabled=false`. |
+| `frontend/` | New SPA scaffold (React, TypeScript, Vite, React Router 7, Tailwind CSS, Vitest). Share code lives in `frontend/src/features/event-lifecycle/`; `package.json`, `package-lock.json`, `vite.config.ts` (dev proxy `/api` to `localhost:8080`, Vitest setup), `index.html`, `src/main.tsx`, `src/App.tsx`, `src/index.css`, `src/test/setup.ts`. |
 
 ## Provisional model
 
@@ -300,3 +301,20 @@ Opening talk,2027-04-01T10:00:00Z,SCHEDULED,4,2,3,75.0,4.33,3
 | `lifecycle.EventReadOnlyGuard` (Spring bean) | `void requireEditable(UUID eventId)` | 404 `EVENT_NOT_FOUND` when the event is missing; 409 `EVENT_READ_ONLY` when it is COMPLETED or CANCELLED (BR-06). |
 
 The event-authoring share should call `requireEditable` before every edit of an event, its activities or its agenda. Attendance and feedback deliberately skip the guard (BR-06 exception).
+
+## Frontend
+
+Folder `frontend/` (React, TypeScript, Vite, React Router 7, Tailwind CSS; tests with Vitest and React Testing Library). Share code is in `frontend/src/features/event-lifecycle/`: `api/` (`client.ts`, `types.ts` mirroring the backend records, `discovery.ts`), `search/`, `categories.ts`, `routes.tsx`. `App.tsx` mounts `eventLifecycleRoutes`.
+
+| Route | Page |
+|---|---|
+| `/events` | `EventSearchPage`: keyword, date range, organization and category filters (US-24, US-25), mirrored into the URL query string. |
+
+`apiFetch` calls relative `/api/...` paths; the Vite dev server proxies them to `http://localhost:8080`. Provisional: when `localStorage` holds `devUserId`, it is sent as the `X-User-Id` header; the authentication share replaces this. A non-2xx response throws `ApiError { status, code, message }`, with `message` taken from the ProblemDetail `detail` (fallback `title`). Date filters are sent as ISO instants: `from` is the local start of day and `to` the local end of day (23:59:59.999).
+
+| Command (in `frontend/`) | Purpose |
+|---|---|
+| `npm install` | Install dependencies |
+| `npm run dev` | Dev server with the `/api` proxy |
+| `npm test` | Run Vitest once |
+| `npm run build` | Type-check and build |
