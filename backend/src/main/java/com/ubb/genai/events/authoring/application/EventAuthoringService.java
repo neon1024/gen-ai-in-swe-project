@@ -163,6 +163,12 @@ public class EventAuthoringService {
       throw new AuthoringException(409, "VERSION_CONFLICT", "Version conflict");
   }
 
+  /** Cancelled activities (cancellation owned by #23) are read only for authoring. */
+  private static void requireNotCancelled(AuthoringActivity activity) {
+    if (activity.cancelled())
+      throw new AuthoringException(409, "STATE_CONFLICT", "Cancelled activities are read only");
+  }
+
   @Transactional
   public EventView addActivity(UUID eventId, ActivityCommand command) {
     checkCommand(command);
@@ -181,6 +187,7 @@ public class EventAuthoringService {
     var event = lockEvent(eventId);
     var previous = activity(event, activityId);
     requireWritable(actor, event, command.expectedVersion());
+    requireNotCancelled(previous);
     var replacement = activity(command, activityId, previous.createdAt(), previous.cancelled()).withAgenda(previous.agenda());
     if (previous.agenda().stream().anyMatch(item -> !replacement.schedule().contains(item.time())))
       throw invalid("schedule", "Activity schedule would exclude an existing agenda item");
@@ -210,14 +217,15 @@ public class EventAuthoringService {
   public EventView removeActivity(UUID eventId, UUID activityId, long expectedVersion) {
     var actor = actor();
     var event = lockEvent(eventId);
-    activity(event, activityId);
+    var removed = activity(event, activityId);
     requireWritable(actor, event, expectedVersion);
+    requireNotCancelled(removed);
     var remaining = event.activities().stream().filter(a -> !a.id().equals(activityId)).toList();
     // Signups cannot exist before publication and Published never returns to Draft.
     if (event.state() != EventState.PUBLISHED)
       return view(repository.replace(event.withActivities(remaining)), true);
-    if (remaining.isEmpty())
-      throw new AuthoringException(409, "STATE_CONFLICT", "Published events must retain an activity");
+    if (remaining.stream().allMatch(AuthoringActivity::cancelled))
+      throw new AuthoringException(409, "STATE_CONFLICT", "Published events must retain a non-cancelled activity");
     return registration.withLockedActivity(new RegistrationAuthoringPort.GuardRequest(eventId,
         activityId, RegistrationAuthoringPort.MutationKind.REMOVE, expectedVersion, null), context -> {
       if (context == null) throw AuthoringException.unavailable();
@@ -233,6 +241,7 @@ public class EventAuthoringService {
     var event = lockEvent(eventId);
     var activity = activity(event, activityId);
     requireWritable(actor, event, command.expectedVersion());
+    requireNotCancelled(activity);
     var items = new ArrayList<>(activity.agenda());
     items.add(agenda(command, UUID.randomUUID(), activity.schedule()));
     return replaceActivity(event, activity.withAgenda(items));
@@ -246,6 +255,7 @@ public class EventAuthoringService {
     var activity = activity(event, activityId);
     agendaItem(activity, itemId);
     requireWritable(actor, event, command.expectedVersion());
+    requireNotCancelled(activity);
     var replacement = agenda(command, itemId, activity.schedule());
     var items = activity.agenda().stream().map(i -> i.id().equals(itemId) ? replacement : i).toList();
     return replaceActivity(event, activity.withAgenda(items));
@@ -258,6 +268,7 @@ public class EventAuthoringService {
     var activity = activity(event, activityId);
     agendaItem(activity, itemId);
     requireWritable(actor, event, expectedVersion);
+    requireNotCancelled(activity);
     return replaceActivity(event, activity.withAgenda(activity.agenda().stream()
         .filter(i -> !i.id().equals(itemId)).toList()));
   }

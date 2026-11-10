@@ -222,4 +222,66 @@ class PublicationTests {
     assertEquals(422, failure.status());
     assertEquals(violations, failure.violations());
   }
+
+  /** Cancellation is owned by issue #23; cancelled activities are built directly here. */
+  AuthoringActivity cancelledCopy(AuthoringActivity activity, String title, ActivityVisibility visibility) {
+    return new AuthoringActivity(
+        activity.id(),
+        title,
+        activity.description(),
+        activity.schedule(),
+        activity.location(),
+        activity.onlineLink(),
+        activity.capacity(),
+        activity.registration(),
+        visibility,
+        true,
+        activity.createdAt());
+  }
+
+  @Test
+  void BR04_onlyCancelledActivitiesAreNotReadyForPublication_cancellationSimulatedFor23() {
+    var e = event(false).withActivities(List.of(cancelledCopy(activity(), "Session", ActivityVisibility.PUBLIC)));
+    rows.put(e.id(), e);
+    var failure = assertThrows(AuthoringException.class, () -> service.publish(e.id(), 0));
+    assertEquals(422, failure.status());
+    assertEquals("PUBLICATION_NOT_READY", failure.code());
+    assertTrue(
+        failure.violations().stream().anyMatch(v -> v.path().equals("activities")),
+        failure.violations().toString());
+    assertEquals(e, rows.get(e.id()));
+  }
+
+  @Test
+  void BR04_cancelledActivitiesAreNotRevalidatedForReadiness_cancellationSimulatedFor23() {
+    var e = event(true);
+    var cancelledInvalid = cancelledCopy(activity(), " ", ActivityVisibility.PRIVATE);
+    var withCancelled = e.withActivities(List.of(cancelledInvalid, e.activities().getFirst()));
+    rows.put(e.id(), withCancelled);
+    assertEquals(List.of(), PublicationReadiness.violations(withCancelled));
+    assertEquals("Published", service.publish(e.id(), 0).state());
+  }
+
+  @Test
+  void BR04_publicOnlyVisibilityStillAppliesToNonCancelledActivities() {
+    var e = event(true);
+    var good = e.activities().getFirst();
+    var privateActive =
+        new AuthoringActivity(
+            UUID.randomUUID(),
+            good.title(),
+            good.description(),
+            good.schedule(),
+            good.location(),
+            good.onlineLink(),
+            good.capacity(),
+            good.registration(),
+            ActivityVisibility.PRIVATE,
+            false,
+            good.createdAt());
+    var withPrivate = e.withActivities(List.of(cancelledCopy(activity(), "Old", ActivityVisibility.PUBLIC), privateActive));
+    assertEquals(
+        List.of(new AuthoringException.Violation("activities[1].visibility", "INVALID", "Only Public visibility is available")),
+        PublicationReadiness.violations(withPrivate));
+  }
 }
