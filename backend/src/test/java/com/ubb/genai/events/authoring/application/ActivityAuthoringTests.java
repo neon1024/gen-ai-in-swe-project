@@ -67,7 +67,7 @@ class ActivityAuthoringTests {
     assertEquals(409, assertThrows(AuthoringException.class, () -> service.removeActivity(event, activity.id(), 1)).status());
     assertEquals(1, service.getEvent(event).version());
     assertEquals(1, service.getEvent(event).activities().size());
-    assertEquals(new RegistrationAuthoringPort.GuardRequest(event, activity.id(), RegistrationAuthoringPort.MutationKind.REMOVE), guard.requested);
+    assertEquals(new RegistrationAuthoringPort.GuardRequest(event, activity.id(), RegistrationAuthoringPort.MutationKind.REMOVE, 1L, null), guard.requested);
     assertEquals(0, guard.promotions);
   }
   @Test void US15_removalCommitsNextRootVersionOnlyWithinGuard() {
