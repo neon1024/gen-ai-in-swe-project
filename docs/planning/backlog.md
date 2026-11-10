@@ -304,10 +304,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub. Not Started: EA-04 is next after completed EA-03. Actual authoring publication-to-discovery integration with PR #58 remains pending reconciliation. See docs/integration/event-authoring-contract.md.
-- Branch: feat/issue-17-jose03pedro-create-draft-event (preserved current authoring branch).
+- Development status: Open on GitHub (read-only recheck 2026-11-10; assignment unchanged). Partial: publication backend reviewed at db799b9 and 140-test Maven verify passed. UI, actual discovery/registration consumers and student review remain pending. Current user boundary stops after this backend handoff.
+- Branch: feat/issue-17-jose03pedro-create-draft-event preserved; feat/issue-20-jose03pedro-publish-event is the owned fast-forwarded handoff checkpoint.
 - PR: Not opened for this share; student review remains pending.
-- Verification: Not run for this story; EA-04 implementation and subsequent reviews are pending.
+- Verification: 140 backend tests, 0 failures/errors/skips; Maven verify/JAR packaging and independent Terra specification/quality reviews passed. Actual discovery acceptance pending.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 
@@ -321,10 +321,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; capacity below confirmed signups, promotion and preservation of signups.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): jose03pedro; model does not determine ownership.
-- Development status: Open on GitHub. Not Started: EA-04 is next after completed EA-03. Real registration/FIFO adapter and shared locking agreement remain pending; no fake production counts are allowed. See docs/integration/event-authoring-contract.md.
-- Branch: feat/issue-17-jose03pedro-create-draft-event (preserved current authoring branch).
+- Development status: Deferred by the user until a later prompt. Mixed 164-test WIP preserved locally at 437cd5f; independent #21 reviews pending. Excluded from active publication branch, whose Published editing is temporarily unavailable. Real registration/FIFO integration and shared locking remain pending.
+- Branch: feat/issue-21-jose03pedro-deferred at 437cd5f99de83af0e4b3c0a2fa0aabd730261543 (local preserved WIP; not pushed).
 - PR: Not opened for this share; student review remains pending.
-- Verification: Not run for this story; EA-04 implementation and subsequent reviews are pending.
+- Verification: Archived mixed snapshot had 164 passing tests; no independent #21 approval or active-branch completion. Later reconciliation requires appropriate targeted/regression checks and reviews.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 

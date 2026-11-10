@@ -96,12 +96,14 @@ Every task: observed expected RED → minimal GREEN → meaningful targeted/regr
 **Dependencies:** EA-03. Do not implement #22/#23/#25/#26/#33.
 **Files:** extend AuthoringEvent, EventAuthoringService, Controller/DTOs and repository locks; create application/PublicationReadiness.java, ports/PublishedEventsReadContract.java; tests application/PublicationTests.java, application/PublishedEditingTests.java, api/PublicationApiTests.java, persistence/AuthoringConcurrencyTests.java, ports/RegistrationAuthoringContractTests.java.
 **Produced:** publish(UUID,expectedVersion) → EventView; editEventDetails; guarded Published activity mutations. Committed read projection includes event/activity IDs, org reference, title/description/category, visibility/state/cancellation/windows, without Owner/account/email leakage. Organization name/activation/audience resolution remains with real owners.
-- [ ] Write expected RED publication tests: no activities, every activity revalidated, accumulated problems, Owner/Editor/Org Admin allowed and Staff alone denied, repeated/non-Draft transition refused, original publication instant captured once, stale/concurrent publishes serialize.
-- [ ] Implement atomic publication/readiness and projection only; no search implementation or success claim for missing consumer.
+- [x] Write expected RED publication tests: no activities, every activity revalidated, accumulated problems, Owner/Editor/Org Admin allowed and Staff alone denied, repeated/non-Draft transition refused, original publication instant captured once, stale/concurrent publishes serialize.
+- [x] Implement atomic publication/readiness and projection only; no search implementation or success claim for missing consumer.
 - [ ] Write expected RED Published editing tests: title/description/category and nested edits/additions, immutable org/current Owner, Completed/Cancelled read-only, agenda preserved/revalidated, last Published activity removal refused, unchanged signups on time overlap.
 - [ ] Write registration-seam RED tests using explicit fixed snapshots/call probes: capacity below authoritative count refused; deletion with any history refused; before-start increase requests promotion in the same guarded transaction; after-start increase never promotes; missing/failed adapter refuses or rolls back; stale/concurrent mutation cannot bypass root checks. No local FIFO algorithm.
 - [ ] Implement authoring checks and callbacks, fail-closed external adapter behavior and PostgreSQL rollback/version tests. Clearly document that the cross-module lock/FIFO protocol is not verified with real signup code.
 - [ ] Commit verified local #20/#21 work with non-closing references where real acceptance remains incomplete. Completion: authoring behavior tested; #20 discoverability and #21 real promotion/concurrency are Pending integration, not complete stories.
+
+**Current execution result:** #20 backend publication is verified and independently reviewed at db799b9 (140 tests; Maven verify passed). Remaining #21 steps above are Deferred by the user, with unreviewed WIP preserved locally at 437cd5f. They are not completed on the active branch. UI and actual discovery/registration acceptance remain pending.
 
 ## EA-05 — Event and activity React authoring (#17/#18)
 
@@ -147,7 +149,18 @@ This single plan covers all five issues, 17 criteria and the schema/API/UI/test/
 - EA-01: Implementer committed f41c52a with reported RED/GREEN evidence; independent spec review requested corrections. Interrupted correction resumed on 2026-11-10: 32 migration tests observed with 12 expected assertion failures and no errors, demonstrating whitespace and timestamp/offset-pair gaps. Correction f967285 passed independent spec and quality reviews and coordinator checks: 34 backend tests, 1 RTL test, typecheck/build. Minor Vitest/TypeScript alignment resolved in 2b8163f and independently re-reviewed; coordinator repeated all frontend checks successfully. EA-01 complete.
 - EA-02: Complete at 7263e0c after independent spec and quality correction/re-review loops. Coordinator 95 backend tests passed; actual upstream adapters and UI remain pending.
 - EA-03: Complete at 4ecc06f. Activity a9e7701, agenda aa6fd30, nested-resolution fix 14dbf39 and coherent-read fix 4ecc06f. Independent Terra specification and quality re-reviews approved; coordinator 123 backend tests passed. Existing branch/history and issue18/19 checkpoint refs preserved. No real upstream/signup integration or full-story delivery claimed.
-- EA-04–07: Not Started.
+- EA-04: Publication #20 backend complete for the current isolated scope at db799b9 after independent Terra spec/quality reviews and coordinator 140-test Maven verify. #21 explicitly Deferred until a later user prompt, preserved locally at 437cd5f on feat/issue-21-jose03pedro-deferred; its tests/implementation are excluded from the active branch. Published mutations temporarily return 409 and capabilities false until that work resumes. Full-story UI/discovery/registration acceptance and student review remain pending.
+- EA-05–07: Not Started.
 - Independent peer/cross-owner integration acceptance and student implementation review: pending; no production integration is fabricated.
 
 Resumption routing constraint: the user explicitly prohibited Astra subagents. Future implementation and review workers use other available models; completed earlier reviews remain historical evidence.
+
+Latest execution boundary: finish publication #20 through independent specification and quality reviews, then stop. Do not start later UI/integration tasks or resume #21 without the later user prompt. This changes execution scope, not the approved future product contracts.
+
+## Deferred #21 resumption handoff
+
+- The original authoring branch is preserved. Publication commits are 5d95472 and db799b9; issue #20 checkpoint ref is fast-forwarded to the final reviewed handoff, without rewriting history.
+- Local branch feat/issue-21-jose03pedro-deferred at 437cd5f99de83af0e4b3c0a2fa0aabd730261543 preserves the mixed 164-test snapshot. It has no independent #21 specification/quality approval and was not pushed.
+- Do not restore that snapshot wholesale: it also contains publication corrections already reused, while the current branch adds later publication hardening. Reconcile only deferred #21 metadata/capacity/promotion/last-activity changes, preserving current publication and snapshot fixes.
+- Reuse the recorded #21 TDD evidence; add new regressions where reconciliation changes behavior. Remove the temporary Published-write/capability gate only with the guarded #21 implementation and independent reviews. No actual FIFO or real upstream integration is implied by snapshots/call probes.
+- Await the user's later prompt before resuming #21 or later EA-05–07 work. Keep identity/org/registration production defaults fail closed, original Git history, English artifacts and no-Astra routing.
