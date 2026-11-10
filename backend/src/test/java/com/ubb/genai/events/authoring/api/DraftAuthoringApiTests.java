@@ -44,7 +44,6 @@ class DraftAuthoringApiTests {
     }
 
     @Bean
-    @Primary
     AuthoringIdentityPort identity(Fixture f) {
       return () -> {
         if (f.unavailable) throw AuthoringException.unavailable();
@@ -53,13 +52,11 @@ class DraftAuthoringApiTests {
     }
 
     @Bean
-    @Primary
     OrganizationAccessPort organization(Fixture f) {
       return (s, o) -> f.org;
     }
 
     @Bean
-    @Primary
     EventTeamAccessPort team(Fixture f) {
       return (s, e) -> f.team;
     }
@@ -137,6 +134,34 @@ class DraftAuthoringApiTests {
           .andExpect(jsonPath("$.code").value("INVALID_INPUT"))
           .andExpect(jsonPath("$.violations").isArray())
           .andExpect(jsonPath("$.trace").doesNotExist());
+  }
+
+  static java.util.stream.Stream<org.junit.jupiter.params.provider.Arguments>
+      malformedTextValues() {
+    return java.util.stream.Stream.of("title", "description", "organizationRef")
+        .flatMap(
+            field ->
+                java.util.stream.Stream.of("23", "true", "false", "1.5", "[]", "{}", "[\"text\"]")
+                    .map(value -> org.junit.jupiter.params.provider.Arguments.of(field, value)));
+  }
+
+  @org.junit.jupiter.params.ParameterizedTest
+  @org.junit.jupiter.params.provider.MethodSource("malformedTextValues")
+  void nonTextMetadataIsRejectedWithoutPersistence(String field, String scalar) throws Exception {
+    String original =
+        switch (field) {
+          case "title" -> "Workshop";
+          case "description" -> "Details";
+          default -> "opaque-org";
+        };
+    String body =
+        BODY.replace("\"" + field + "\":\"" + original + "\"", "\"" + field + "\":" + scalar);
+    create(body)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("INVALID_INPUT"))
+        .andExpect(jsonPath("$.violations").isArray());
+    assertEquals(
+        0, jdbc.queryForObject("select count(*) from event_authoring.event", Integer.class));
   }
 
   @Test
