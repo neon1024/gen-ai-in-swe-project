@@ -189,7 +189,8 @@ public class EventAuthoringService {
     if (event.state() != EventState.PUBLISHED || replacement.capacity() == previous.capacity())
       return view(repository.replace(event.withActivities(activities)), true);
     return registration.withLockedActivity(new RegistrationAuthoringPort.GuardRequest(eventId,
-        activityId, RegistrationAuthoringPort.MutationKind.CAPACITY_CHANGE), context -> {
+        activityId, RegistrationAuthoringPort.MutationKind.CAPACITY_CHANGE, command.expectedVersion(),
+        replacement.capacity()), context -> {
       if (context == null) throw AuthoringException.unavailable();
       long confirmed = context.confirmedCount();
       if (replacement.capacity() < confirmed)
@@ -214,7 +215,7 @@ public class EventAuthoringService {
     if (event.state() == EventState.PUBLISHED && event.activities().size() == 1)
       throw new AuthoringException(409, "STATE_CONFLICT", "Published events must retain an activity");
     return registration.withLockedActivity(new RegistrationAuthoringPort.GuardRequest(eventId,
-        activityId, RegistrationAuthoringPort.MutationKind.REMOVE), context -> {
+        activityId, RegistrationAuthoringPort.MutationKind.REMOVE, expectedVersion, null), context -> {
       if (context == null) throw AuthoringException.unavailable();
       if (context.hasAnySignup()) throw new AuthoringException(409, "SIGNUP_CONFLICT", "Activity has signup history");
       var remaining = event.activities().stream().filter(a -> !a.id().equals(activityId)).toList();

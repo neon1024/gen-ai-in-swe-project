@@ -103,7 +103,14 @@ class RegistrationAuthoringContractTests {
             before.id(), before.activities().getFirst().id(), command(2, 12, start));
     assertEquals(12, after.activities().getFirst().capacity());
     assertEquals(1, probe.calls);
-    assertEquals("CAPACITY_CHANGE", probe.requested.mutationKind().name());
+    assertEquals(
+        new RegistrationAuthoringPort.GuardRequest(
+            before.id(),
+            before.activities().getFirst().id(),
+            RegistrationAuthoringPort.MutationKind.CAPACITY_CHANGE,
+            2L,
+            12),
+        probe.requested);
     assertEquals(1, probe.promotions);
     assertEquals(12, probe.promotedCapacity);
     assertTrue(probe.guardedTransaction);
@@ -112,6 +119,8 @@ class RegistrationAuthoringContractTests {
     assertEquals(probe.now, probe.promotionNow);
     service.updateActivity(before.id(), before.activities().getFirst().id(), command(3, 7, start));
     assertEquals(2, probe.calls);
+    assertEquals(3L, probe.requested.expectedVersion());
+    assertEquals(7, probe.requested.requestedCapacity());
     assertEquals(1, probe.promotions);
   }
 
@@ -201,6 +210,10 @@ class RegistrationAuthoringContractTests {
         assertThrows(AuthoringException.class, () -> service.removeActivity(before.id(), id, 3))
             .status());
     assertEquals(added, service.getEvent(before.id()));
+    assertEquals(
+        new RegistrationAuthoringPort.GuardRequest(
+            before.id(), id, RegistrationAuthoringPort.MutationKind.REMOVE, 3L, null),
+        probe.requested);
     assertEquals(0, probe.promotions);
   }
 
