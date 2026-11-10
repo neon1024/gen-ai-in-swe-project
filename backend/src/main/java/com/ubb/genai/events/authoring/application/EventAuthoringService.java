@@ -70,6 +70,26 @@ public class EventAuthoringService {
     this.registration = registration;
   }
 
+  public record EventDetailsCommand(Long expectedVersion, String title, String description, EventCategory category) {}
+
+  @Transactional
+  public EventView editEventDetails(UUID eventId, EventDetailsCommand command) {
+    if (command == null) throw invalid("event", "Event details are required");
+    if (command.expectedVersion() == null || command.expectedVersion() < 0)
+      throw invalid("expectedVersion", "Nonnegative version is required");
+    var actor = actor();
+    var event = lockEvent(eventId);
+    requireWritable(actor, event, command.expectedVersion());
+    var violations = new ArrayList<AuthoringException.Violation>();
+    required(violations, "title", command.title());
+    required(violations, "description", command.description());
+    if (command.category() == null)
+      violations.add(new AuthoringException.Violation("category", "REQUIRED", "Category is required"));
+    if (!violations.isEmpty())
+      throw new AuthoringException(400, "INVALID_INPUT", "Invalid request", violations);
+    return view(repository.replace(event.withDetails(command.title(), command.description(), command.category())), true);
+  }
+
   @Transactional
   public EventView publish(UUID eventId, long expectedVersion) {
     var actor = actor();
@@ -165,7 +185,23 @@ public class EventAuthoringService {
     if (previous.agenda().stream().anyMatch(item -> !replacement.schedule().contains(item.time())))
       throw invalid("schedule", "Activity schedule would exclude an existing agenda item");
     var activities = event.activities().stream().map(a -> a.id().equals(activityId) ? replacement : a).toList();
-    return view(repository.replace(event.withActivities(activities)), true);
+    if (replacement.capacity() == previous.capacity())
+      return view(repository.replace(event.withActivities(activities)), true);
+    return registration.withLockedActivity(new RegistrationAuthoringPort.GuardRequest(eventId,
+        activityId, RegistrationAuthoringPort.MutationKind.CAPACITY_CHANGE), context -> {
+      if (context == null) throw AuthoringException.unavailable();
+      long confirmed = context.confirmedCount();
+      if (replacement.capacity() < confirmed)
+        throw new AuthoringException(409, "SIGNUP_CONFLICT", "Capacity is below confirmed signup count");
+      var updated = repository.replace(event.withActivities(activities));
+      if (replacement.capacity() > previous.capacity()) {
+        var now = clock.instant();
+        var startsAt = replacement.schedule().start().toInstant();
+        if (now.isBefore(startsAt))
+          context.promoteEligibleWaitlist(replacement.capacity(), startsAt, now);
+      }
+      return view(updated, true);
+    });
   }
 
   @Transactional
@@ -174,6 +210,8 @@ public class EventAuthoringService {
     var event = lockEvent(eventId);
     activity(event, activityId);
     requireWritable(actor, event, expectedVersion);
+    if (event.state() == EventState.PUBLISHED && event.activities().size() == 1)
+      throw new AuthoringException(409, "STATE_CONFLICT", "Published events must retain an activity");
     return registration.withLockedActivity(new RegistrationAuthoringPort.GuardRequest(eventId,
         activityId, RegistrationAuthoringPort.MutationKind.REMOVE), context -> {
       if (context == null) throw AuthoringException.unavailable();

@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class AggregateReadConsistencyTests {
   @Autowired EventAuthoringService service;
   @Autowired JdbcTemplate jdbc;
+  @Autowired com.ubb.genai.events.authoring.ports.PublishedEventsReadContract published;
 
   public static class ReadBarrier implements StatementInspector {
     static volatile CountDownLatch rootLoaded;
@@ -58,6 +59,30 @@ public class AggregateReadConsistencyTests {
     var start = OffsetDateTime.parse("2026-12-01T10:00:00+02:00");
     return new EventAuthoringService.ActivityCommand(title, "Description", start,
         start.plusHours(2), "Room", null, 5, null, null, "Public", version);
+  }
+
+  @Test
+  void publishedProjectionKeepsRootAndChildrenInOneCommittedSnapshot() throws Exception {
+    var event = service.createDraft(new EventAuthoringService.CreateEventCommand(
+        "Event", "Details", EventCategory.OTHER, "org"));
+    service.addActivity(event.id(), activity(0, "Original session"));
+    service.publish(event.id(), 1);
+    var before = published.publishedEvents();
+    try (var reader = Executors.newSingleThreadExecutor(task ->
+        new Thread(task, "authoring-snapshot-reader"))) {
+      var read = reader.submit(() -> published.publishedEvents());
+      try {
+        assertTrue(ReadBarrier.rootLoaded.await(10, TimeUnit.SECONDS));
+        var changed = service.addActivity(event.id(), activity(2, "New session"));
+        assertEquals(3, changed.version());
+      } finally {
+        ReadBarrier.resumeChildren.countDown();
+      }
+      assertEquals(before, read.get(10, TimeUnit.SECONDS));
+      var latest = published.publishedEvents().getFirst();
+      assertEquals(3, latest.version());
+      assertEquals(2, latest.activities().size());
+    }
   }
 
   @Test

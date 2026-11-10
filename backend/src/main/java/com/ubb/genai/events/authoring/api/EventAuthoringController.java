@@ -49,11 +49,21 @@ public class EventAuthoringController {
               description = "Authoring detail URL",
               schema = @Schema(implementation = String.class, format = "uri-reference")))
   public ResponseEntity<EventView> create(@RequestBody AuthoringRequests.CreateEvent request) {
+    EventCategory category = category(request.category());
+    var view =
+        service.createDraft(
+            new EventAuthoringService.CreateEventCommand(
+                request.title(), request.description(), category, request.organizationRef()));
+    return ResponseEntity.created(URI.create("/api/event-authoring/events/" + view.id()))
+        .body(view);
+  }
+
+  private static EventCategory category(String value) {
     EventCategory category = null;
-    if (request.category() != null) {
+    if (value != null) {
       try {
-        category = EventCategory.valueOf(request.category().toUpperCase(Locale.ROOT));
-        if (!wire(category).equals(request.category())) throw new IllegalArgumentException();
+        category = EventCategory.valueOf(value.toUpperCase(Locale.ROOT));
+        if (!wire(category).equals(value)) throw new IllegalArgumentException();
       } catch (IllegalArgumentException ex) {
         throw new AuthoringException(
             400,
@@ -63,21 +73,27 @@ public class EventAuthoringController {
                 new AuthoringException.Violation("category", "INVALID", "Unknown category")));
       }
     }
-    var view =
-        service.createDraft(
-            new EventAuthoringService.CreateEventCommand(
-                request.title(), request.description(), category, request.organizationRef()));
-    return ResponseEntity.created(URI.create("/api/event-authoring/events/" + view.id()))
-        .body(view);
+    return category;
   }
 
   private static String wire(EventCategory c) {
     return c.name().substring(0, 1) + c.name().substring(1).toLowerCase(Locale.ROOT);
   }
 
+  @PutMapping("/{eventId}")
+  @ApiResponse(responseCode = "200", description = "Event details updated",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventView.class)))
+  public EventView editDetails(@PathVariable UUID eventId,
+      @RequestBody AuthoringRequests.EventDetails request) {
+    return service.editEventDetails(eventId, new EventAuthoringService.EventDetailsCommand(
+        request.expectedVersion(), request.title(), request.description(), category(request.category())));
+  }
+
   @PostMapping("/{eventId}/publish")
+  @ApiResponse(responseCode = "200", description = "Event published",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventView.class)))
   @ApiResponse(responseCode = "422", description = "Accumulated publication readiness problems",
-      content = @Content(mediaType = "application/json"))
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthoringExceptionHandler.ErrorView.class)))
   public EventView publish(@PathVariable UUID eventId,
       @RequestBody AuthoringRequests.VersionCommand request) {
     if (request.expectedVersion() == null || request.expectedVersion() < 0)

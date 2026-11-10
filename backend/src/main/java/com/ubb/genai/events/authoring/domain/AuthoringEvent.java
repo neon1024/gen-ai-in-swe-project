@@ -33,6 +33,11 @@ public record AuthoringEvent(
         state, createdAt, publishedAt, version, replacements);
   }
 
+  public AuthoringEvent withDetails(String title, String description, EventCategory category) {
+    return new AuthoringEvent(id, organizationRef, ownerSubject, title, description, category,
+        state, createdAt, publishedAt, version, activities);
+  }
+
   public AuthoringEvent publish(Instant now) {
     if (state != EventState.DRAFT) throw new IllegalStateException("Only Draft events can be published");
     return new AuthoringEvent(id, organizationRef, ownerSubject, title, description, category,
