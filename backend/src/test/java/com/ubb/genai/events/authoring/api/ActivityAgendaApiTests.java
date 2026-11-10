@@ -144,4 +144,175 @@ class ActivityAgendaApiTests {
     }
   }
 
+  static String agenda(long version, String time, String title, String speaker) {
+    return "{\"expectedVersion\":" + version + ",\"time\":\"" + time
+        + "\",\"title\":\"" + title + "\",\"speaker\":" + (speaker == null ? "null" : "\"" + speaker + "\"") + "}";
+  }
+  String agendaPath(String event, String activity) { return BASE + "/" + event + "/activities/" + activity + "/agenda"; }
+  String response(ResultActions action) throws Exception { return action.andReturn().getResponse().getContentAsString(); }
+
+  @Test void US16_agendaCrudIncludesEndpointsOffsetsOptionalSpeakerAndSortedReads() throws Exception {
+    String event = event();
+    String activity = activityId(add(event));
+    String path = agendaPath(event, activity);
+    String end = "2026-12-01T12:00:00+03:00";
+    String start = "2026-12-01T10:00:00+02:00";
+    String first = response(write("POST", path, agenda(1, end, "Closing", null)).andExpect(status().isCreated())
+        .andExpect(jsonPath("$.version").value(2)).andExpect(jsonPath("$.activities[0].agenda[0].time").value(end)));
+    String closing = JsonPath.read(first, "$.activities[0].agenda[0].id");
+    String second = response(write("POST", path, agenda(2, start, "Opening", "Speaker")).andExpect(status().isCreated())
+        .andExpect(jsonPath("$.version").value(3)).andExpect(jsonPath("$.activities[0].agenda[0].title").value("Opening")));
+    String opening = JsonPath.read(second, "$.activities[0].agenda[0].id");
+    String third = response(write("POST", path, agenda(3, start, "Same instant", null)).andExpect(status().isCreated()));
+    java.util.List<String> ids = JsonPath.read(third, "$.activities[0].agenda[*].id");
+    java.util.List<String> firstTwo = new java.util.ArrayList<>(ids.subList(0, 2));
+    var sorted = firstTwo.stream().map(UUID::fromString).sorted().map(UUID::toString).toList();
+    assertEquals(sorted, firstTwo);
+    assertEquals(closing, ids.getLast());
+    String updated = response(write("PUT", path + "/" + opening, agenda(4, start, "New opening", null))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.version").value(5)));
+    mvc.perform(get(BASE + "/" + event).with(user("session-user"))).andExpect(status().isOk()).andExpect(content().json(updated));
+    write("DELETE", path + "/" + opening + "?expectedVersion=5", "").andExpect(status().isOk())
+        .andExpect(jsonPath("$.version").value(6)).andExpect(jsonPath("$.activities[0].agenda.length()").value(2));
+    write("DELETE", path + "/" + closing + "?expectedVersion=5", "").andExpect(status().isConflict());
+    assertEquals(6L, jdbc.queryForObject("select version from event_authoring.event", Long.class));
+    assertEquals(2, jdbc.queryForObject("select count(*) from event_authoring.agenda_item", Integer.class));
+    assertEquals(10800, jdbc.queryForObject("select offset_seconds from event_authoring.agenda_item where id=?::uuid", Integer.class, closing));
+  }
+
+  @Test void US16_invalidAgendaInputNeverWritesOrBumpsVersion() throws Exception {
+    String event = event();
+    String activity = activityId(add(event));
+    String valid = agenda(1, "2026-12-01T10:00:00+02:00", "Opening", null);
+    for (String invalid : new String[] {
+      valid.replace("2026-12-01T10:00:00+02:00", "2026-12-01T09:59:59+02:00"),
+      valid.replace("2026-12-01T10:00:00+02:00", "2026-12-01T12:00:01+03:00"),
+      valid.replace("Opening", " "), valid.replace("Opening", "before\\u0000after"),
+      valid.replace("\"title\":\"Opening\"", "\"title\":42"),
+      valid.replace("\"time\":\"2026-12-01T10:00:00+02:00\",", ""),
+      valid.replace("\"time\":\"2026-12-01T10:00:00+02:00\"", "\"time\":42"),
+      valid.replace("2026-12-01T10:00:00+02:00", "2026-12-01T10:00:00"),
+      valid.replace("\"speaker\":null", "\"speaker\":true"),
+      valid.replace("\"speaker\":null", "\"speaker\":\"before\\u0000after\""),
+      valid.replace("\"expectedVersion\":1,", ""), valid.replace("Version\":1", "Version\":1.5"),
+      valid.replace("Version\":1", "Version\":\"1\"")
+    }) {
+      write("POST", agendaPath(event, activity), invalid).andExpect(status().isBadRequest());
+      assertEquals(0, jdbc.queryForObject("select count(*) from event_authoring.agenda_item", Integer.class));
+      assertEquals(1L, jdbc.queryForObject("select version from event_authoring.event", Long.class));
+    }
+  }
+
+  @Test void US16_foreignEventActivityAndItemSubstitutionIsConcealed() throws Exception {
+    String event = event();
+    String activity = activityId(add(event));
+    String body = response(write("POST", agendaPath(event, activity), agenda(1, "2026-12-01T10:00:00+02:00", "Opening", null)).andExpect(status().isCreated()));
+    String item = JsonPath.read(body, "$.activities[0].agenda[0].id");
+    String other = event();
+    String otherActivity = activityId(add(other));
+    String valid = agenda(1, "2026-12-01T10:00:00+02:00", "Intrusion", null);
+    write("POST", agendaPath(other, activity), valid).andExpect(status().isNotFound());
+    write("PUT", agendaPath(other, otherActivity) + "/" + item, valid).andExpect(status().isNotFound());
+    write("DELETE", agendaPath(other, otherActivity) + "/" + item + "?expectedVersion=1", "").andExpect(status().isNotFound());
+    write("PUT", agendaPath(event, activity) + "/" + UUID.randomUUID(), valid.replace("Version\":1", "Version\":2")).andExpect(status().isNotFound());
+    assertEquals(1, jdbc.queryForObject("select count(*) from event_authoring.agenda_item", Integer.class));
+  }
+
+  @Test void US16_scheduleReplacementCannotStrandAgendaOrExplicitClose() throws Exception {
+    String event = event();
+    String activity = activityId(add(event));
+    String before = response(write("POST", agendaPath(event, activity), agenda(1, "2026-12-01T10:00:00+02:00", "Opening", null)).andExpect(status().isCreated()));
+    String path = BASE + "/" + event + "/activities/" + activity;
+    write("PUT", path, ACTIVITY.replace("Version\":0", "Version\":2").replace("10:00:00+02:00", "10:30:00+02:00")).andExpect(status().isBadRequest());
+    mvc.perform(get(BASE + "/" + event).with(user("session-user"))).andExpect(content().json(before));
+    String explicit = ACTIVITY.replace("Version\":0", "Version\":2")
+        .replace("\"registrationClose\":null", "\"registrationClose\":\"2026-12-01T09:30:00+02:00\"");
+    String after = response(write("PUT", path, explicit).andExpect(status().isOk()).andExpect(jsonPath("$.version").value(3)));
+    write("PUT", path, explicit.replace("Version\":2", "Version\":3").replace("10:00:00+02:00", "09:00:00+02:00"))
+        .andExpect(status().isBadRequest());
+    mvc.perform(get(BASE + "/" + event).with(user("session-user"))).andExpect(content().json(after));
+  }
+
+  @Test void US16_staffAndTerminalEventsCannotMutateAgenda() throws Exception {
+    String event = event();
+    String activity = activityId(add(event));
+    String path = agendaPath(event, activity);
+    String body = response(write("POST", path, agenda(1, "2026-12-01T10:00:00+02:00", "Opening", null)).andExpect(status().isCreated()));
+    String item = JsonPath.read(body, "$.activities[0].agenda[0].id");
+    fixture.subject = "staff";
+    fixture.organization("staff", "opaque-org", OrganizationAccessPort.Role.MEMBER);
+    fixture.team("staff", event, EventTeamAccessPort.Role.STAFF);
+    write("POST", path, agenda(2, "2026-12-01T10:00:00+02:00", "Denied", null)).andExpect(status().isForbidden());
+    write("PUT", path + "/" + item, agenda(2, "2026-12-01T10:00:00+02:00", "Denied", null)).andExpect(status().isForbidden());
+    write("DELETE", path + "/" + item + "?expectedVersion=2", "").andExpect(status().isForbidden());
+    fixture.subject = "creator";
+    for (String state : new String[] {"COMPLETED", "CANCELLED"}) {
+      jdbc.update("update event_authoring.event set state=? where id=?::uuid", state, event);
+      write("POST", path, agenda(2, "2026-12-01T10:00:00+02:00", "Denied", null)).andExpect(status().isConflict());
+      write("DELETE", path + "/" + item + "?expectedVersion=2", "").andExpect(status().isConflict());
+    }
+    assertEquals(2L, jdbc.queryForObject("select version from event_authoring.event", Long.class));
+  }
+
+  @Test void nestedDeletesRequireExplicitIntegerVersionAndSafeErrorEnvelope() throws Exception {
+    String event = event();
+    String activity = activityId(add(event));
+    String path = agendaPath(event, activity);
+    String body = response(write("POST", path, agenda(1, "2026-12-01T10:00:00+02:00", "Opening", null)).andExpect(status().isCreated()));
+    String item = JsonPath.read(body, "$.activities[0].agenda[0].id");
+    for (String endpoint : new String[] {BASE + "/" + event + "/activities/" + activity, path + "/" + item}) {
+      for (String query : new String[] {"", "?expectedVersion=", "?expectedVersion=2.5", "?expectedVersion=-1", "?expectedVersion=true", "?expectedVersion=9223372036854775808"}) {
+        write("DELETE", endpoint + query, "").andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("INVALID_INPUT"));
+        assertEquals(2L, jdbc.queryForObject("select version from event_authoring.event", Long.class));
+        assertEquals(1, jdbc.queryForObject("select count(*) from event_authoring.agenda_item", Integer.class));
+      }
+    }
+  }
+  @Test void agendaOpenApiIncludesTypedItemsAndIntegerDeleteVersion() throws Exception {
+    mvc.perform(get("/v3/api-docs").with(user("session-user")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.paths['/api/event-authoring/events/{eventId}/activities/{activityId}/agenda'].post.responses['201']").exists())
+        .andExpect(jsonPath("$.components.schemas.AgendaWrite.required", org.hamcrest.Matchers.hasItems("expectedVersion", "time", "title")))
+        .andExpect(jsonPath("$.components.schemas.ActivityView.properties.agenda.items['$ref']").value("#/components/schemas/AgendaView"))
+        .andExpect(jsonPath("$.paths['/api/event-authoring/events/{eventId}/activities/{activityId}'].delete.parameters[?(@.name == 'expectedVersion')].schema.type", org.hamcrest.Matchers.contains("integer")))
+        .andExpect(jsonPath("$.paths['/api/event-authoring/events/{eventId}/activities/{activityId}/agenda/{itemId}'].delete.parameters[?(@.name == 'expectedVersion')].schema.type", org.hamcrest.Matchers.contains("integer")));
+  }
+
+  @Test void timestampPrecisionIsStableAndUnrepresentableIntervalReturnsSafe400() throws Exception {
+    String event = event();
+    String path = BASE + "/" + event + "/activities";
+    String collapse = ACTIVITY.replace("2026-12-01T10:00:00+02:00", "2026-12-01T10:00:00.000000001+02:00")
+        .replace("2026-12-01T12:00:00+03:00", "2026-12-01T10:00:00.000000002+02:00");
+    assertDoesNotThrow(() -> write("POST", path, collapse)).andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("INVALID_INPUT"));
+    noActivities();
+    String precise = ACTIVITY.replace("2026-12-01T10:00:00+02:00", "2026-12-01T10:00:00.123456789+02:00");
+    String created = response(write("POST", path, precise).andExpect(status().isCreated())
+        .andExpect(jsonPath("$.activities[0].start").value("2026-12-01T10:00:00.123456+02:00")));
+    mvc.perform(get(BASE + "/" + event).with(user("session-user"))).andExpect(content().json(created));
+  }
+
+  @Test void mutationsUseCurrentEditorAdminOwnerAndMembershipAuthority() throws Exception {
+    String event = event();
+    String activity = activityId(add(event));
+    fixture.subject = "editor";
+    fixture.organization("editor", "opaque-org", OrganizationAccessPort.Role.MEMBER);
+    fixture.team("editor", event, EventTeamAccessPort.Role.EDITOR);
+    write("POST", agendaPath(event, activity), agenda(1, "2026-12-01T10:00:00+02:00", "Editor talk", null))
+        .andExpect(status().isCreated()).andExpect(jsonPath("$.version").value(2));
+    fixture.subject = "admin";
+    fixture.organization("admin", "opaque-org", OrganizationAccessPort.Role.ORG_ADMIN);
+    write("PUT", BASE + "/" + event + "/activities/" + activity, ACTIVITY.replace("Version\":0", "Version\":2"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.version").value(3));
+    fixture.subject = "creator";
+    fixture.organization("creator", "opaque-org", OrganizationAccessPort.Role.NONE);
+    write("POST", agendaPath(event, activity), agenda(3, "2026-12-01T10:00:00+02:00", "Former member", null)).andExpect(status().isNotFound());
+    fixture.organization("creator", "opaque-org", OrganizationAccessPort.Role.ORGANIZER);
+    jdbc.update("update event_authoring.event set owner_subject='new-owner' where id=?::uuid", event);
+    write("POST", agendaPath(event, activity), agenda(3, "2026-12-01T10:00:00+02:00", "Former owner", null)).andExpect(status().isNotFound());
+    fixture.subject = "new-owner";
+    fixture.organization("new-owner", "opaque-org", OrganizationAccessPort.Role.MEMBER);
+    write("POST", agendaPath(event, activity), agenda(3, "2026-12-01T10:00:00+02:00", "Current owner", null)).andExpect(status().isCreated());
+  }
+
 }

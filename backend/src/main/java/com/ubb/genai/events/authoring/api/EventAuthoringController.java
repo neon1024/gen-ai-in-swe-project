@@ -4,19 +4,25 @@ import com.ubb.genai.events.authoring.api.AuthoringViews.EventView;
 import com.ubb.genai.events.authoring.application.AuthoringException;
 import com.ubb.genai.events.authoring.application.EventAuthoringService;
 import com.ubb.genai.events.authoring.domain.EventCategory;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.net.URI;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -73,6 +79,7 @@ public class EventAuthoringController {
   public EventView get(@PathVariable UUID eventId) {
     return service.getEvent(eventId);
   }
+
   @PostMapping("/{eventId}/activities")
   @ApiResponse(responseCode = "201", description = "Activity created",
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventView.class)))
@@ -81,16 +88,42 @@ public class EventAuthoringController {
     return ResponseEntity.status(201).body(service.addActivity(eventId, activityCommand(request)));
   }
 
-  @org.springframework.web.bind.annotation.PutMapping("/{eventId}/activities/{activityId}")
+  @PutMapping("/{eventId}/activities/{activityId}")
   public EventView updateActivity(@PathVariable UUID eventId, @PathVariable UUID activityId,
       @RequestBody AuthoringRequests.ActivityWrite request) {
     return service.updateActivity(eventId, activityId, activityCommand(request));
   }
 
-  @org.springframework.web.bind.annotation.DeleteMapping("/{eventId}/activities/{activityId}")
+  @DeleteMapping("/{eventId}/activities/{activityId}")
   public EventView removeActivity(@PathVariable UUID eventId, @PathVariable UUID activityId,
-      @org.springframework.web.bind.annotation.RequestParam String expectedVersion) {
+      @Parameter(schema = @Schema(type = "integer", format = "int64", minimum = "0"))
+      @RequestParam String expectedVersion) {
     return service.removeActivity(eventId, activityId, version(expectedVersion));
+  }
+
+  @PostMapping("/{eventId}/activities/{activityId}/agenda")
+  @ApiResponse(responseCode = "201", description = "Agenda item created",
+      content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventView.class)))
+  public ResponseEntity<EventView> addAgenda(@PathVariable UUID eventId, @PathVariable UUID activityId,
+      @RequestBody AuthoringRequests.AgendaWrite request) {
+    return ResponseEntity.status(201).body(service.addAgenda(eventId, activityId, agendaCommand(request)));
+  }
+
+  @PutMapping("/{eventId}/activities/{activityId}/agenda/{itemId}")
+  public EventView updateAgenda(@PathVariable UUID eventId, @PathVariable UUID activityId,
+      @PathVariable UUID itemId, @RequestBody AuthoringRequests.AgendaWrite request) {
+    return service.updateAgenda(eventId, activityId, itemId, agendaCommand(request));
+  }
+
+  @DeleteMapping("/{eventId}/activities/{activityId}/agenda/{itemId}")
+  public EventView removeAgenda(@PathVariable UUID eventId, @PathVariable UUID activityId,
+      @PathVariable UUID itemId, @Parameter(schema = @Schema(type = "integer", format = "int64", minimum = "0"))
+      @RequestParam String expectedVersion) {
+    return service.removeAgenda(eventId, activityId, itemId, version(expectedVersion));
+  }
+
+  private static EventAuthoringService.AgendaCommand agendaCommand(AuthoringRequests.AgendaWrite r) {
+    return new EventAuthoringService.AgendaCommand(date(r.time()), r.title(), r.speaker(), r.expectedVersion());
   }
 
   private static long version(String value) {
@@ -108,15 +141,14 @@ public class EventAuthoringController {
         date(r.registrationClose()), r.visibility(), r.expectedVersion());
   }
 
-  private static java.time.OffsetDateTime date(String value) {
+  private static OffsetDateTime date(String value) {
     if (value == null) return null;
     try {
       if (!value.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})"))
-        throw new java.time.format.DateTimeParseException("RFC3339 timestamp required", value, 0);
-      return java.time.OffsetDateTime.parse(value);
-    } catch (java.time.format.DateTimeParseException exception) {
+        throw new DateTimeParseException("RFC3339 timestamp required", value, 0);
+      return OffsetDateTime.parse(value);
+    } catch (DateTimeParseException exception) {
       throw new AuthoringException(400, "INVALID_INPUT", "Offset timestamp is required");
     }
   }
-
 }

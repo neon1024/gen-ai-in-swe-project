@@ -10,11 +10,13 @@ public final class AuthoringViews {
 
   public record Capabilities(boolean canEdit, boolean canPublish) {}
 
+  public record AgendaView(UUID id, OffsetDateTime time, String title, String speaker) {}
+
   public record ActivityView(UUID id, String title, String description, OffsetDateTime start,
       OffsetDateTime end, String location, String onlineLink, int capacity,
       OffsetDateTime registrationOpen, OffsetDateTime registrationClose, String visibility,
       boolean cancelled, Instant createdAt, Instant effectiveRegistrationOpen,
-      Instant effectiveRegistrationClose) {}
+      Instant effectiveRegistrationClose, List<AgendaView> agenda) {}
 
   public record EventView(
       UUID id,
