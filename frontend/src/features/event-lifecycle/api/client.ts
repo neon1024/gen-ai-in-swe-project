@@ -37,5 +37,8 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
       problem.detail ?? problem.title ?? response.statusText,
     )
   }
+  if (response.status === 204) {
+    return undefined as T
+  }
   return (await response.json()) as T
 }
