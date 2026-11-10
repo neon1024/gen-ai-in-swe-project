@@ -40,6 +40,15 @@ public class FeedbackService {
         return new FeedbackEligibilityView(refusal.isEmpty(), refusal.map(Enum::name).orElse(null));
     }
 
+    /** Anonymous summary of an activity's feedback for the event team (US-48, BR-17). */
+    public FeedbackSummary summary(UUID activityId, Optional<UUID> userId) {
+        UUID user = access.requireUser(userId);
+        LifecycleActivity activity = findActivity(activityId);
+        access.requireTeamMember(access.requireVisibleEvent(activity.getEventId(), userId), user);
+        return FeedbackSummaryCalculator.summarize(
+                activityId, activity.getTitle(), feedback.findByActivityIdOrderByCreatedAtDesc(activityId));
+    }
+
     /**
      * Stores the feedback and returns its id. Deliberately not transactional: the insert is flushed in its own
      * transaction so a concurrent duplicate surfaces here as a unique-constraint violation and becomes a 409.

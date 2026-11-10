@@ -12,6 +12,9 @@ import com.ubb.genai.eventlifecycle.shared.model.EventState;
 import com.ubb.genai.eventlifecycle.shared.model.LifecycleActivity;
 import com.ubb.genai.eventlifecycle.shared.model.LifecycleEvent;
 import com.ubb.genai.eventlifecycle.shared.persistence.LifecycleEventRepository;
+import com.ubb.genai.eventlifecycle.shared.port.EventRole;
+import com.ubb.genai.eventlifecycle.shared.port.EventTeamDirectory;
+import com.ubb.genai.eventlifecycle.shared.port.OrganizationDirectory;
 import com.ubb.genai.eventlifecycle.shared.port.SignupPort;
 import com.ubb.genai.eventlifecycle.shared.web.LifecycleProblem;
 import java.time.Duration;
@@ -51,6 +54,12 @@ class FeedbackServiceTest {
 
     @MockitoBean
     private SignupPort signupPort;
+
+    @MockitoBean
+    private EventTeamDirectory team;
+
+    @MockitoBean
+    private OrganizationDirectory organizations;
 
     private final UUID user = UUID.randomUUID();
     private final List<UUID> created = new ArrayList<>();
@@ -183,5 +192,87 @@ class FeedbackServiceTest {
                 .isInstanceOfSatisfying(LifecycleProblem.class, p -> assertThat(p.status()).isEqualTo(HttpStatus.UNAUTHORIZED));
         assertThatThrownBy(() -> service.eligibility(activity.getId(), Optional.empty()))
                 .isInstanceOfSatisfying(LifecycleProblem.class, p -> assertThat(p.status()).isEqualTo(HttpStatus.UNAUTHORIZED));
+    }
+
+    private void giveRated(int rating, String comment) {
+        UUID attendee = UUID.randomUUID();
+        when(signupPort.wasMarkedPresent(activity.getId(), attendee)).thenReturn(true);
+        service.give(activity.getId(), Optional.of(attendee), request(rating, comment));
+    }
+
+    @Test
+    @DisplayName("US-48 the team sees the average, distribution and comments of an activity")
+    void us48_teamSeesSummary() {
+        UUID editor = UUID.randomUUID();
+        when(team.roleOf(event.getId(), editor)).thenReturn(Optional.of(EventRole.EDITOR));
+        giveRated(5, "Great");
+        giveRated(4, null);
+        giveRated(4, "Fine");
+        giveRated(1, null);
+
+        FeedbackSummary summary = service.summary(activity.getId(), Optional.of(editor));
+
+        assertThat(summary.activityId()).isEqualTo(activity.getId());
+        assertThat(summary.activityTitle()).isEqualTo(activity.getTitle());
+        assertThat(summary.count()).isEqualTo(4);
+        assertThat(summary.averageRating()).isEqualTo(3.5);
+        assertThat(summary.distribution().values()).containsExactly(1, 0, 0, 2, 1);
+        assertThat(summary.comments()).extracting(FeedbackComment::comment).containsExactlyInAnyOrder("Great", "Fine");
+    }
+
+    @Test
+    @DisplayName("US-48 staff can view feedback")
+    void us48_staffCanViewFeedback() {
+        UUID staff = UUID.randomUUID();
+        when(team.roleOf(event.getId(), staff)).thenReturn(Optional.of(EventRole.STAFF));
+
+        assertThat(service.summary(activity.getId(), Optional.of(staff)).count()).isZero();
+    }
+
+    @Test
+    @DisplayName("US-48 an organization admin can view feedback")
+    void us48_orgAdminCanViewFeedback() {
+        UUID admin = UUID.randomUUID();
+        when(organizations.isOrgAdmin(event.getOrganizationId(), admin)).thenReturn(true);
+
+        assertThat(service.summary(activity.getId(), Optional.of(admin)).averageRating()).isNull();
+    }
+
+    @Test
+    @DisplayName("US-48 a user outside the event team is refused with 403")
+    void us48_nonTeamUserIsRefused() {
+        assertThatThrownBy(() -> service.summary(activity.getId(), Optional.of(user)))
+                .isInstanceOfSatisfying(LifecycleProblem.class, p -> {
+                    assertThat(p.status()).isEqualTo(HttpStatus.FORBIDDEN);
+                    assertThat(p.code()).isEqualTo("TEAM_MEMBER_REQUIRED");
+                });
+    }
+
+    @Test
+    @DisplayName("US-48 a guest gets 401 and an unknown activity gets 404")
+    void us48_guestAndUnknownActivity() {
+        assertThatThrownBy(() -> service.summary(activity.getId(), Optional.empty()))
+                .isInstanceOfSatisfying(LifecycleProblem.class, p -> assertThat(p.status()).isEqualTo(HttpStatus.UNAUTHORIZED));
+        assertThatThrownBy(() -> service.summary(UUID.randomUUID(), Optional.of(user)))
+                .isInstanceOfSatisfying(LifecycleProblem.class, p -> {
+                    assertThat(p.status()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(p.code()).isEqualTo("ACTIVITY_NOT_FOUND");
+                });
+    }
+
+    @Test
+    @DisplayName("BR-03 the summary of a draft event is hidden from non-team users with 404")
+    void br03_draftEventSummaryIsNotFoundForNonTeam() {
+        LifecycleEvent draft = events.saveAndFlush(EventLifecycleFixtures.draftEvent(UUID.randomUUID()));
+        draft.addActivity(LifecycleActivity.scheduled("Draft activity", START, END, ActivityVisibility.PUBLIC));
+        events.saveAndFlush(draft);
+        created.add(draft.getId());
+        UUID draftActivity = events.findWithActivitiesById(draft.getId()).orElseThrow().getActivities().get(0).getId();
+
+        assertThatThrownBy(() -> service.summary(draftActivity, Optional.of(user)))
+                .isInstanceOfSatisfying(LifecycleProblem.class, p -> {
+                    assertThat(p.status()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(p.code()).isEqualTo("EVENT_NOT_FOUND");
+                });
     }
 }
