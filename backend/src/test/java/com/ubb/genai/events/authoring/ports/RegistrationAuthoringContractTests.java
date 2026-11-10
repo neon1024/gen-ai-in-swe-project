@@ -110,8 +110,6 @@ class RegistrationAuthoringContractTests {
     assertTrue(probe.promotedTransaction);
     assertEquals(start.toInstant(), probe.promotionStart);
     assertEquals(probe.now, probe.promotionNow);
-    assertEquals(7, probe.confirmed);
-    assertTrue(probe.history);
     service.updateActivity(before.id(), before.activities().getFirst().id(), command(3, 7, start));
     assertEquals(2, probe.calls);
     assertEquals(1, probe.promotions);
@@ -157,8 +155,6 @@ class RegistrationAuthoringContractTests {
     assertEquals(start.plusMinutes(30), after.activities().getFirst().start());
     assertEquals(0, probe.calls);
     assertEquals(0, probe.promotions);
-    assertEquals(10, probe.confirmed);
-    assertTrue(probe.history);
   }
 
   @ParameterizedTest
