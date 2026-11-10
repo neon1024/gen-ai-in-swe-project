@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 /** The real adapter must participate in the caller transaction and agreed locking protocol. */
 public interface RegistrationAuthoringPort {
-  enum MutationKind { REMOVE }
+  enum MutationKind { REMOVE, CAPACITY_CHANGE }
   record GuardRequest(UUID eventId, UUID activityId, MutationKind mutationKind) {}
   interface RegistrationContext {
     long confirmedCount();

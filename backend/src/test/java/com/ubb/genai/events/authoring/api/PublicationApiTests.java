@@ -106,6 +106,34 @@ class PublicationApiTests {
   }
 
   @Test
+  void US18_missingProductionRegistrationAdapterRefusesCapacityChange() {
+    var id = event(true);
+    var before = service.publish(id, 1);
+    var activity = before.activities().getFirst();
+    var failure =
+        assertThrows(
+            com.ubb.genai.events.authoring.application.AuthoringException.class,
+            () ->
+                service.updateActivity(
+                    id,
+                    activity.id(),
+                    new EventAuthoringService.ActivityCommand(
+                        activity.title(),
+                        activity.description(),
+                        activity.start(),
+                        activity.end(),
+                        activity.location(),
+                        activity.onlineLink(),
+                        12,
+                        activity.registrationOpen(),
+                        activity.registrationClose(),
+                        activity.visibility(),
+                        2L)));
+    assertEquals(503, failure.status());
+    assertEquals(before, service.getEvent(id));
+  }
+
+  @Test
   void EA03_draftCapacityChangeSucceedsWithoutRegistrationAdapter() throws Exception {
     var id = event(true);
     var activity = service.getEvent(id).activities().getFirst();
