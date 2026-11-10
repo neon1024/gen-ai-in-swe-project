@@ -185,7 +185,24 @@ public class EventAuthoringService {
     if (previous.agenda().stream().anyMatch(item -> !replacement.schedule().contains(item.time())))
       throw invalid("schedule", "Activity schedule would exclude an existing agenda item");
     var activities = event.activities().stream().map(a -> a.id().equals(activityId) ? replacement : a).toList();
-    return view(repository.replace(event.withActivities(activities)), true);
+    // Signups exist only after publication; Draft capacity edits never consult registrations.
+    if (event.state() != EventState.PUBLISHED || replacement.capacity() == previous.capacity())
+      return view(repository.replace(event.withActivities(activities)), true);
+    return registration.withLockedActivity(new RegistrationAuthoringPort.GuardRequest(eventId,
+        activityId, RegistrationAuthoringPort.MutationKind.CAPACITY_CHANGE), context -> {
+      if (context == null) throw AuthoringException.unavailable();
+      long confirmed = context.confirmedCount();
+      if (replacement.capacity() < confirmed)
+        throw new AuthoringException(409, "SIGNUP_CONFLICT", "Capacity is below confirmed signup count");
+      var updated = repository.replace(event.withActivities(activities));
+      if (replacement.capacity() > previous.capacity()) {
+        var now = clock.instant();
+        var startsAt = replacement.schedule().start().toInstant();
+        if (now.isBefore(startsAt))
+          context.promoteEligibleWaitlist(replacement.capacity(), startsAt, now);
+      }
+      return view(updated, true);
+    });
   }
 
   @Transactional
