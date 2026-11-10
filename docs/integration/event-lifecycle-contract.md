@@ -98,3 +98,53 @@ Errors are RFC 9457 `ProblemDetail` bodies with an extra `code` property (UPPER_
 | 409 | `IllegalEventTransitionException` | the exception's `code()` |
 | 409 | `LifecycleProblem.conflict` | caller-supplied |
 | 409 | Optimistic locking failure | `CONCURRENT_MODIFICATION` |
+
+## Endpoints
+
+Base path `/api/lifecycle`. The caller comes from `CurrentUserProvider`; all three endpoints answer with the same view.
+
+| Method and path | Purpose | Success | Errors (`code`) |
+|---|---|---|---|
+| `GET /events/{eventId}` | Event with its visible activities and the caller's permissions | 200 | 404 `EVENT_NOT_FOUND` |
+| `POST /events/{eventId}/cancel` | Cancel a DRAFT or PUBLISHED event (US-21) | 200 | 401 `UNAUTHENTICATED`, 403 `OWNER_RIGHTS_REQUIRED`, 404 `EVENT_NOT_FOUND`, 409 `EVENT_NOT_CANCELLABLE` |
+| `POST /activities/{activityId}/cancel` | Cancel a scheduled activity (US-20) | 200 | 401 `UNAUTHENTICATED`, 403 `OWNER_RIGHTS_REQUIRED`, 404 `ACTIVITY_NOT_FOUND` or `EVENT_NOT_FOUND`, 409 `EVENT_READ_ONLY`, `ACTIVITY_ALREADY_CANCELLED` or `ACTIVITY_ENDED` |
+
+Neither POST endpoint has a request body. A malformed id returns 400 `VALIDATION_FAILED`.
+
+Response (`POST /api/lifecycle/activities/6b1f.../cancel`):
+
+```json
+{
+  "id": "0d5c4a52-6a0e-4a38-9f3e-2f0f1c8a7b11",
+  "title": "Sample event",
+  "state": "PUBLISHED",
+  "activities": [
+    { "id": "6b1f2c9e-3c1d-4e53-8f7a-0a5d3e9b7c21", "title": "Activity 1",
+      "startsAt": "2027-02-01T10:00:00Z", "endsAt": "2027-02-01T11:00:00Z", "state": "CANCELLED" },
+    { "id": "a93e7d10-5b64-4f0c-9d2b-7c1e8f4a6b32", "title": "Activity 2",
+      "startsAt": "2027-02-01T11:00:00Z", "endsAt": "2027-02-01T12:00:00Z", "state": "SCHEDULED" }
+  ],
+  "permissions": { "canCancel": true, "canDelete": false }
+}
+```
+
+Error response (`409`, `application/problem+json`):
+
+```json
+{ "type": "about:blank", "title": "Conflict", "status": 409,
+  "detail": "The activity has already ended", "code": "ACTIVITY_ENDED" }
+```
+
+`permissions.canCancel` is true for callers with owner rights while the event is DRAFT or PUBLISHED. `permissions.canDelete` is true for callers with owner rights while the event is DRAFT. Callers who are not team members only see PUBLIC activities, or private ones they may see (BR-18).
+
+## Cancellation rules
+
+| Rule | Behaviour |
+|---|---|
+| Precondition order (activity) | missing activity 404, event not visible 404, no owner rights 403, event COMPLETED or CANCELLED 409 `EVENT_READ_ONLY`, activity already cancelled 409, activity ended (`now >= endsAt`) 409. |
+| Precondition order (event) | event not visible 404, no owner rights 403, event COMPLETED or CANCELLED 409 `EVENT_NOT_CANCELLABLE` (BR-06). |
+| Activity cancel | The activity becomes CANCELLED, `SignupPort.cancelAllSignups(activityId)` is called, then `NotificationPort.activityCancelled(activityId, recipients)`. |
+| BR-04 cascade | When the cancelled activity was the last non-cancelled one, the event becomes CANCELLED in the same transaction and `NotificationPort.eventCancelled(eventId, recipients)` is also called. |
+| Event cancel | `cancelAllSignups` is called once for every activity that was SCHEDULED, the event and those activities become CANCELLED, and `eventCancelled` is called once with the union of the recipients. Already cancelled activities are not touched. |
+| Rejected requests | Nothing is cancelled and no notification is sent. |
+| Notifications | Sent after the state change, in the same transaction, so a failing port rolls the change back. |
