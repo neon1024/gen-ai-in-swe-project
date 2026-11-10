@@ -67,21 +67,25 @@ class AgendaAuthoringTests {
     assertEquals(1, after.activities().getFirst().agenda().size());
     assertTrue(List.of("One", "Two").contains(after.activities().getFirst().agenda().getFirst().title()));
   }
-  @Test void US16_guardedActivityRemovalDeletesOwnedAgendaAndBumpsRootOnce() {
+  @Test void US16_draftActivityRemovalDeletesOwnedAgendaAndBumpsRootOnce() {
     var before = eventWithAgenda();
     var after = service.removeActivity(before.id(), before.activities().getFirst().id(), 2);
     assertEquals(3, after.version());
     assertTrue(after.activities().isEmpty());
     assertEquals(0, jdbc.queryForObject("select count(*) from event_authoring.agenda_item", Integer.class));
   }
-  @Test void US16_guardFailureRollsBackRemovalOfActivityAgendaAndVersion() {
-    var before = eventWithAgenda();
+  @Test void US16_guardFailureRollsBackPublishedRemovalOfActivityAgendaAndVersion() {
+    var draft = eventWithAgenda();
+    var withSecond = service.addActivity(draft.id(),
+        activity(2, OffsetDateTime.parse("2026-12-02T10:00:00+02:00"), null, null));
+    var before = service.publish(withSecond.id(), 3);
+    var withAgenda = before.activities().stream().filter(a -> !a.agenda().isEmpty()).findFirst().orElseThrow();
     guard.failAfter = true;
     assertEquals(503, assertThrows(AuthoringException.class,
-        () -> service.removeActivity(before.id(), before.activities().getFirst().id(), 2)).status());
+        () -> service.removeActivity(before.id(), withAgenda.id(), 4)).status());
     assertEquals(before, service.getEvent(before.id()));
     assertEquals(1, jdbc.queryForObject("select count(*) from event_authoring.agenda_item", Integer.class));
-    assertEquals(2L, jdbc.queryForObject("select version from event_authoring.event", Long.class));
+    assertEquals(4L, jdbc.queryForObject("select version from event_authoring.event", Long.class));
   }
   @Test void BR08_defaultCloseFollowsScheduleButExplicitWindowAndAgendaStayUnchanged() {
     var before = eventWithAgenda();

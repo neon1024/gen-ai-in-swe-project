@@ -2,6 +2,7 @@ package com.ubb.genai.events.authoring.application;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.ubb.genai.events.authoring.api.AuthoringViews.EventView;
 import com.ubb.genai.events.authoring.domain.*;
 import com.ubb.genai.events.authoring.ports.*;
 import com.ubb.genai.events.authoring.support.PostgresTestConfiguration;
@@ -60,32 +61,41 @@ class ActivityAuthoringTests {
   UUID event() {
     return service.createDraft(new EventAuthoringService.CreateEventCommand("Event", "Details", EventCategory.WORKSHOP, "org")).id();
   }
+  /** Published event with two activities (version 3) so one can be removed under the guard. */
+  EventView publishedWithTwoActivities() {
+    UUID event = event();
+    service.addActivity(event, command(0));
+    service.addActivity(event, command(1));
+    return service.publish(event, 2);
+  }
   @Test void US15_guardDeniesAnyHistoricalSignupEvenWithNoConfirmedPeople() {
+    var before = publishedWithTwoActivities();
+    UUID event = before.id();
+    var activity = before.activities().getFirst();
+    guard.history = true;
+    assertEquals(409, assertThrows(AuthoringException.class, () -> service.removeActivity(event, activity.id(), 3)).status());
+    assertEquals(before, service.getEvent(event));
+    assertEquals(new RegistrationAuthoringPort.GuardRequest(event, activity.id(), RegistrationAuthoringPort.MutationKind.REMOVE, 3L, null), guard.requested);
+    assertEquals(0, guard.promotions);
+  }
+  @Test void EA03_draftRemovalCommitsNextRootVersionWithoutRegistrationGuard() {
     UUID event = event();
     var activity = service.addActivity(event, command(0)).activities().getFirst();
     guard.history = true;
-    assertEquals(409, assertThrows(AuthoringException.class, () -> service.removeActivity(event, activity.id(), 1)).status());
-    assertEquals(1, service.getEvent(event).version());
-    assertEquals(1, service.getEvent(event).activities().size());
-    assertEquals(new RegistrationAuthoringPort.GuardRequest(event, activity.id(), RegistrationAuthoringPort.MutationKind.REMOVE, 1L, null), guard.requested);
-    assertEquals(0, guard.promotions);
-  }
-  @Test void US15_removalCommitsNextRootVersionOnlyWithinGuard() {
-    UUID event = event();
-    var activity = service.addActivity(event, command(0)).activities().getFirst();
-    var result = service.removeActivity(event, activity.id(), 1);
+    var result = assertDoesNotThrow(() -> service.removeActivity(event, activity.id(), 1));
     assertEquals(2, result.version());
     assertTrue(result.activities().isEmpty());
     assertEquals(result, service.getEvent(event));
+    assertNull(guard.requested);
     assertEquals(0, guard.promotions);
   }
   @Test void US15_guardFailureAfterMutationRollsBackSqlAndRootVersion() {
-    UUID event = event();
-    var before = service.addActivity(event, command(0));
+    var before = publishedWithTwoActivities();
+    UUID event = before.id();
     guard.failAfter = true;
-    assertEquals(503, assertThrows(AuthoringException.class, () -> service.removeActivity(event, before.activities().getFirst().id(), 1)).status());
+    assertEquals(503, assertThrows(AuthoringException.class, () -> service.removeActivity(event, before.activities().getFirst().id(), 3)).status());
     assertEquals(before, service.getEvent(event));
-    assertEquals(1, jdbc.queryForObject("select count(*) from event_authoring.activity", Integer.class));
-    assertEquals(1L, jdbc.queryForObject("select version from event_authoring.event", Long.class));
+    assertEquals(2, jdbc.queryForObject("select count(*) from event_authoring.activity", Integer.class));
+    assertEquals(3L, jdbc.queryForObject("select version from event_authoring.event", Long.class));
   }
 }

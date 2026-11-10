@@ -94,6 +94,28 @@ class RegistrationAuthoringContractTests {
   }
 
   @Test
+  void EA03_draftActivityRemovalNeverInvokesRegistrationGuard() {
+    var draft = ready(false);
+    var activity = draft.activities().getFirst();
+    var before =
+        service.addAgenda(
+            draft.id(),
+            activity.id(),
+            new EventAuthoringService.AgendaCommand(start, "Talk", null, 1L));
+    probe.unavailable = true;
+    probe.history = true;
+    var after = assertDoesNotThrow(() -> service.removeActivity(before.id(), activity.id(), 2));
+    assertTrue(after.activities().isEmpty());
+    assertEquals(3, after.version());
+    assertEquals("Draft", after.state());
+    assertEquals(0, probe.calls);
+    assertNull(probe.requested);
+    assertEquals(
+        0,
+        jdbc.queryForObject("select count(*) from event_authoring.agenda_item", Integer.class));
+  }
+
+  @Test
   void BR12_everyPublishedCapacityChangeIsGuardedAndIncreasePromotesInTransaction() {
     var before = ready(true);
     probe.confirmed = 7;

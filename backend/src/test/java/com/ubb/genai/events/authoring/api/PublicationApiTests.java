@@ -134,6 +134,33 @@ class PublicationApiTests {
   }
 
   @Test
+  void US18_missingProductionRegistrationAdapterRefusesPublishedRemoval() throws Exception {
+    var id = event(true);
+    service.addActivity(
+        id,
+        new EventAuthoringService.ActivityCommand(
+            "Second",
+            "Details",
+            OffsetDateTime.parse("2026-12-02T10:00:00+02:00"),
+            OffsetDateTime.parse("2026-12-02T12:00:00+02:00"),
+            "Room",
+            null,
+            10,
+            null,
+            null,
+            null,
+            1L));
+    var before = service.publish(id, 2);
+    mvc.perform(
+            delete(BASE + id + "/activities/" + before.activities().getFirst().id())
+                .param("expectedVersion", "3")
+                .with(user("session"))
+                .with(csrf()))
+        .andExpect(status().isServiceUnavailable());
+    assertEquals(before, service.getEvent(id));
+  }
+
+  @Test
   void EA03_draftCapacityChangeSucceedsWithoutRegistrationAdapter() throws Exception {
     var id = event(true);
     var activity = service.getEvent(id).activities().getFirst();

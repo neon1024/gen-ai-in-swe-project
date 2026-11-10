@@ -212,13 +212,16 @@ public class EventAuthoringService {
     var event = lockEvent(eventId);
     activity(event, activityId);
     requireWritable(actor, event, expectedVersion);
-    if (event.state() == EventState.PUBLISHED && event.activities().size() == 1)
+    var remaining = event.activities().stream().filter(a -> !a.id().equals(activityId)).toList();
+    // Signups cannot exist before publication and Published never returns to Draft.
+    if (event.state() != EventState.PUBLISHED)
+      return view(repository.replace(event.withActivities(remaining)), true);
+    if (remaining.isEmpty())
       throw new AuthoringException(409, "STATE_CONFLICT", "Published events must retain an activity");
     return registration.withLockedActivity(new RegistrationAuthoringPort.GuardRequest(eventId,
         activityId, RegistrationAuthoringPort.MutationKind.REMOVE, expectedVersion, null), context -> {
       if (context == null) throw AuthoringException.unavailable();
       if (context.hasAnySignup()) throw new AuthoringException(409, "SIGNUP_CONFLICT", "Activity has signup history");
-      var remaining = event.activities().stream().filter(a -> !a.id().equals(activityId)).toList();
       return view(repository.replace(event.withActivities(remaining)), true);
     });
   }

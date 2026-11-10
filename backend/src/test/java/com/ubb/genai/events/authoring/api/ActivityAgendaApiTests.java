@@ -112,12 +112,18 @@ class ActivityAgendaApiTests {
       write("PUT", BASE + "/" + event + "/activities/" + activity, ACTIVITY.replace("Version\":0", "Version\":1")).andExpect(status().isConflict());
     }
   }
-  @Test void US15_missingRegistrationGuardDeniesRemovalAndKeepsRows() throws Exception {
+  @Test void EA03_draftRemovalSucceedsWithoutRegistrationAdapter() throws Exception {
     String event = event();
     String activity = activityId(add(event));
-    write("DELETE", BASE + "/" + event + "/activities/" + activity + "?expectedVersion=1", "").andExpect(status().isServiceUnavailable());
-    assertEquals(1, jdbc.queryForObject("select count(*) from event_authoring.activity", Integer.class));
-    assertEquals(1L, jdbc.queryForObject("select version from event_authoring.event", Long.class));
+    write("POST", BASE + "/" + event + "/activities/" + activity + "/agenda",
+        "{\"expectedVersion\":1,\"time\":\"2026-12-01T10:30:00+02:00\",\"title\":\"Talk\"}")
+        .andExpect(status().isCreated());
+    write("DELETE", BASE + "/" + event + "/activities/" + activity + "?expectedVersion=2", "")
+        .andExpect(status().isOk()).andExpect(jsonPath("$.state").value("Draft"))
+        .andExpect(jsonPath("$.version").value(3)).andExpect(jsonPath("$.activities").isEmpty());
+    assertEquals(0, jdbc.queryForObject("select count(*) from event_authoring.activity", Integer.class));
+    assertEquals(0, jdbc.queryForObject("select count(*) from event_authoring.agenda_item", Integer.class));
+    assertEquals(3L, jdbc.queryForObject("select version from event_authoring.event", Long.class));
   }
   @Test void activityOpenApiDescribesTypedViewsAndRequiredVersion() throws Exception {
     mvc.perform(get("/v3/api-docs").with(user("session-user")))
