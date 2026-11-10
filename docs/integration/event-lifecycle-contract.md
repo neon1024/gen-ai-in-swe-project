@@ -215,6 +215,53 @@ Base path `/api/feedback`. Responses never contain user ids (BR-17). Feedback sk
 }
 ```
 
+## Reports
+
+Base path `/api/reports`. Reports contain aggregates only: no user ids, usernames or emails (US-50). They are available in every event state.
+
+| Method and path | Purpose | Success | Errors (`code`) |
+|---|---|---|---|
+| `GET /events/{eventId}` | Per-activity report (US-49) | 200 `EventReport` | 401 `UNAUTHENTICATED`, 404 `EVENT_NOT_FOUND` (also a draft hidden from a non-team user), 403 `TEAM_MEMBER_REQUIRED` |
+| `GET /events/{eventId}/csv` | The same report as a download (US-50) | 200 `text/csv; charset=UTF-8`, `Content-Disposition: attachment; filename="event-<eventId>-report.csv"` | same as above |
+
+| Rule | Behaviour |
+|---|---|
+| Access | Any team member (OWNER, EDITOR, STAFF or Org Admin of the organization). Check order: 401, 404, 403. |
+| Row order | By `startsAt` ascending (null last), then title. |
+| Confirmed signups | `confirmed + attended` from `SignupPort.figures`. |
+| Attendance rate (Q-08) | `attended / (confirmed + attended)` as a fraction, `null` when the denominator is 0. |
+| Rating | `averageRating` rounded half up to 2 decimals, `null` when `ratingCount` is 0. Computed by one grouped query over the feedback table. |
+| Dependency | The report depends on `SignupPort.figures(activityId)`; the stub returns zeros. |
+
+```json
+{
+  "eventId": "2b7e...",
+  "eventTitle": "Spring conference",
+  "eventState": "COMPLETED",
+  "activities": [
+    {
+      "activityId": "6f1c...",
+      "title": "Opening talk",
+      "startsAt": "2027-04-01T10:00:00Z",
+      "state": "SCHEDULED",
+      "confirmedSignups": 4,
+      "waitlistSize": 2,
+      "cancellations": 3,
+      "attendanceRate": 0.75,
+      "averageRating": 4.33,
+      "ratingCount": 3
+    }
+  ]
+}
+```
+
+CSV: UTF-8, lines end with `\r\n`, one row per activity. `status` is the activity state (`SCHEDULED` or `CANCELLED`), `starts_at` is ISO-8601 UTC, `attendance_rate_percent` has one decimal with a decimal point, a null value is an empty cell. Cells containing `,`, `"`, CR or LF are quoted with `"` doubled (RFC 4180). A text cell (the title) starting with `=`, `+`, `-` or `@` is prefixed with `'` before quoting; numeric cells are never prefixed.
+
+```csv
+activity_title,starts_at,status,confirmed_signups,waitlist_size,cancellations,attendance_rate_percent,average_rating,rating_count
+Opening talk,2027-04-01T10:00:00Z,SCHEDULED,4,2,3,75.0,4.33,3
+```
+
 ## Cancellation rules
 
 | Rule | Behaviour |
