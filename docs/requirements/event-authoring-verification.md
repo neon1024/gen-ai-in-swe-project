@@ -1,8 +1,8 @@
 # Event Authoring acceptance-to-test matrix
 
-Status: **Approved slice and executable plan; EA-01 infrastructure verified; EA-02 draft backend verified under fixtures; UI and real integration pending**. Scope: all 17 acceptance criteria of #17–#21 / US-14–18 in [the approved stories](08-user-stories.md). The [integration contract](../integration/event-authoring-contract.md) defines approved for this isolated slice components, external dependencies and approval questions. Test identifiers below are planned Java/TypeScript-safe names, not claims that files/tests exist. Actual feature files, commands and results will be added as each TDD task and its reviews finish. EA-01 migration/constraint and shell checks do not complete a story criterion. Human Review Status: Pending student review.
+Status: **Approved slice and executable plan; EA-01 infrastructure verified; EA-02 draft backend verified under fixtures; EA-03 activity/agenda backend verified under fixtures; UI and real integration pending**. Scope: all 17 acceptance criteria of #17–#21 / US-14–18 in [the approved stories](08-user-stories.md). The [integration contract](../integration/event-authoring-contract.md) defines approved for this isolated slice components, external dependencies and approval questions. Test identifiers below are planned Java/TypeScript-safe names, not claims that files/tests exist. Actual feature files, commands and results will be added as each TDD task and its reviews finish. EA-01 migration/constraint and shell checks do not complete a story criterion. Human Review Status: Pending student review.
 
-#17 has backend-only fixture evidence below; UI and real integration remain pending. #18–#21 story checks are not yet run. No full-story completion is claimed. A fixture is not production identity, membership, search or FIFO integration. The labels distinguish the intended level; they do not claim passing tests.
+#17 has backend-only fixture evidence below; UI and real integration remain pending. #18/#19 have backend-only fixture evidence below; #20/#21 story checks are not yet run. No full-story completion is claimed. A fixture is not production identity, membership, search or FIFO integration. The labels distinguish the intended level; they do not claim passing tests.
 
 | Issue | Story | FR | BR | Acceptance criterion | Planned test identifier | Proposed component / test type | Integration dependency |
 |---|---|---|---|---|---|---|---|
@@ -43,3 +43,18 @@ At 7263e0c, independent spec/quality re-reviews passed and coordinator Maven tes
 | BR03 restricted draft reads | DraftAuthoringTests.actualTeamReads, ordinaryOrganizerAndCrossOrgConcealed, ownerStillNeedsCurrentMembershipAndEligibility; DraftAuthoringApiTests keyed differential-access regression and redaction checks | Real identity/org/team integration; UI |
 
 Additional evidence: AuthoringAdapterConfigurationTests checks ordinary adapter/service/Clock replacement; AuthoringWiringTests checks CSRF/default identity and generated OpenAPI201+Location. Student implementation review remains pending.
+
+## EA-03 backend evidence — #18/#19 (2026-11-10)
+
+Independent specification/quality re-reviews approved 4ecc06f; coordinator 123 backend tests passed with 0 failures/errors/skips. Actual tests under backend/src/test/java/com/ubb/genai/events/authoring/ use real PostgreSQL and explicit upstream fixtures. No complete-story or real-registration claim is made.
+
+| Criterion | Actual backend checks | Remaining acceptance |
+|---|---|---|
+| US15 complete fields/offsets/parent | ActivityAgendaApiTests.US15_completeWriteRoundTripsOffsetsAndVersion | UI and real access integration |
+| BR07 strict interval/capacity | ActivityScheduleTests.BR07_endMustBeStrictlyLaterByInstant; ActivityAgendaApiTests.US15_invalidActivityWritesRollBack | UI; real access integration |
+| BR08 default windows | ActivityScheduleTests.BR08_defaultsFollowPublicationCreationAndStart; AgendaAuthoringTests.BR08_defaultCloseFollowsScheduleButExplicitWindowAndAgendaStayUnchanged | UI and real registration consumer |
+| BR08 explicit close | ActivityScheduleTests.BR08_explicitWindowMustBeOrderedAndCloseByStart; ActivityAgendaApiTests.US16_scheduleReplacementCannotStrandAgendaOrExplicitClose | UI |
+| US16 agenda fields and speaker | ActivityAgendaApiTests.US16_agendaCrudIncludesEndpointsOffsetsOptionalSpeakerAndSortedReads | UI and real access integration |
+| BR07 agenda interval | ActivityAgendaApiTests.US16_invalidAgendaInputNeverWritesOrBumpsVersion and US16_scheduleReplacementCannotStrandAgendaOrExplicitClose | UI |
+
+Cross-cutting: ActivityAgendaApiTests.foreignNestedResourcesStayConcealedBeforeStaleVersionOrStaffDenial covers ordering/concealment. AgendaAuthoringTests verifies competing writes and guard rollback. AggregateReadConsistencyTests verifies coherent root/activity/agenda snapshots across committed concurrent writes. Guard fixtures do not prove actual signup preservation/FIFO. Student review remains pending.

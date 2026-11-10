@@ -43,7 +43,7 @@ Stable application method names (command records carry the contract D fields): `
 
 External ports: AuthoringIdentityPort.currentActor() → Actor(subject, eligible) or typed unavailable/unauthenticated outcome; OrganizationAccessPort.forActor(subject,organizationRef) → current org role/membership result; EventTeamAccessPort.roleFor(subject,eventId) → Editor/Staff/none. No permissive production fallback. Use replaceable conditional beans that return unavailable for missing capabilities; a Spring session adapter may extract a trusted authenticated principal but must not invent account eligibility. Test identities/membership are only in test sources.
 
-RegistrationAuthoringPort.withLockedActivity(activityId, guardRequest, callback) supplies a RegistrationSnapshot(confirmedCount, hasAnySignup) under an agreed transaction/lock protocol; authoring enforces capacity/deletion against it. The callback performs the authoring write and requests promoteEligibleWaitlist only for an eligible capacity increase before start. Real adapters must guarantee all-or-nothing same-transaction completion. Default is unavailable. Doubles provide fixed snapshots and record calls/failures; they do not implement signup/FIFO algorithms. Local Event-first locks are not advertised as a completed cross-module protocol.
+RegistrationAuthoringPort.withLockedActivity(GuardRequest, Function<RegistrationContext,T>) supplies the RegistrationContext defined above under an agreed transaction/lock protocol; authoring enforces capacity/deletion against it. The callback performs the authoring write and requests promoteEligibleWaitlist only for an eligible capacity increase before start. Real adapters must guarantee all-or-nothing same-transaction completion. Default is unavailable. Doubles provide fixed snapshots and record calls/failures; they do not implement signup/FIFO algorithms. Local Event-first locks are not advertised as a completed cross-module protocol.
 
 ## Commands and setup conventions
 
@@ -85,10 +85,10 @@ Every task: observed expected RED → minimal GREEN → meaningful targeted/regr
 **Dependencies:** EA-02; use stacked issue branches/commits so ownership remains explicit. Reconcile shared authoring files sequentially.
 **Files:** extend domain/AuthoringEvent.java, application/EventAuthoringService.java, AuthoringRequests/Views/Controller and JPA mapping as needed; create domain/ActivitySchedule.java, RegistrationWindow.java; ports/RegistrationAuthoringPort.java with unavailable default for guarded operations; tests domain/ActivityScheduleTests.java, application/ActivityAuthoringTests.java, application/AgendaAuthoringTests.java, api/ActivityAgendaApiTests.java.
 **Produced:** addActivity/updateActivity/removeActivity; addAgenda/updateAgenda/removeAgenda, each consuming parent ID, expectedVersion and typed fields and returning updated EventView. DELETE expectedVersion is query input. Preserve API prefix and endpoint inventory in contract D.
-- [ ] Write failing tests for complete valid activity writes, strict start < end, capacity integer >=1, location/link alternatives, optional window defaults, close <= start, explicit reversed/equal configured windows, preserved offsets and public-only writes.
-- [ ] Implement actual activity logic and API; no cancellation/private access. Refuse edits for Completed/Cancelled. Guard removal against signup history through the external seam; never fake zero in production.
-- [ ] Write failing agenda tests for required time/title, optional speaker, inclusive start/end, sorted reads, foreign-parent substitution, mutation authorization, and schedule changes stranding agenda/invalid explicit close. Implement atomic rejection without auto-rescheduling.
-- [ ] Verify service/MVC/SQL round trips and rollback; preserve field data and next versions. Commit separately for #18 and #19 on appropriate issue branches. Completion: activity/agenda rules locally verified; guarded real signup integration remains pending.
+- [x] Write failing tests for complete valid activity writes, strict start < end, capacity integer >=1, location/link alternatives, optional window defaults, close <= start, explicit reversed/equal configured windows, preserved offsets and public-only writes.
+- [x] Implement actual activity logic and API; no cancellation/private access. Refuse edits for Completed/Cancelled. Guard removal against signup history through the external seam; never fake zero in production.
+- [x] Write failing agenda tests for required time/title, optional speaker, inclusive start/end, sorted reads, foreign-parent substitution, mutation authorization, and schedule changes stranding agenda/invalid explicit close. Implement atomic rejection without auto-rescheduling.
+- [x] Verify service/MVC/SQL round trips and rollback; preserve field data and next versions. Commit separately for #18 and #19 on appropriate issue branches. Completion: activity/agenda rules locally verified; guarded real signup integration remains pending.
 
 ## EA-04 — Publication and Published editing/registration seam (#20/#21)
 
@@ -146,7 +146,8 @@ This single plan covers all five issues, 17 criteria and the schema/API/UI/test/
 - Written-plan approval and SDD execution: confirmed.
 - EA-01: Implementer committed f41c52a with reported RED/GREEN evidence; independent spec review requested corrections. Interrupted correction resumed on 2026-11-10: 32 migration tests observed with 12 expected assertion failures and no errors, demonstrating whitespace and timestamp/offset-pair gaps. Correction f967285 passed independent spec and quality reviews and coordinator checks: 34 backend tests, 1 RTL test, typecheck/build. Minor Vitest/TypeScript alignment resolved in 2b8163f and independently re-reviewed; coordinator repeated all frontend checks successfully. EA-01 complete.
 - EA-02: Complete at 7263e0c after independent spec and quality correction/re-review loops. Coordinator 95 backend tests passed; actual upstream adapters and UI remain pending.
-- EA-03–07: Not Started.
+- EA-03: Complete at 4ecc06f. Activity a9e7701, agenda aa6fd30, nested-resolution fix 14dbf39 and coherent-read fix 4ecc06f. Independent Terra specification and quality re-reviews approved; coordinator 123 backend tests passed. Existing branch/history and issue18/19 checkpoint refs preserved. No real upstream/signup integration or full-story delivery claimed.
+- EA-04–07: Not Started.
 - Independent peer/cross-owner integration acceptance and student implementation review: pending; no production integration is fabricated.
 
 Resumption routing constraint: the user explicitly prohibited Astra subagents. Future implementation and review workers use other available models; completed earlier reviews remain historical evidence.
