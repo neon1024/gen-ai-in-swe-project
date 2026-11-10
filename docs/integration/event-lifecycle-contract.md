@@ -38,12 +38,14 @@ Migrations live in `backend/src/main/resources/db/migration/eventlifecycle/` and
 | Migration | Creates |
 |---|---|
 | `V2026111001__lifecycle_create_event_activity_agenda.sql` | `lifecycle_event`, `lifecycle_activity`, `lifecycle_agenda_item` |
+| `V2026111002__lifecycle_create_feedback.sql` | `lifecycle_feedback` |
 
 | Table | Key columns and constraints |
 |---|---|
 | `lifecycle_event` | `id uuid pk`, `organization_id uuid`, `title varchar(200)`, `description text`, `category` (check: 6 values), `state` (check: 4 values), `published_at`, `cancelled_at`, `completed_at` (`timestamptz`, nullable), `version bigint default 0`. Index on `state`. |
 | `lifecycle_activity` | `id uuid pk`, `event_id` FK to `lifecycle_event` (cascade delete), `title`, `description text default ''`, `starts_at`, `ends_at`, `location`, `online_link`, `capacity` (check >= 1), `registration_opens_at`, `registration_closes_at`, `visibility` (check), `state` (check), `cancelled_at`. Check `ends_at > starts_at` when both set. Index on `event_id`. |
 | `lifecycle_agenda_item` | `id uuid pk`, `activity_id` FK to `lifecycle_activity` (cascade delete), `starts_at timestamptz`, `title`, `speaker`. |
+| `lifecycle_feedback` | `id uuid pk`, `activity_id` FK to `lifecycle_activity` (cascade delete), `author_id uuid` (stored only to enforce uniqueness, never returned), `rating smallint` (check 1 to 5), `comment varchar(2000)` nullable, `created_at timestamptz`. Unique on `(activity_id, author_id)`. |
 
 ## Assumptions
 
@@ -180,6 +182,23 @@ Response:
 | `organizations` | Distinct organizations of every event visible to the caller, before the organization and keyword filters, sorted by name. Feeds the filter dropdown. |
 | `organizationName` | Empty string when `OrganizationDirectory` has no name for the organization. |
 | Limitation | Candidates are loaded in one fetch-join query and filtered, sorted and paged in memory. Acceptable at course scale; move filtering into the query if the event count grows. |
+
+## Feedback
+
+Base path `/api/feedback`. Responses never contain user ids (BR-17). Feedback skips the read-only guard, so it works on COMPLETED events (BR-06 exception).
+
+| Method and path | Purpose | Success | Errors (`code`) |
+|---|---|---|---|
+| `GET /activities/{activityId}/eligibility` | Whether the caller may give feedback | 200 `{ "eligible": true, "reason": null }` or `{ "eligible": false, "reason": "NOT_ATTENDED" }` | 401 `UNAUTHENTICATED`, 404 `ACTIVITY_NOT_FOUND` |
+| `POST /activities/{activityId}` | Give feedback (US-47). Body `{ "rating": 1..5, "comment": "optional, max 2000" }` | 201 `{ "id": "..." }` | 400 `VALIDATION_FAILED`, 401 `UNAUTHENTICATED`, 403 `NOT_ATTENDED`, 404 `ACTIVITY_NOT_FOUND`, 409 `ACTIVITY_CANCELLED`, `FEEDBACK_NOT_OPEN`, `FEEDBACK_WINDOW_CLOSED` or `FEEDBACK_ALREADY_GIVEN` |
+
+| Rule | Behaviour |
+|---|---|
+| Window | Open for `endsAt <= now <= endsAt + 7 days`, inclusive at both ends (BR-16). |
+| Check order | `ACTIVITY_CANCELLED`, `FEEDBACK_NOT_OPEN`, `FEEDBACK_WINDOW_CLOSED`, `NOT_ATTENDED`, `FEEDBACK_ALREADY_GIVEN`; the first match is returned. |
+| Attendance | Depends on `SignupPort.wasMarkedPresent(activityId, userId)`. |
+| Comment | A blank comment is stored as null; any other comment is trimmed. |
+| Concurrency | A concurrent duplicate hits the unique constraint and is answered with 409 `FEEDBACK_ALREADY_GIVEN`. |
 
 ## Cancellation rules
 
