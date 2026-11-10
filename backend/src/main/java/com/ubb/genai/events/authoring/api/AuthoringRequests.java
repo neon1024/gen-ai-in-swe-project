@@ -23,6 +23,15 @@ public final class AuthoringRequests {
     }
   }
 
+  public record VersionCommand(
+      @Schema(requiredMode = Schema.RequiredMode.REQUIRED, minimum = "0")
+      @JsonDeserialize(using = StrictLongDeserializer.class) Long expectedVersion) {
+    @JsonAnySetter
+    public void rejectUnknown(String name, Object value) {
+      throw new AuthoringException(400, "INVALID_INPUT", "Invalid request");
+    }
+  }
+
   public record ActivityWrite(
       @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
       @JsonDeserialize(using = StrictTextDeserializer.class) String title,

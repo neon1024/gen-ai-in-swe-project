@@ -75,6 +75,16 @@ public class EventAuthoringController {
     return c.name().substring(0, 1) + c.name().substring(1).toLowerCase(Locale.ROOT);
   }
 
+  @PostMapping("/{eventId}/publish")
+  @ApiResponse(responseCode = "422", description = "Accumulated publication readiness problems",
+      content = @Content(mediaType = "application/json"))
+  public EventView publish(@PathVariable UUID eventId,
+      @RequestBody AuthoringRequests.VersionCommand request) {
+    if (request.expectedVersion() == null || request.expectedVersion() < 0)
+      throw new AuthoringException(400, "INVALID_INPUT", "Nonnegative version is required");
+    return service.publish(eventId, request.expectedVersion());
+  }
+
   @GetMapping("/{eventId}")
   public EventView get(@PathVariable UUID eventId) {
     return service.getEvent(eventId);
