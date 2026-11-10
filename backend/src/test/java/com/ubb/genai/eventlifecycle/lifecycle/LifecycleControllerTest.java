@@ -1,6 +1,8 @@
 package com.ubb.genai.eventlifecycle.lifecycle;
 
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -31,6 +33,9 @@ class LifecycleControllerTest {
 
     @MockitoBean
     private EventCancellationService service;
+
+    @MockitoBean
+    private DraftDeletionService deletion;
 
     @MockitoBean
     private CurrentUserProvider currentUser;
@@ -119,5 +124,27 @@ class LifecycleControllerTest {
         mvc.perform(post("/api/lifecycle/activities/not-a-uuid/cancel"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
+    }
+
+    @Test
+    @DisplayName("US-22 the delete endpoint returns 204")
+    void us22_deleteEndpointReturns204() throws Exception {
+        when(currentUser.currentUserId()).thenReturn(Optional.of(userId));
+
+        mvc.perform(delete("/api/lifecycle/events/{id}", eventId)).andExpect(status().isNoContent());
+
+        verify(deletion).deleteDraft(eventId, Optional.of(userId));
+    }
+
+    @Test
+    @DisplayName("US-22 deleting a published event maps to a 409 problem")
+    void us22_deleteEndpointMapsConflict() throws Exception {
+        when(currentUser.currentUserId()).thenReturn(Optional.of(userId));
+        org.mockito.Mockito.doThrow(LifecycleProblem.conflict("EVENT_NOT_DRAFT", "Published events cannot be deleted, only cancelled."))
+                .when(deletion).deleteDraft(eventId, Optional.of(userId));
+
+        mvc.perform(delete("/api/lifecycle/events/{id}", eventId))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("EVENT_NOT_DRAFT"));
     }
 }

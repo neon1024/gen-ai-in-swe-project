@@ -101,15 +101,16 @@ Errors are RFC 9457 `ProblemDetail` bodies with an extra `code` property (UPPER_
 
 ## Endpoints
 
-Base path `/api/lifecycle`. The caller comes from `CurrentUserProvider`; all three endpoints answer with the same view.
+Base path `/api/lifecycle`. The caller comes from `CurrentUserProvider`; the GET and POST endpoints answer with the same view; DELETE answers 204 with no body.
 
 | Method and path | Purpose | Success | Errors (`code`) |
 |---|---|---|---|
 | `GET /events/{eventId}` | Event with its visible activities and the caller's permissions | 200 | 404 `EVENT_NOT_FOUND` |
 | `POST /events/{eventId}/cancel` | Cancel a DRAFT or PUBLISHED event (US-21) | 200 | 401 `UNAUTHENTICATED`, 403 `OWNER_RIGHTS_REQUIRED`, 404 `EVENT_NOT_FOUND`, 409 `EVENT_NOT_CANCELLABLE` |
 | `POST /activities/{activityId}/cancel` | Cancel a scheduled activity (US-20) | 200 | 401 `UNAUTHENTICATED`, 403 `OWNER_RIGHTS_REQUIRED`, 404 `ACTIVITY_NOT_FOUND` or `EVENT_NOT_FOUND`, 409 `EVENT_READ_ONLY`, `ACTIVITY_ALREADY_CANCELLED` or `ACTIVITY_ENDED` |
+| `DELETE /events/{eventId}` | Delete a DRAFT event with its activities and agenda items (US-22) | 204 | 401 `UNAUTHENTICATED`, 403 `OWNER_RIGHTS_REQUIRED`, 404 `EVENT_NOT_FOUND`, 409 `EVENT_NOT_DRAFT` |
 
-Neither POST endpoint has a request body. A malformed id returns 400 `VALIDATION_FAILED`.
+None of the POST and DELETE endpoints has a request body. A malformed id returns 400 `VALIDATION_FAILED`.
 
 Response (`POST /api/lifecycle/activities/6b1f.../cancel`):
 
@@ -149,3 +150,18 @@ Error response (`409`, `application/problem+json`):
 | Rejected requests | Nothing is cancelled and no notification is sent. |
 | Notifications | Sent after the state change, in the same transaction, so a failing port rolls the change back. |
 | Concurrency | Both cancel paths load the event with an optimistic force-increment lock, so every cancel bumps the event version and the loser of a race gets 409 `CONCURRENT_MODIFICATION`. |
+
+## Delete rules
+
+| Rule | Behaviour |
+|---|---|
+| Precondition order | event not visible 404, no owner rights 403, event not DRAFT 409 `EVENT_NOT_DRAFT` ("Published events cannot be deleted, only cancelled.", BR-05). |
+| Cascade | Activities and agenda items are removed by JPA cascade and by `on delete cascade` in the database. |
+
+## Provided interfaces
+
+| Interface | Method | Semantics |
+|---|---|---|
+| `lifecycle.EventReadOnlyGuard` (Spring bean) | `void requireEditable(UUID eventId)` | 404 `EVENT_NOT_FOUND` when the event is missing; 409 `EVENT_READ_ONLY` when it is COMPLETED or CANCELLED (BR-06). |
+
+The event-authoring share should call `requireEditable` before every edit of an event, its activities or its agenda. Attendance and feedback deliberately skip the guard (BR-06 exception).
