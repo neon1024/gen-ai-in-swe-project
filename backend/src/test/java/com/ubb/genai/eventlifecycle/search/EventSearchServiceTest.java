@@ -215,4 +215,20 @@ class EventSearchServiceTest {
                 .extracting(EventSearchResult.OrganizationOption::name)
                 .isSortedAccordingTo(String.CASE_INSENSITIVE_ORDER);
     }
+
+    @Test
+    @DisplayName("US-24 an event whose qualifying activities have no start reports a null next start and sorts last")
+    void us24_nullStartIsReportedAsNullAndSortsLast() {
+        LifecycleEvent unscheduled = LifecycleEvent.draft(orgId, "Unscheduled", "d", EventCategory.WORKSHOP);
+        unscheduled.addActivity(LifecycleActivity.scheduled(
+                "Activity", null, NOW.plus(Duration.ofDays(2)), ActivityVisibility.PUBLIC));
+        unscheduled.publish(NOW.minus(Duration.ofDays(1)));
+        created.add(events.saveAndFlush(unscheduled).getId());
+        published("Dated", Duration.ofDays(9));
+
+        EventSearchResult result = service.search(forOrg(orgId), Optional.empty());
+
+        assertThat(titles(result)).containsExactly("Dated", "Unscheduled");
+        assertThat(result.items().get(1).nextActivityStartsAt()).isNull();
+    }
 }

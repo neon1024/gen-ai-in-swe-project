@@ -131,4 +131,15 @@ class FeedbackControllerTest {
         assertThat(body).doesNotContain("\"author\"", "\"authorId\"", "\"userId\"");
         assertThat(body).doesNotContainIgnoringCase("author");
     }
+
+    @Test
+    @DisplayName("US-47 malformed JSON returns 400 VALIDATION_FAILED")
+    void us47_malformedJsonReturns400() throws Exception {
+        mvc.perform(post("/api/feedback/activities/{id}", activityId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"rating\":"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
+        verifyNoInteractions(service);
+    }
 }

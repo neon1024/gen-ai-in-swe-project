@@ -3,6 +3,7 @@ package com.ubb.genai.eventlifecycle.feedback;
 import com.ubb.genai.eventlifecycle.shared.access.EventAccessPolicy;
 import com.ubb.genai.eventlifecycle.shared.model.LifecycleActivity;
 import com.ubb.genai.eventlifecycle.shared.persistence.LifecycleActivityRepository;
+import com.ubb.genai.eventlifecycle.shared.persistence.LifecycleEventRepository;
 import com.ubb.genai.eventlifecycle.shared.port.SignupPort;
 import com.ubb.genai.eventlifecycle.shared.web.LifecycleProblem;
 import java.time.Clock;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class FeedbackService {
 
     private final LifecycleActivityRepository activities;
+    private final LifecycleEventRepository events;
     private final FeedbackRepository feedback;
     private final SignupPort signups;
     private final EventAccessPolicy access;
@@ -23,11 +25,13 @@ public class FeedbackService {
 
     public FeedbackService(
             LifecycleActivityRepository activities,
+            LifecycleEventRepository events,
             FeedbackRepository feedback,
             SignupPort signups,
             EventAccessPolicy access,
             Clock clock) {
         this.activities = activities;
+        this.events = events;
         this.feedback = feedback;
         this.signups = signups;
         this.access = access;
@@ -36,7 +40,7 @@ public class FeedbackService {
 
     public FeedbackEligibilityView eligibility(UUID activityId, Optional<UUID> userId) {
         UUID user = access.requireUser(userId);
-        Optional<FeedbackRefusal> refusal = refusal(findActivity(activityId), user);
+        Optional<FeedbackRefusal> refusal = refusal(findVisibleActivity(activityId, userId), user);
         return new FeedbackEligibilityView(refusal.isEmpty(), refusal.map(Enum::name).orElse(null));
     }
 
@@ -55,7 +59,7 @@ public class FeedbackService {
      */
     public UUID give(UUID activityId, Optional<UUID> userId, GiveFeedbackRequest request) {
         UUID user = access.requireUser(userId);
-        refusal(findActivity(activityId), user).ifPresent(r -> {
+        refusal(findVisibleActivity(activityId, userId), user).ifPresent(r -> {
             throw r == FeedbackRefusal.NOT_ATTENDED
                     ? LifecycleProblem.forbidden(r.name())
                     : LifecycleProblem.conflict(r.name(), "Feedback is not possible: " + r.name());
@@ -77,6 +81,19 @@ public class FeedbackService {
 
     private LifecycleActivity findActivity(UUID activityId) {
         return activities.findById(activityId).orElseThrow(() -> LifecycleProblem.notFound("ACTIVITY_NOT_FOUND"));
+    }
+
+    /** BR-18: an activity of a hidden event, or a private activity the user cannot see, does not exist for them. */
+    private LifecycleActivity findVisibleActivity(UUID activityId, Optional<UUID> userId) {
+        LifecycleActivity activity = findActivity(activityId);
+        boolean visible = events.findById(activity.getEventId())
+                .filter(e -> access.canSeeEvent(e, userId))
+                .filter(e -> access.canSeeActivity(activity, e.getOrganizationId(), userId))
+                .isPresent();
+        if (!visible) {
+            throw LifecycleProblem.notFound("ACTIVITY_NOT_FOUND");
+        }
+        return activity;
     }
 
     private Optional<FeedbackRefusal> refusal(LifecycleActivity activity, UUID user) {

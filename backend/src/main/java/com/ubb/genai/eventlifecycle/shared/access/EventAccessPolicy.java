@@ -49,6 +49,22 @@ public class EventAccessPolicy {
                 || userId.map(id -> isTeamMember(event, id)).orElse(false);
     }
 
+    /**
+     * BR-18: an event whose activities are all private is hidden from everyone except the team and those who can
+     * see at least one activity. Reads the activities, so the event must be loaded with them.
+     */
+    public boolean canSeeEventDetails(LifecycleEvent event, Optional<UUID> userId) {
+        if (!canSeeEvent(event, userId)) {
+            return false;
+        }
+        if (userId.map(id -> isTeamMember(event, id)).orElse(false)) {
+            return true;
+        }
+        return event.getActivities().isEmpty()
+                || event.getActivities().stream()
+                        .anyMatch(a -> canSeeActivity(a, event.getOrganizationId(), userId));
+    }
+
     public boolean canSeeActivity(LifecycleActivity activity, UUID organizationId, Optional<UUID> userId) {
         if (activity.getVisibility() == ActivityVisibility.PUBLIC) {
             return true;
@@ -63,8 +79,8 @@ public class EventAccessPolicy {
     }
 
     public LifecycleEvent requireVisibleEvent(UUID eventId, Optional<UUID> userId) {
-        return events.findById(eventId)
-                .filter(e -> canSeeEvent(e, userId))
+        return events.findWithActivitiesById(eventId)
+                .filter(e -> canSeeEventDetails(e, userId))
                 .orElseThrow(() -> LifecycleProblem.notFound("EVENT_NOT_FOUND"));
     }
 

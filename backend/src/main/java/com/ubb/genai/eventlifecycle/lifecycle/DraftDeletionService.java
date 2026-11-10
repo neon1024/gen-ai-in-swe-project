@@ -25,7 +25,7 @@ public class DraftDeletionService {
     /** Deletes the draft with its activities and agenda items (cascaded by JPA and by the database). */
     @Transactional
     public void deleteDraft(UUID eventId, Optional<UUID> userId) {
-        LifecycleEvent event = events.findLockedById(eventId)
+        LifecycleEvent event = events.findById(eventId)
                 .filter(e -> access.canSeeEvent(e, userId))
                 .orElseThrow(() -> LifecycleProblem.notFound("EVENT_NOT_FOUND"));
         access.requireOwnerRights(event, access.requireUser(userId));
