@@ -101,4 +101,31 @@ class EventAccessPolicyTest {
         assertThat(policy.isTeamMember(draft, staff)).isTrue();
         assertThat(policy.isTeamMember(draft, userId)).isFalse();
     }
+
+    @Test
+    @DisplayName("BR-18 an event whose activities are all private is hidden from everyone but the team and members")
+    void br18_eventDetailsHiddenWhenAllActivitiesPrivate() {
+        Instant start = Instant.parse("2027-01-01T10:00:00Z");
+        LifecycleEvent event = EventLifecycleFixtures.publishedEvent(
+                orgId, start, java.time.Duration.ofHours(1), ActivityVisibility.PRIVATE, ActivityVisibility.PRIVATE);
+        UUID member = UUID.randomUUID();
+        when(organizations.isMember(orgId, member)).thenReturn(true);
+        when(team.roleOf(event.getId(), userId)).thenReturn(Optional.of(EventRole.STAFF));
+
+        assertThat(policy.canSeeEventDetails(event, Optional.empty())).isFalse();
+        assertThat(policy.canSeeEventDetails(event, Optional.of(UUID.randomUUID()))).isFalse();
+        assertThat(policy.canSeeEventDetails(event, Optional.of(member))).isTrue();
+        assertThat(policy.canSeeEventDetails(event, Optional.of(userId))).isTrue();
+    }
+
+    @Test
+    @DisplayName("BR-18 a published event without activities counts as visible")
+    void br18_publishedEventWithoutActivitiesIsVisible() {
+        LifecycleEvent empty = EventLifecycleFixtures.draftEvent(orgId);
+        org.springframework.test.util.ReflectionTestUtils.setField(empty, "state",
+                com.ubb.genai.eventlifecycle.shared.model.EventState.PUBLISHED);
+
+        assertThat(policy.canSeeEventDetails(empty, Optional.empty())).isTrue();
+        assertThat(policy.canSeeEventDetails(draft, Optional.empty())).isFalse();
+    }
 }

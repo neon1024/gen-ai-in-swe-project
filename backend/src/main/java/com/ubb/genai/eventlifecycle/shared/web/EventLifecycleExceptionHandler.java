@@ -4,6 +4,7 @@ import com.ubb.genai.eventlifecycle.shared.model.IllegalEventTransitionException
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,6 +28,7 @@ public class EventLifecycleExceptionHandler {
     @ExceptionHandler({
         MethodArgumentNotValidException.class,
         MethodArgumentTypeMismatchException.class,
+        HttpMessageNotReadableException.class,
         HandlerMethodValidationException.class
     })
     ProblemDetail handleValidation(Exception e) {

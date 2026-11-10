@@ -66,7 +66,7 @@ public class EventSearchService {
 
         List<Candidate> matching = visible.stream()
                 .filter(c -> EventSearchMatcher.matches(c.event(), c.qualifying(), criteria, keywordOrgIds))
-                .sorted(Comparator.comparing(Candidate::nextStart)
+                .sorted(Comparator.comparing(Candidate::nextStart, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(c -> c.event().getTitle())
                         .thenComparing(c -> c.event().getId()))
                 .toList();
@@ -102,7 +102,7 @@ public class EventSearchService {
                     .map(LifecycleActivity::getStartsAt)
                     .filter(java.util.Objects::nonNull)
                     .min(Comparator.naturalOrder())
-                    .orElse(Instant.MAX);
+                    .orElse(null);
         }
     }
 }

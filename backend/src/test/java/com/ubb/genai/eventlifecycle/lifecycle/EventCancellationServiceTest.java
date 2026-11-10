@@ -341,4 +341,39 @@ class EventCancellationServiceTest {
             service.cancelActivity(a, Optional.of(owner));
         })).isInstanceOf(ObjectOptimisticLockingFailureException.class);
     }
+
+    private LifecycleEvent saveAllPrivate() {
+        return save(EventLifecycleFixtures.publishedEvent(
+                orgId, START, Duration.ofHours(1), ActivityVisibility.PRIVATE, ActivityVisibility.PRIVATE));
+    }
+
+    @Test
+    @DisplayName("BR-18 the lifecycle view of an all-private event is hidden from guests and strangers")
+    void br18_lifecycleViewOfAllPrivateEventIsHidden() {
+        LifecycleEvent event = saveAllPrivate();
+
+        assertProblem(() -> service.view(event.getId(), Optional.empty()), HttpStatus.NOT_FOUND, "EVENT_NOT_FOUND");
+        assertProblem(() -> service.view(event.getId(), Optional.of(stranger)), HttpStatus.NOT_FOUND, "EVENT_NOT_FOUND");
+    }
+
+    @Test
+    @DisplayName("BR-18 team members and organization members still see an all-private event")
+    void br18_membersSeeAllPrivateEvent() {
+        LifecycleEvent event = saveAllPrivate();
+        UUID member = UUID.randomUUID();
+        when(organizations.isMember(orgId, member)).thenReturn(true);
+
+        assertThat(service.view(event.getId(), Optional.of(editor)).activities()).hasSize(2);
+        assertThat(service.view(event.getId(), Optional.of(member)).activities()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("BR-18 the cancel endpoints answer not found for strangers on an all-private event")
+    void br18_cancelEndpointsAnswerNotFoundForStrangers() {
+        LifecycleEvent event = saveAllPrivate();
+        UUID a = event.getActivities().get(0).getId();
+
+        assertProblem(() -> service.cancelEvent(event.getId(), Optional.of(stranger)), HttpStatus.NOT_FOUND, "EVENT_NOT_FOUND");
+        assertProblem(() -> service.cancelActivity(a, Optional.of(stranger)), HttpStatus.NOT_FOUND, "EVENT_NOT_FOUND");
+    }
 }

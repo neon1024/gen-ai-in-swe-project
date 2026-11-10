@@ -194,6 +194,43 @@ class FeedbackServiceTest {
                 .isInstanceOfSatisfying(LifecycleProblem.class, p -> assertThat(p.status()).isEqualTo(HttpStatus.UNAUTHORIZED));
     }
 
+    @Test
+    @DisplayName("BR-18 a stranger gets 404 from feedback eligibility and give on a private activity")
+    void br18_strangerCannotProbePrivateActivity() {
+        LifecycleEvent hidden = events.saveAndFlush(EventLifecycleFixtures.publishedEvent(
+                UUID.randomUUID(), START, Duration.ofHours(2), ActivityVisibility.PRIVATE));
+        created.add(hidden.getId());
+        UUID privateId = events.findWithActivitiesById(hidden.getId()).orElseThrow().getActivities().get(0).getId();
+        when(signupPort.wasMarkedPresent(privateId, user)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.eligibility(privateId, Optional.of(user)))
+                .isInstanceOfSatisfying(LifecycleProblem.class, p -> {
+                    assertThat(p.status()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(p.code()).isEqualTo("ACTIVITY_NOT_FOUND");
+                });
+        assertThatThrownBy(() -> service.give(privateId, Optional.of(user), request(3, null)))
+                .isInstanceOfSatisfying(LifecycleProblem.class, p -> {
+                    assertThat(p.status()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(p.code()).isEqualTo("ACTIVITY_NOT_FOUND");
+                });
+
+        when(organizations.isMember(hidden.getOrganizationId(), user)).thenReturn(true);
+        assertThat(service.eligibility(privateId, Optional.of(user)).eligible()).isTrue();
+    }
+
+    @Test
+    @DisplayName("BR-18 a stranger gets 404 from feedback on an activity of a draft event")
+    void br18_strangerCannotProbeDraftActivity() {
+        LifecycleEvent draft = EventLifecycleFixtures.draftEvent(UUID.randomUUID());
+        draft.addActivity(LifecycleActivity.scheduled("Draft activity", START, END, ActivityVisibility.PUBLIC));
+        draft = events.saveAndFlush(draft);
+        created.add(draft.getId());
+        UUID draftActivity = events.findWithActivitiesById(draft.getId()).orElseThrow().getActivities().get(0).getId();
+
+        assertThatThrownBy(() -> service.eligibility(draftActivity, Optional.of(user)))
+                .isInstanceOfSatisfying(LifecycleProblem.class, p -> assertThat(p.code()).isEqualTo("ACTIVITY_NOT_FOUND"));
+    }
+
     private void giveRated(int rating, String comment) {
         UUID attendee = UUID.randomUUID();
         when(signupPort.wasMarkedPresent(activity.getId(), attendee)).thenReturn(true);

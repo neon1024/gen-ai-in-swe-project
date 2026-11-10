@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ public class EventCancellationService {
     private final SignupPort signups;
     private final NotificationPort notifications;
     private final Clock clock;
+    private final EntityManager entityManager;
 
     public EventCancellationService(
             EventAccessPolicy access,
@@ -38,20 +41,22 @@ public class EventCancellationService {
             LifecycleActivityRepository activities,
             SignupPort signups,
             NotificationPort notifications,
-            Clock clock) {
+            Clock clock,
+            EntityManager entityManager) {
         this.access = access;
         this.events = events;
         this.activities = activities;
         this.signups = signups;
         this.notifications = notifications;
         this.clock = clock;
+        this.entityManager = entityManager;
     }
 
     @Transactional
     public LifecycleEventView cancelActivity(UUID activityId, Optional<UUID> userId) {
         LifecycleActivity activity = activities.findById(activityId)
                 .orElseThrow(() -> LifecycleProblem.notFound("ACTIVITY_NOT_FOUND"));
-        LifecycleEvent event = requireLockedVisibleEvent(activity.getEventId(), userId);
+        LifecycleEvent event = requireVisibleEvent(activity.getEventId(), userId);
         access.requireOwnerRights(event, access.requireUser(userId));
         if (event.isReadOnly()) {
             throw LifecycleProblem.conflict("EVENT_READ_ONLY", "The event is " + event.getState() + " and read-only");
@@ -64,6 +69,7 @@ public class EventCancellationService {
             throw LifecycleProblem.conflict("ACTIVITY_ENDED", "The activity has already ended");
         }
 
+        lockForUpdate(event);
         activity.cancel(now);
         Set<UUID> recipients = signups.cancelAllSignups(activityId);
         boolean eventCancelled = event.allActivitiesCancelled();
@@ -81,7 +87,7 @@ public class EventCancellationService {
 
     @Transactional
     public LifecycleEventView cancelEvent(UUID eventId, Optional<UUID> userId) {
-        LifecycleEvent event = requireLockedVisibleEvent(eventId, userId);
+        LifecycleEvent event = requireVisibleEvent(eventId, userId);
         access.requireOwnerRights(event, access.requireUser(userId));
         if (event.isReadOnly()) {
             throw LifecycleProblem.conflict(
@@ -89,6 +95,7 @@ public class EventCancellationService {
         }
         Instant now = clock.instant();
 
+        lockForUpdate(event);
         List<UUID> scheduled = new ArrayList<>();
         for (LifecycleActivity activity : event.getActivities()) {
             if (activity.getState() == ActivityState.SCHEDULED) {
@@ -109,10 +116,18 @@ public class EventCancellationService {
         return toView(access.requireVisibleEvent(eventId, userId), userId);
     }
 
-    private LifecycleEvent requireLockedVisibleEvent(UUID eventId, Optional<UUID> userId) {
-        return events.findLockedById(eventId)
-                .filter(e -> access.canSeeEvent(e, userId))
+    private LifecycleEvent requireVisibleEvent(UUID eventId, Optional<UUID> userId) {
+        return events.findWithActivitiesById(eventId)
+                .filter(e -> access.canSeeEventDetails(e, userId))
                 .orElseThrow(() -> LifecycleProblem.notFound("EVENT_NOT_FOUND"));
+    }
+
+    /**
+     * Bumps the event version on commit so concurrent writers conflict. Done only once every check has passed:
+     * a refused request rolls back, and a pending force-increment would make Hibernate warn (HHH90010101).
+     */
+    private void lockForUpdate(LifecycleEvent event) {
+        entityManager.lock(event, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
     }
 
     private LifecycleEventView toView(LifecycleEvent event, Optional<UUID> userId) {
