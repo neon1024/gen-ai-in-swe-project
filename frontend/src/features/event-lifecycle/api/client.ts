@@ -16,7 +16,8 @@ interface ProblemDetail {
   code?: string
 }
 
-export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+/** Sends the request with the shared headers and turns a non-2xx answer into an {@link ApiError}. */
+export async function request(path: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers)
   // Provisional: the authentication share replaces the dev user header.
   const devUserId = localStorage.getItem('devUserId')
@@ -37,6 +38,11 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
       problem.detail ?? problem.title ?? response.statusText,
     )
   }
+  return response
+}
+
+export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const response = await request(path, init)
   if (response.status === 204) {
     return undefined as T
   }

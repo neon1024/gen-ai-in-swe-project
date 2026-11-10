@@ -74,7 +74,7 @@ describe('GiveFeedbackPage', () => {
     const user = userEvent.setup()
     fetchMock.mockImplementation((_url: string, init?: RequestInit) =>
       init?.method === 'POST'
-        ? jsonResponse({ code: 'FEEDBACK_ALREADY_GIVEN', detail: 'Already rated.' }, 409)
+        ? jsonResponse({ code: 'VALIDATION_FAILED', detail: 'Already rated.' }, 400)
         : jsonResponse({ eligible: true, reason: null }),
     )
     renderPage()
@@ -84,6 +84,21 @@ describe('GiveFeedbackPage', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Already rated.')
     expect(screen.queryByText('Thank you for your feedback.')).not.toBeInTheDocument()
+  })
+
+  it('US-47 a refusal code is shown with its reason message, not the raw server text', async () => {
+    const user = userEvent.setup()
+    fetchMock.mockImplementation((_url: string, init?: RequestInit) =>
+      init?.method === 'POST'
+        ? jsonResponse({ code: 'FEEDBACK_WINDOW_CLOSED', detail: 'Feedback is not possible: FEEDBACK_WINDOW_CLOSED' }, 409)
+        : jsonResponse({ eligible: true, reason: null }),
+    )
+    renderPage()
+
+    await user.click(await screen.findByRole('radio', { name: '4' }))
+    await user.click(screen.getByRole('button', { name: 'Submit feedback' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Feedback closed 7 days after the activity ended.')
   })
 
   it.each([

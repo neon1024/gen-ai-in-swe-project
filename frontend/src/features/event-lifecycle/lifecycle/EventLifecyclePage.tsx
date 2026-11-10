@@ -18,9 +18,13 @@ const ACTIVITY_STATE_LABELS: Record<ActivityState, string> = {
 
 const CASCADE = 'All signups and waitlist entries will be cancelled.'
 
-function formatRange(startsAt: string, endsAt: string): string {
+function formatRange(startsAt: string | null, endsAt: string | null): string {
+  if (startsAt === null) {
+    return 'Not scheduled'
+  }
   const options: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' }
-  return `${new Date(startsAt).toLocaleString(undefined, options)} - ${new Date(endsAt).toLocaleString(undefined, options)}`
+  const start = new Date(startsAt).toLocaleString(undefined, options)
+  return endsAt === null ? start : `${start} - ${new Date(endsAt).toLocaleString(undefined, options)}`
 }
 
 function messageOf(e: unknown): string {

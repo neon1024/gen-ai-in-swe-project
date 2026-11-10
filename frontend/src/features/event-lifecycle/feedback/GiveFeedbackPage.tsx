@@ -55,7 +55,7 @@ export function GiveFeedbackPage() {
       setError(null)
       setDone(true)
     } catch (e) {
-      setError(messageOf(e))
+      setError(e instanceof ApiError && e.code in REASON_MESSAGES ? REASON_MESSAGES[e.code] : messageOf(e))
     } finally {
       setSubmitting(false)
     }

@@ -19,7 +19,10 @@ function parseDate(value: string, endOfDay: boolean): string | undefined {
   return date.toISOString()
 }
 
-function formatStart(iso: string): string {
+function formatStart(iso: string | null): string {
+  if (iso === null) {
+    return 'Not scheduled'
+  }
   return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
 }
 
@@ -30,6 +33,8 @@ export function EventSearchPage() {
   const to = searchParams.get('to') ?? ''
   const organizationId = searchParams.get('organizationId') ?? ''
   const category = searchParams.get('category') ?? ''
+  const parsedPage = Number.parseInt(searchParams.get('page') ?? '0', 10)
+  const page = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 0
 
   const [form, setForm] = useState({ q, from, to, organizationId, category })
   const [result, setResult] = useState<EventSearchResult | null>(null)
@@ -43,6 +48,7 @@ export function EventSearchPage() {
       to: parseDate(to, true),
       organizationId,
       category: (CATEGORIES as string[]).includes(category) ? (category as EventCategory) : undefined,
+      page: page > 0 ? page : undefined,
     })
       .then((data) => {
         if (current) {
@@ -58,7 +64,7 @@ export function EventSearchPage() {
     return () => {
       current = false
     }
-  }, [q, from, to, organizationId, category])
+  }, [q, from, to, organizationId, category, page])
 
   function submit(e: FormEvent) {
     e.preventDefault()
@@ -68,6 +74,16 @@ export function EventSearchPage() {
       if (value) {
         next.set(key, value)
       }
+    }
+    setSearchParams(next)
+  }
+
+  function goToPage(target: number) {
+    const next = new URLSearchParams(searchParams)
+    if (target > 0) {
+      next.set('page', String(target))
+    } else {
+      next.delete('page')
     }
     setSearchParams(next)
   }
@@ -136,11 +152,39 @@ export function EventSearchPage() {
               <h2 className="text-lg font-medium">{event.title}</h2>
               <p className="text-sm text-gray-600">{event.organizationName}</p>
               <p className="text-sm">
-                <span>{CATEGORY_LABELS[event.category]}</span> · <time dateTime={event.nextActivityStartsAt}>{formatStart(event.nextActivityStartsAt)}</time>
+                <span>{CATEGORY_LABELS[event.category]}</span> · {event.nextActivityStartsAt === null ? (
+                  formatStart(null)
+                ) : (
+                  <time dateTime={event.nextActivityStartsAt}>{formatStart(event.nextActivityStartsAt)}</time>
+                )}
               </p>
             </li>
           ))}
         </ul>
+      )}
+
+      {!error && result && result.items.length > 0 && (
+        <nav aria-label="Pagination" className="mt-4 flex items-center justify-between">
+          <button
+            type="button"
+            disabled={page <= 0}
+            onClick={() => goToPage(page - 1)}
+            className="rounded border border-gray-400 px-3 py-1 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="text-sm">
+            Page {page + 1} of {Math.max(1, Math.ceil(result.totalItems / result.size))}
+          </span>
+          <button
+            type="button"
+            disabled={(page + 1) * result.size >= result.totalItems}
+            onClick={() => goToPage(page + 1)}
+            className="rounded border border-gray-400 px-3 py-1 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </nav>
       )}
     </main>
   )

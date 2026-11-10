@@ -160,4 +160,20 @@ describe('EventLifecyclePage', () => {
     await user.click(await screen.findByRole('button', { name: 'Cancel activity' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('The activity has already ended')
   })
+
+  it('US-20 an activity without times shows Not scheduled instead of an invalid date', async () => {
+    fetchMock.mockImplementation(() =>
+      jsonResponse(
+        view({
+          activities: [{ id: ACT_1, title: 'TBD session', startsAt: null, endsAt: null, state: 'SCHEDULED' }],
+        }),
+      ),
+    )
+    renderPage()
+
+    const item = await screen.findByRole('listitem')
+    expect(within(item).getByText('Not scheduled')).toBeInTheDocument()
+    expect(item).not.toHaveTextContent('1970')
+    expect(item).not.toHaveTextContent('Invalid')
+  })
 })
