@@ -59,7 +59,9 @@ Migrations live in `backend/src/main/resources/db/migration/eventlifecycle/` and
 
 ## Interfaces stubbed
 
-Ports live in `shared.port`; each has a `@Component` stub in `shared.port.stub` whose Javadoc names the owning share. A real implementation replaces the stub bean at reconciliation.
+Ports live in `shared.port`; each has a `@Component` stub in `shared.port.stub` whose Javadoc names the owning share. A real implementation replaces the stub bean at reconciliation. Stubs are plain `@Component` beans (not conditional), so delete the stub class when the real bean is added; two beans of the same port type fail startup.
+
+`OrganizationDirectory.organizationIdsWithNameContaining(keyword)` must match case-insensitively as a literal substring of the organization name; the keyword is already trimmed and non-blank, and `%` and `_` are ordinary characters.
 
 | Port | Method | Semantics | Owning share | Stub behaviour |
 |---|---|---|---|---|
@@ -321,3 +323,34 @@ Folder `frontend/` (React, TypeScript, Vite, React Router 7, Tailwind CSS; tests
 | `npm run dev` | Dev server with the `/api` proxy |
 | `npm test` | Run Vitest once |
 | `npm run build` | Type-check and build |
+| `npm run lint` | Run oxlint |
+
+## Reconciliation checklist
+
+| Item | Provisional (this share) | Replaced by |
+|---|---|---|
+| Stub `HeaderCurrentUserProvider` | `CurrentUserProvider`, reads `X-User-Id` | Real authentication bean (neon1024); remove the stub class and the frontend `devUserId` header. |
+| Stub `StubOrganizationDirectory` | `OrganizationDirectory` | Organization-membership bean (All16): membership, Org Admin, name, case-insensitive name search. |
+| Stub `StubEventTeamDirectory` | `EventTeamDirectory` | Event-team bean (All16): `OWNER`, `EDITOR`, `STAFF` roles. |
+| Stub `StubPrivateActivityInvitations` | `PrivateActivityInvitations` | Invitation bean (jose03pedro). |
+| Stub `StubSignupPort` | `SignupPort` | Signup bean (lucianvaleanu): `cancelAllSignups`, `figures`, `wasMarkedPresent`. |
+| Stub `StubNotificationPort` | `NotificationPort` | Notification bean (neon1024). |
+| `LifecycleEvent` / `lifecycle_event` | Provisional entity and table | Authoring event entity and table. Required fields: id, organization id, title, description, category, state (`DRAFT, PUBLISHED, COMPLETED, CANCELLED`), `publishedAt`, `cancelledAt`, `completedAt`, optimistic `version`. |
+| `LifecycleActivity` / `lifecycle_activity` | Provisional entity and table | Authoring activity entity and table. Required: event id, title, `startsAt`, `endsAt`, visibility, state (`SCHEDULED, CANCELLED`), `cancelledAt`. |
+| `LifecycleAgendaItem` / `lifecycle_agenda_item` | Provisional entity and table | Authoring agenda item. |
+| `EventState`, `ActivityState`, `ActivityVisibility`, `EventCategory` | Provisional enums | Authoring enums; keep the constant names. |
+| `lifecycle_feedback` | Owned by this share | Keep. Its `activity_id` foreign key must point at the authoring activity table. |
+| `EventReadOnlyGuard.requireEditable` | Provided by this share | Call from every authoring edit of an event, activity or agenda. |
+| Repositories, `EventAccessPolicy`, services, search query | Read the provisional entities | Re-point to the authoring entities and repositories. |
+| Flyway `V2026111001`, `V2026111002` | Create the `lifecycle_*` tables | Drop or alter the provisional tables created by `V2026111001`; keep `V2026111002` with its foreign key retargeted. |
+| Frontend `/events` | Search page | Mount alongside authoring routes without a path clash. |
+
+## Known limitations
+
+- Search runs in memory: candidate events are loaded in one query and filtered, sorted and paged in Java.
+- The search UI shows only the first page, at most 20 results.
+- Ports are called inside the service transaction. Real adapters must join the transaction or defer their side effects until after commit, otherwise a rollback leaves the side effects behind.
+- The completion job runs in a single transaction per run; one failing event rolls back the whole run until the next tick.
+- `X-User-Id` is a provisional header with no authentication; any caller can impersonate any user.
+- All ports are stubbed: signup figures are zero, no one is attended, and no notification leaves the process until the real beans exist.
+- The provisional model has no event-authoring operations (create, publish, edit); `publish` exists for test fixtures only.
