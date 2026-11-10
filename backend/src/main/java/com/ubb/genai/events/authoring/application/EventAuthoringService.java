@@ -70,6 +70,26 @@ public class EventAuthoringService {
     this.registration = registration;
   }
 
+  public record EventDetailsCommand(Long expectedVersion, String title, String description, EventCategory category) {}
+
+  @Transactional
+  public EventView editEventDetails(UUID eventId, EventDetailsCommand command) {
+    if (command == null) throw invalid("event", "Event details are required");
+    if (command.expectedVersion() == null || command.expectedVersion() < 0)
+      throw invalid("expectedVersion", "Nonnegative version is required");
+    var actor = actor();
+    var event = lockEvent(eventId);
+    requireWritable(actor, event, command.expectedVersion());
+    var violations = new ArrayList<AuthoringException.Violation>();
+    required(violations, "title", command.title());
+    required(violations, "description", command.description());
+    if (command.category() == null)
+      violations.add(new AuthoringException.Violation("category", "REQUIRED", "Category is required"));
+    if (!violations.isEmpty())
+      throw new AuthoringException(400, "INVALID_INPUT", "Invalid request", violations);
+    return view(repository.replace(event.withDetails(command.title(), command.description(), command.category())), true);
+  }
+
   @Transactional
   public EventView publish(UUID eventId, long expectedVersion) {
     var actor = actor();
@@ -136,10 +156,7 @@ public class EventAuthoringService {
   private void requireWritable(
       AuthoringIdentityPort.Actor actor, AuthoringEvent event, long expectedVersion) {
     if (!canEdit(actor, event)) throw new AuthoringException(403, "FORBIDDEN", "Action denied");
-    // Temporary availability boundary while Published editing is deferred by task scope.
-    if (event.state() == EventState.PUBLISHED)
-      throw new AuthoringException(409, "STATE_CONFLICT", "Published editing is deferred");
-    if (event.state() != EventState.DRAFT)
+    if (event.state() != EventState.DRAFT && event.state() != EventState.PUBLISHED)
       throw new AuthoringException(409, "STATE_CONFLICT", "Event is read only");
     if (expectedVersion < 0) throw invalid("expectedVersion", "Version must be nonnegative");
     if (event.version() != expectedVersion)
@@ -177,6 +194,8 @@ public class EventAuthoringService {
     var event = lockEvent(eventId);
     activity(event, activityId);
     requireWritable(actor, event, expectedVersion);
+    if (event.state() == EventState.PUBLISHED && event.activities().size() == 1)
+      throw new AuthoringException(409, "STATE_CONFLICT", "Published events must retain an activity");
     return registration.withLockedActivity(new RegistrationAuthoringPort.GuardRequest(eventId,
         activityId, RegistrationAuthoringPort.MutationKind.REMOVE), context -> {
       if (context == null) throw AuthoringException.unavailable();
@@ -329,7 +348,7 @@ public class EventAuthoringService {
 
   private static EventView view(AuthoringEvent event, boolean edit) {
     boolean writable =
-        edit && event.state() == EventState.DRAFT;
+        edit && (event.state() == EventState.DRAFT || event.state() == EventState.PUBLISHED);
     return new EventView(
         event.id(),
         event.organizationRef(),

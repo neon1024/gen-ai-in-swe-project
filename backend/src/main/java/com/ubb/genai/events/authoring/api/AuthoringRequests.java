@@ -23,6 +23,22 @@ public final class AuthoringRequests {
     }
   }
 
+  public record EventDetails(
+      @Schema(requiredMode = Schema.RequiredMode.REQUIRED, minimum = "0")
+      @JsonDeserialize(using = StrictLongDeserializer.class) Long expectedVersion,
+      @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+      @JsonDeserialize(using = StrictTextDeserializer.class) String title,
+      @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+      @JsonDeserialize(using = StrictTextDeserializer.class) String description,
+      @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+          allowableValues = {"Workshop", "Conference", "Training", "Social", "Competition", "Other"})
+      @JsonDeserialize(using = StrictTextDeserializer.class) String category) {
+    @JsonAnySetter
+    public void rejectUnknown(String name, Object value) {
+      throw new AuthoringException(400, "INVALID_INPUT", "Invalid request");
+    }
+  }
+
   public record VersionCommand(
       @Schema(requiredMode = Schema.RequiredMode.REQUIRED, minimum = "0")
       @JsonDeserialize(using = StrictLongDeserializer.class) Long expectedVersion) {
