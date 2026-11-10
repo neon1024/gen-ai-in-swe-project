@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -71,8 +71,8 @@ describe('EventLifecyclePage', () => {
 
     expect(confirm).toHaveBeenCalledWith(expect.stringContaining('All signups and waitlist entries will be cancelled.'))
     expect(requests()).toContain(`POST /api/lifecycle/activities/${ACT_1}/cancel`)
-    await screen.findAllByText('Cancelled')
-    expect(screen.queryByRole('button', { name: 'Cancel activity' })).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Cancel activity' })).not.toBeInTheDocument())
+    expect(screen.getAllByText('Cancelled')).toHaveLength(2)
   })
 
   it('US-20 sends no request when the confirmation is declined', async () => {
