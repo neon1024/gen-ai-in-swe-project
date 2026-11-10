@@ -389,9 +389,9 @@ class PublishedEditingTests {
                         cancelled.id(),
                         new EventAuthoringService.AgendaCommand(cancelled.start(), "New", null, 4L)))
             .status());
+    assertEquals(0, probe.calls);
     probe.reset();
     assertEquals(before, service.getEvent(id));
-    assertEquals(0, probe.calls);
   }
 
   @Test
