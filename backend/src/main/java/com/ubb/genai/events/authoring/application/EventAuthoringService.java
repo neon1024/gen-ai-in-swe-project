@@ -107,6 +107,10 @@ public class EventAuthoringService {
       List<AuthoringException.Violation> violations, String path, String value) {
     if (value == null || value.isBlank())
       violations.add(new AuthoringException.Violation(path, "REQUIRED", "Value is required"));
+    else if (value.indexOf(0) >= 0)
+      violations.add(
+          new AuthoringException.Violation(
+              path, "INVALID", "Value contains an unsupported character"));
   }
 
   private static EventView view(AuthoringEvent event, boolean edit) {

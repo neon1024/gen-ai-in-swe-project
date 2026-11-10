@@ -48,7 +48,16 @@ class AuthoringWiringTests {
   void openApiDescribesOwnedRoutes() throws Exception {
     mvc.perform(get("/v3/api-docs").with(user("session-user")))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.paths['/api/event-authoring/events'].post").exists())
+        .andExpect(
+            jsonPath(
+                    "$.paths['/api/event-authoring/events'].post.responses['201'].content['application/json'].schema['$ref']")
+                .value("#/components/schemas/EventView"))
+        .andExpect(
+            jsonPath(
+                    "$.paths['/api/event-authoring/events'].post.responses['201'].headers.Location.schema.type")
+                .value("string"))
+        .andExpect(
+            jsonPath("$.paths['/api/event-authoring/events'].post.responses['200']").doesNotExist())
         .andExpect(jsonPath("$.paths['/api/event-authoring/events/{eventId}'].get").exists());
   }
 }

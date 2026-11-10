@@ -4,6 +4,10 @@ import com.ubb.genai.events.authoring.api.AuthoringViews.EventView;
 import com.ubb.genai.events.authoring.application.AuthoringException;
 import com.ubb.genai.events.authoring.application.EventAuthoringService;
 import com.ubb.genai.events.authoring.domain.EventCategory;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.net.URI;
 import java.util.Locale;
 import java.util.UUID;
@@ -25,6 +29,19 @@ public class EventAuthoringController {
   }
 
   @PostMapping
+  @ApiResponse(
+      responseCode = "201",
+      description = "Draft created",
+      content =
+          @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = EventView.class)),
+      headers =
+          @Header(
+              name = "Location",
+              required = true,
+              description = "Authoring detail URL",
+              schema = @Schema(implementation = String.class, format = "uri-reference")))
   public ResponseEntity<EventView> create(@RequestBody AuthoringRequests.CreateEvent request) {
     EventCategory category = null;
     if (request.category() != null) {

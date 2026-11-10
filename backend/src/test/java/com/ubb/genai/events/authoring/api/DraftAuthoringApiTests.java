@@ -5,11 +5,22 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.jayway.jsonpath.JsonPath;
 import com.ubb.genai.events.authoring.application.AuthoringException;
 import com.ubb.genai.events.authoring.ports.*;
 import com.ubb.genai.events.authoring.support.PostgresTestConfiguration;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.*;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -32,8 +43,22 @@ class DraftAuthoringApiTests {
     String subject = "creator";
     boolean eligible = true;
     boolean unavailable = false;
-    OrganizationAccessPort.Role org = OrganizationAccessPort.Role.ORGANIZER;
-    EventTeamAccessPort.Role team = EventTeamAccessPort.Role.NONE;
+    int organizationLookups;
+
+    record OrganizationKey(String subject, String organizationRef) {}
+
+    record TeamKey(String subject, UUID eventId) {}
+
+    final Map<OrganizationKey, OrganizationAccessPort.Role> organizations = new HashMap<>();
+    final Map<TeamKey, EventTeamAccessPort.Role> teams = new HashMap<>();
+
+    void organization(String subject, String organizationRef, OrganizationAccessPort.Role role) {
+      organizations.put(new OrganizationKey(subject, organizationRef), role);
+    }
+
+    void team(String subject, String eventId, EventTeamAccessPort.Role role) {
+      teams.put(new TeamKey(subject, UUID.fromString(eventId)), role);
+    }
   }
 
   @TestConfiguration
@@ -53,12 +78,22 @@ class DraftAuthoringApiTests {
 
     @Bean
     OrganizationAccessPort organization(Fixture f) {
-      return (s, o) -> f.org;
+      return (s, o) -> {
+        f.organizationLookups++;
+        return f.organizations.getOrDefault(
+            new Fixture.OrganizationKey(s, o), OrganizationAccessPort.Role.NONE);
+      };
+    }
+
+    @Bean
+    Clock fixedClock() {
+      return Clock.fixed(Instant.parse("2026-11-10T10:00:00.123456789Z"), ZoneOffset.UTC);
     }
 
     @Bean
     EventTeamAccessPort team(Fixture f) {
-      return (s, e) -> f.team;
+      return (s, e) ->
+          f.teams.getOrDefault(new Fixture.TeamKey(s, e), EventTeamAccessPort.Role.NONE);
     }
   }
 
@@ -67,8 +102,10 @@ class DraftAuthoringApiTests {
     fixture.subject = "creator";
     fixture.eligible = true;
     fixture.unavailable = false;
-    fixture.org = OrganizationAccessPort.Role.ORGANIZER;
-    fixture.team = EventTeamAccessPort.Role.NONE;
+    fixture.organizationLookups = 0;
+    fixture.organizations.clear();
+    fixture.teams.clear();
+    fixture.organization("creator", "opaque-org", OrganizationAccessPort.Role.ORGANIZER);
     jdbc.update("delete from event_authoring.agenda_item");
     jdbc.update("delete from event_authoring.activity");
     jdbc.update("delete from event_authoring.event");
@@ -84,8 +121,16 @@ class DraftAuthoringApiTests {
   }
 
   String createId() throws Exception {
-    create(BODY).andExpect(status().isCreated());
-    return jdbc.queryForObject("select id::text from event_authoring.event", String.class);
+    return createId("opaque-org");
+  }
+
+  String createId(String organizationRef) throws Exception {
+    var response =
+        create(BODY.replace("opaque-org", organizationRef))
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse();
+    return JsonPath.read(response.getContentAsString(), "$.id");
   }
 
   @Test
@@ -136,17 +181,16 @@ class DraftAuthoringApiTests {
           .andExpect(jsonPath("$.trace").doesNotExist());
   }
 
-  static java.util.stream.Stream<org.junit.jupiter.params.provider.Arguments>
-      malformedTextValues() {
-    return java.util.stream.Stream.of("title", "description", "organizationRef")
+  static Stream<Arguments> malformedTextValues() {
+    return Stream.of("title", "description", "organizationRef")
         .flatMap(
             field ->
-                java.util.stream.Stream.of("23", "true", "false", "1.5", "[]", "{}", "[\"text\"]")
-                    .map(value -> org.junit.jupiter.params.provider.Arguments.of(field, value)));
+                Stream.of("23", "true", "false", "1.5", "[]", "{}", "[\"text\"]")
+                    .map(value -> Arguments.of(field, value)));
   }
 
-  @org.junit.jupiter.params.ParameterizedTest
-  @org.junit.jupiter.params.provider.MethodSource("malformedTextValues")
+  @ParameterizedTest
+  @MethodSource("malformedTextValues")
   void nonTextMetadataIsRejectedWithoutPersistence(String field, String scalar) throws Exception {
     String original =
         switch (field) {
@@ -190,14 +234,14 @@ class DraftAuthoringApiTests {
   void staffReadsWithoutWriteCapabilitiesAndNonteamIsConcealed() throws Exception {
     String id = createId();
     fixture.subject = "staff";
-    fixture.org = OrganizationAccessPort.Role.MEMBER;
-    fixture.team = EventTeamAccessPort.Role.STAFF;
+    fixture.organization("staff", "opaque-org", OrganizationAccessPort.Role.MEMBER);
+    fixture.team("staff", id, EventTeamAccessPort.Role.STAFF);
     mvc.perform(get(BASE + "/" + id).with(user("session-user")))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.capabilities.canEdit").value(false))
         .andExpect(jsonPath("$.capabilities.canPublish").value(false));
     create(BODY).andExpect(status().isForbidden());
-    fixture.team = EventTeamAccessPort.Role.NONE;
+    fixture.team("staff", id, EventTeamAccessPort.Role.NONE);
     String concealed =
         mvc.perform(get(BASE + "/" + id).with(user("session-user")))
             .andExpect(status().isNotFound())
@@ -211,6 +255,68 @@ class DraftAuthoringApiTests {
             .getResponse()
             .getContentAsString();
     assertEquals(missing, concealed);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"title", "description", "organizationRef"})
+  void embeddedNulIsRejectedBeforeOrganizationLookupAndPersistence(String field) throws Exception {
+    String original =
+        switch (field) {
+          case "title" -> "Workshop";
+          case "description" -> "Details";
+          default -> "opaque-org";
+        };
+    String body =
+        BODY.replace(
+            "\"" + field + "\":\"" + original + "\"", "\"" + field + "\":\"before\\u0000after\"");
+    assertDoesNotThrow(() -> create(body))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("INVALID_INPUT"))
+        .andExpect(jsonPath("$.violations[0].path").value(field))
+        .andExpect(jsonPath("$.violations[0].code").value("INVALID"))
+        .andExpect(jsonPath("$.trace").doesNotExist());
+    assertEquals(0, fixture.organizationLookups);
+    assertEquals(
+        0, jdbc.queryForObject("select count(*) from event_authoring.event", Integer.class));
+  }
+
+  @Test
+  void createdTimestampExactlyMatchesImmediateReadAtSubMicrosecondClockPrecision()
+      throws Exception {
+    var created = create(BODY).andExpect(status().isCreated()).andReturn().getResponse();
+    String id = JsonPath.read(created.getContentAsString(), "$.id");
+    String timestamp = JsonPath.read(created.getContentAsString(), "$.createdAt");
+    assertEquals("2026-11-10T10:00:00.123456Z", timestamp);
+    assertEquals(BASE + "/" + id, created.getHeader("Location"));
+    mvc.perform(get(BASE + "/" + id).with(user("session-user")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.createdAt").value(timestamp));
+  }
+
+  @Test
+  void authorizationUsesActualSubjectOrganizationAndEventLookupKeys() throws Exception {
+    fixture.organization("creator", "other-org", OrganizationAccessPort.Role.ORGANIZER);
+    String staffed = createId();
+    String unassigned = createId();
+    String administered = createId("other-org");
+    fixture.organization("reader", "opaque-org", OrganizationAccessPort.Role.MEMBER);
+    fixture.organization("reader", "other-org", OrganizationAccessPort.Role.ORG_ADMIN);
+    fixture.team("reader", staffed, EventTeamAccessPort.Role.STAFF);
+    fixture.subject = "reader";
+    mvc.perform(get(BASE + "/" + staffed).with(user("session-user")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.capabilities.canEdit").value(false));
+    mvc.perform(get(BASE + "/" + unassigned).with(user("session-user")))
+        .andExpect(status().isNotFound());
+    mvc.perform(get(BASE + "/" + administered).with(user("session-user")))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.capabilities.canEdit").value(true));
+    create(BODY).andExpect(status().isForbidden());
+    create(BODY.replace("opaque-org", "other-org")).andExpect(status().isCreated());
+    fixture.organization("unrelated", "opaque-org", OrganizationAccessPort.Role.MEMBER);
+    fixture.subject = "unrelated";
+    mvc.perform(get(BASE + "/" + staffed).with(user("session-user")))
+        .andExpect(status().isNotFound());
   }
 
   @Test

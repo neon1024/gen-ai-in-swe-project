@@ -21,6 +21,35 @@ class AuthoringEventTests {
   }
 
   @Test
+  void draftCreationUsesDatabaseTimestampPrecision() {
+    var event =
+        AuthoringEvent.draft(
+            "org",
+            "owner",
+            "T",
+            "D",
+            EventCategory.OTHER,
+            Instant.parse("2026-11-10T10:00:00.123456789Z"));
+    assertEquals(Instant.parse("2026-11-10T10:00:00.123456Z"), event.createdAt());
+  }
+
+  @Test
+  void draftRefusesEmbeddedNulInMetadata() {
+    String invalid = "before" + (char) 0 + "after";
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            AuthoringEvent.draft("org", "owner", invalid, "D", EventCategory.OTHER, Instant.now()));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            AuthoringEvent.draft("org", "owner", "T", invalid, EventCategory.OTHER, Instant.now()));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> AuthoringEvent.draft(invalid, "owner", "T", "D", EventCategory.OTHER, Instant.now()));
+  }
+
+  @Test
   void US14_requiredMetadata() {
     for (String value : new String[] {null, "", " ", "\t\n"}) {
       assertThrows(
