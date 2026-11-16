@@ -84,3 +84,7 @@ Independent specification review SPEC COMPLIANT and quality review APPROVED; coo
 | Activity with signups cannot be deleted | RegistrationAuthoringContractTests.BR14_anySignupHistoryBlocksRemovalWithZeroConfirmed; PublishedEditingTests.US18_lastPublishedActivityCannotBeRemovedEvenWithoutSignups | Real signup guard; cancellation is owned by #23 |
 
 Draft capacity regression: RegistrationAuthoringContractTests.EA03_draftCapacityChangesNeverInvokeRegistrationGuard and PublicationApiTests.EA03_draftCapacityChangeSucceedsWithoutRegistrationAdapter. Human Review Status: Pending student review.
+
+## EA-04 frontend evidence — #17–#21 (2026-11-17)
+
+`frontend/src/features/event-authoring/` adds routes `/authoring/events/new` and `/authoring/events/:eventId`. `EventAuthoringPage.test.tsx` (9 tests, fetch mocked) covers: US-14 draft creation and refusal display; US-15/US-16 add activity and agenda item, remove activity, with the response version reused; US-17 all readiness problems listed on 422, publish success, no controls without the capability; US-18 details edit with version conflict and a capacity-below-confirmed refusal shown. `npx vitest run` (43 passed), `tsc -b`, `oxlint` and `npm run build` are clean. These verify the UI against the documented API contract with mocked responses, not against a real login or real signups. Human Review Status: Pending student review.
