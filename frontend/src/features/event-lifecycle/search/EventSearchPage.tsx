@@ -88,28 +88,31 @@ export function EventSearchPage() {
     setSearchParams(next)
   }
 
-  const field = 'mt-1 block w-full rounded border border-gray-300 px-2 py-1'
-
   return (
-    <main className="mx-auto max-w-3xl p-4">
-      <h1 className="mb-4 text-2xl font-semibold">Events</h1>
-      <form onSubmit={submit} className="mb-6 grid gap-3 sm:grid-cols-2">
-        <label className="sm:col-span-2">
+    <main className="page">
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">Find your next room full of people</p>
+          <h1>Events</h1>
+          <p className="lede">Browse workshops, talks, and gatherings across campus.</p>
+        </div>
+      </div>
+      <form onSubmit={submit} className="search-form">
+        <label className="search-keyword">
           Keyword
-          <input className={field} value={form.q} onChange={(e) => setForm({ ...form, q: e.target.value })} />
+          <input value={form.q} onChange={(e) => setForm({ ...form, q: e.target.value })} placeholder="Try “design”, “music”, or “career”" />
         </label>
         <label>
           From
-          <input type="date" className={field} value={form.from} onChange={(e) => setForm({ ...form, from: e.target.value })} />
+          <input type="date" value={form.from} onChange={(e) => setForm({ ...form, from: e.target.value })} />
         </label>
         <label>
           To
-          <input type="date" className={field} value={form.to} onChange={(e) => setForm({ ...form, to: e.target.value })} />
+          <input type="date" value={form.to} onChange={(e) => setForm({ ...form, to: e.target.value })} />
         </label>
         <label>
           Organization
           <select
-            className={field}
             value={form.organizationId}
             onChange={(e) => setForm({ ...form, organizationId: e.target.value })}
           >
@@ -123,7 +126,7 @@ export function EventSearchPage() {
         </label>
         <label>
           Category
-          <select className={field} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+          <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
             <option value="">All categories</option>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -132,26 +135,26 @@ export function EventSearchPage() {
             ))}
           </select>
         </label>
-        <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white sm:col-span-2">
+        <button type="submit" className="button primary search-submit">
           Search
         </button>
       </form>
 
       {error && (
-        <p role="alert" className="rounded bg-red-100 p-3 text-red-800">
+        <p role="alert" className="notice error">
           {error}
         </p>
       )}
 
-      {!error && result && result.items.length === 0 && <p>No events match your search.</p>}
+      {!error && result && result.items.length === 0 && <div className="empty"><strong>No events match your search.</strong><p>Try a broader keyword or remove a filter.</p></div>}
 
       {!error && result && result.items.length > 0 && (
-        <ul className="space-y-3">
+        <ul className="event-results">
           {result.items.map((event) => (
-            <li key={event.id} className="rounded border border-gray-200 p-3">
-              <h2 className="text-lg font-medium">{event.title}</h2>
-              <p className="text-sm text-gray-600">{event.organizationName}</p>
-              <p className="text-sm">
+            <li key={event.id} className="event-result">
+              <h2>{event.title}</h2>
+              <p className="event-organization">{event.organizationName}</p>
+              <p className="event-meta">
                 <span>{CATEGORY_LABELS[event.category]}</span> · {event.nextActivityStartsAt === null ? (
                   formatStart(null)
                 ) : (
@@ -164,23 +167,23 @@ export function EventSearchPage() {
       )}
 
       {!error && result && result.items.length > 0 && (
-        <nav aria-label="Pagination" className="mt-4 flex items-center justify-between">
+        <nav aria-label="Pagination" className="pagination">
           <button
             type="button"
             disabled={page <= 0}
             onClick={() => goToPage(page - 1)}
-            className="rounded border border-gray-400 px-3 py-1 disabled:opacity-50"
+            className="button secondary"
           >
             Previous
           </button>
-          <span className="text-sm">
+          <span className="pagination-label">
             Page {page + 1} of {Math.max(1, Math.ceil(result.totalItems / result.size))}
           </span>
           <button
             type="button"
             disabled={(page + 1) * result.size >= result.totalItems}
             onClick={() => goToPage(page + 1)}
-            className="rounded border border-gray-400 px-3 py-1 disabled:opacity-50"
+            className="button secondary"
           >
             Next
           </button>

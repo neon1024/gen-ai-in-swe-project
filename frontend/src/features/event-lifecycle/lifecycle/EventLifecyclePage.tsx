@@ -74,24 +74,24 @@ export function EventLifecyclePage() {
   }
 
   const readOnly = event?.state === 'COMPLETED' || event?.state === 'CANCELLED'
-  const button = 'rounded border border-red-600 px-3 py-1 text-red-700'
+  const button = ''
 
   return (
-    <main className="mx-auto max-w-3xl p-4">
+    <main className="page lifecycle-page">
       {error && (
-        <p role="alert" className="mb-4 rounded bg-red-100 p-3 text-red-800">
+        <p role="alert" className="notice error">
           {error}
         </p>
       )}
       {event && (
         <>
-          <h1 className="text-2xl font-semibold">{event.title}</h1>
-          <p className="mb-4">Event state: {EVENT_STATE_LABELS[event.state]}</p>
-          {readOnly && <p className="mb-4 text-gray-700">This event is read-only.</p>}
+          <h1>{event.title}</h1>
+          <p className="lede">Event state: {EVENT_STATE_LABELS[event.state]}</p>
+          {readOnly && <p className="notice muted-notice">This event is read-only.</p>}
           {!readOnly && event.permissions.canCancel && (
             <button
               type="button"
-              className={`${button} mb-4`}
+              className={`${button} button danger`}
               onClick={() => run(`Cancel this event? ${CASCADE}`, () => cancelEvent(event.id))}
             >
               Cancel event
@@ -100,20 +100,20 @@ export function EventLifecyclePage() {
           {!readOnly && event.permissions.canDelete && (
             <button
               type="button"
-              className={`${button} mb-4`}
+              className={`${button} button danger`}
               onClick={() => run('Delete this draft? This cannot be undone.', () => deleteDraft(event.id))}
             >
               Delete draft
             </button>
           )}
-          <h2 className="mb-2 text-lg font-medium">Activities</h2>
-          <ul className="space-y-3">
+          <h2>Activities</h2>
+          <ul className="lifecycle-activities">
             {event.activities.map((activity) => (
-              <li key={activity.id} className="flex items-center justify-between rounded border border-gray-200 p-3">
+              <li key={activity.id} className="lifecycle-activity">
                 <div>
                   <p className="font-medium">{activity.title}</p>
-                  <p className="text-sm text-gray-600">{formatRange(activity.startsAt, activity.endsAt)}</p>
-                  <p className="text-sm">{ACTIVITY_STATE_LABELS[activity.state]}</p>
+                  <p className="activity-date">{formatRange(activity.startsAt, activity.endsAt)}</p>
+                  <p className="activity-state">{ACTIVITY_STATE_LABELS[activity.state]}</p>
                 </div>
                 {!readOnly && event.permissions.canCancel && activity.state === 'SCHEDULED' && (
                   <button
