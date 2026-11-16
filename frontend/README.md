@@ -2,6 +2,8 @@
 
 The client is a Vite + React + TypeScript single-page application. The Vite
 development server proxies `/api` requests to `http://localhost:8080`.
+Set `VITE_API_BASE_URL` when the API is hosted on another origin; leave it
+unset for the local Vite proxy.
 
 ## Run locally
 

@@ -1,3 +1,5 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
+
 export class ApiError extends Error {
   readonly status: number
   readonly code: string
@@ -8,6 +10,7 @@ export class ApiError extends Error {
     this.status = status
     this.code = code
   }
+
 }
 
 interface ProblemDetail {
@@ -24,7 +27,7 @@ export async function request(path: string, init: RequestInit = {}): Promise<Res
   if (devUserId) {
     headers.set('X-User-Id', devUserId)
   }
-  const response = await fetch(path, { ...init, headers })
+  const response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers })
   if (!response.ok) {
     let problem: ProblemDetail = {}
     try {
