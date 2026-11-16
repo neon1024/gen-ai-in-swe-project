@@ -3,6 +3,9 @@ import { Link } from 'react-router'
 import { ApiError } from '../api/client'
 import { cancelSignup, getMySignups } from '../api/participant'
 import type { SignupStatus, SignupSummary } from '../api/types'
+import { Tabs, TabsList, TabsTrigger } from '../../../components/ui/tabs'
+import { Skeleton } from '../../../components/ui/skeleton'
+import { Badge } from '../../../components/ui/badge'
 
 const statusLabels: Record<SignupStatus, string> = {
   CONFIRMED: 'Confirmed',
@@ -49,18 +52,21 @@ export function MyActivitiesPage() {
       <div className="page-heading">
         <div><p className="eyebrow">Your calendar</p><h1>My activities</h1><p className="lede">Everything you signed up for, in one place.</p></div>
       </div>
-      <div className="tabs" role="tablist">
-        {(['upcoming', 'past'] as const).map((value) => <button key={value} role="tab" aria-selected={tab === value} className={tab === value ? 'tab active' : 'tab'} onClick={() => setTab(value)}>{value === 'upcoming' ? 'Coming up' : 'Past'}</button>)}
-      </div>
+      <Tabs value={tab} onValueChange={(value) => setTab(value as 'upcoming' | 'past')} className="tabs">
+        <TabsList>
+          <TabsTrigger value="upcoming">Coming up</TabsTrigger>
+          <TabsTrigger value="past">Past</TabsTrigger>
+        </TabsList>
+      </Tabs>
       {error && <p role="alert" className="notice error">{error}</p>}
-      {signups === null && !error && <p className="loading">Loading your activities…</p>}
+      {signups === null && !error && <div className="activity-list" aria-label="Loading activities"><Skeleton className="h-28 w-full" /><Skeleton className="h-28 w-full" /></div>}
       {signups && visible.length === 0 && <div className="empty"><strong>No {tab} activities yet.</strong><p>When you find something worth showing up for, it will appear here.</p><Link className="button primary" to="/events">Explore events</Link></div>}
       <div className="activity-list">
         {visible.map((signup) => (
           <article className="activity-card" key={signup.id}>
             <div className="activity-date">{date(signup.startsAt)}</div>
             <div className="activity-info"><h2>{signup.activityTitle}</h2><p>{signup.eventTitle}</p><p>{signup.location ?? 'Online activity'}</p></div>
-            <div className="activity-actions"><span className={`status ${signup.status.toLowerCase()}`}>{statusLabels[signup.status]}{signup.status === 'WAITLISTED' && signup.waitlistPosition ? ` · #${signup.waitlistPosition}` : ''}</span>{signup.status === 'CONFIRMED' && tab === 'upcoming' && <button className="text-button" disabled={cancelling === signup.id} onClick={() => cancel(signup)}>Leave activity</button>}{signup.status === 'ATTENDED' && <Link className="text-button" to={`/activities/${signup.activityId}/feedback`}>Give feedback</Link>}</div>
+            <div className="activity-actions"><Badge variant={signup.status === 'CANCELLED' ? 'destructive' : signup.status === 'WAITLISTED' ? 'secondary' : 'default'} className={`status ${signup.status.toLowerCase()}`}>{statusLabels[signup.status]}{signup.status === 'WAITLISTED' && signup.waitlistPosition ? ` · #${signup.waitlistPosition}` : ''}</Badge>{signup.status === 'CONFIRMED' && tab === 'upcoming' && <button className="text-button" disabled={cancelling === signup.id} onClick={() => cancel(signup)}>Leave activity</button>}{signup.status === 'ATTENDED' && <Link className="text-button" to={`/activities/${signup.activityId}/feedback`}>Give feedback</Link>}</div>
           </article>
         ))}
       </div>

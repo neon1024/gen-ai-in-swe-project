@@ -3,6 +3,7 @@ import { useParams } from 'react-router'
 import { ApiError } from '../api/client'
 import { getEligibility, giveFeedback } from '../api/feedback'
 import type { FeedbackEligibilityView } from '../api/types'
+import { toast } from 'sonner'
 
 const REASON_MESSAGES: Record<string, string> = {
   NOT_ATTENDED: 'Only participants marked present can give feedback.',
@@ -54,8 +55,11 @@ export function GiveFeedbackPage() {
       await giveFeedback(activityId, { rating, comment })
       setError(null)
       setDone(true)
+      toast.success('Feedback sent', { description: 'Thanks for helping the next participant.' })
     } catch (e) {
-      setError(e instanceof ApiError && e.code in REASON_MESSAGES ? REASON_MESSAGES[e.code] : messageOf(e))
+      const message = e instanceof ApiError && e.code in REASON_MESSAGES ? REASON_MESSAGES[e.code] : messageOf(e)
+      setError(message)
+      toast.error('Feedback was not sent', { description: message })
     } finally {
       setSubmitting(false)
     }

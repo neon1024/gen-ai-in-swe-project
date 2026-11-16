@@ -4,6 +4,10 @@ import { ApiError } from '../api/client'
 import { searchEvents } from '../api/discovery'
 import type { EventCategory, EventSearchResult } from '../api/types'
 import { CATEGORY_LABELS } from '../categories'
+import { Button } from '../../../components/ui/button'
+import { Input } from '../../../components/ui/input'
+import { Label } from '../../../components/ui/label'
+import { Card, CardContent } from '../../../components/ui/card'
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as EventCategory[]
 
@@ -98,19 +102,19 @@ export function EventSearchPage() {
         </div>
       </div>
       <form onSubmit={submit} className="search-form">
-        <label className="search-keyword">
+        <Label className="search-keyword">
           Keyword
-          <input value={form.q} onChange={(e) => setForm({ ...form, q: e.target.value })} placeholder="Try “design”, “music”, or “career”" />
-        </label>
-        <label>
+          <Input value={form.q} onChange={(e) => setForm({ ...form, q: e.target.value })} placeholder="Try “design”, “music”, or “career”" />
+        </Label>
+        <Label>
           From
-          <input type="date" value={form.from} onChange={(e) => setForm({ ...form, from: e.target.value })} />
-        </label>
-        <label>
+          <Input type="date" value={form.from} onChange={(e) => setForm({ ...form, from: e.target.value })} />
+        </Label>
+        <Label>
           To
-          <input type="date" value={form.to} onChange={(e) => setForm({ ...form, to: e.target.value })} />
-        </label>
-        <label>
+          <Input type="date" value={form.to} onChange={(e) => setForm({ ...form, to: e.target.value })} />
+        </Label>
+        <Label>
           Organization
           <select
             value={form.organizationId}
@@ -123,8 +127,8 @@ export function EventSearchPage() {
               </option>
             ))}
           </select>
-        </label>
-        <label>
+        </Label>
+        <Label>
           Category
           <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
             <option value="">All categories</option>
@@ -134,10 +138,10 @@ export function EventSearchPage() {
               </option>
             ))}
           </select>
-        </label>
-        <button type="submit" className="button primary search-submit">
+        </Label>
+        <Button type="submit" className="search-submit">
           Search
-        </button>
+        </Button>
       </form>
 
       {error && (
@@ -146,7 +150,7 @@ export function EventSearchPage() {
         </p>
       )}
 
-      {!error && result && result.items.length === 0 && <div className="empty"><strong>No events match your search.</strong><p>Try a broader keyword or remove a filter.</p></div>}
+      {!error && result && result.items.length === 0 && <Card className="empty"><CardContent><strong>No events match your search.</strong><p>Try a broader keyword or remove a filter.</p></CardContent></Card>}
 
       {!error && result && result.items.length > 0 && (
         <ul className="event-results">
@@ -168,25 +172,25 @@ export function EventSearchPage() {
 
       {!error && result && result.items.length > 0 && (
         <nav aria-label="Pagination" className="pagination">
-          <button
+          <Button
             type="button"
             disabled={page <= 0}
             onClick={() => goToPage(page - 1)}
-            className="button secondary"
+            variant="outline"
           >
             Previous
-          </button>
+          </Button>
           <span className="pagination-label">
             Page {page + 1} of {Math.max(1, Math.ceil(result.totalItems / result.size))}
           </span>
-          <button
+          <Button
             type="button"
             disabled={(page + 1) * result.size >= result.totalItems}
             onClick={() => goToPage(page + 1)}
-            className="button secondary"
+            variant="outline"
           >
             Next
-          </button>
+          </Button>
         </nav>
       )}
     </main>
