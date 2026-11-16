@@ -11,7 +11,7 @@ const ACT = '2a6e1d33-8c2f-4b71-9d10-4e5f7a8b9c01'
 function ev(o: Partial<AuthoringEvent> = {}): AuthoringEvent {
   return {
     id: ID, organizationRef: 'org', title: 'Chess night', description: 'Fun', category: 'Social',
-    state: 'DRAFT', version: 3, activities: [], capabilities: { canEdit: true, canPublish: true }, ...o,
+    state: 'Draft', version: 3, activities: [], capabilities: { canEdit: true, canPublish: true }, ...o,
   }
 }
 const activity = {
@@ -113,7 +113,7 @@ describe('US-17 publish', () => {
   })
 
   it('shows Published after success and hides the publish button', async () => {
-    fetchMock.mockReturnValueOnce(json(ev())).mockReturnValueOnce(json(ev({ state: 'PUBLISHED', version: 4 })))
+    fetchMock.mockReturnValueOnce(json(ev())).mockReturnValueOnce(json(ev({ state: 'Published', version: 4 })))
     renderAt(`/authoring/events/${ID}`)
     await userEvent.setup().click(await screen.findByRole('button', { name: 'Publish event' }))
     expect(await screen.findByText('State: Published')).toBeInTheDocument()
@@ -131,7 +131,7 @@ describe('US-17 publish', () => {
 
 describe('US-18 edit a published event', () => {
   it('saves details with the expected version and surfaces a version conflict', async () => {
-    fetchMock.mockReturnValueOnce(json(ev({ state: 'PUBLISHED' })))
+    fetchMock.mockReturnValueOnce(json(ev({ state: 'Published' })))
       .mockReturnValueOnce(json({ code: 'VERSION_CONFLICT', message: 'Changed by someone else', violations: [] }, 409))
     renderAt(`/authoring/events/${ID}`)
     const user = userEvent.setup()
@@ -144,7 +144,7 @@ describe('US-18 edit a published event', () => {
   })
 
   it('refuses capacity below confirmed signups by showing the server message', async () => {
-    fetchMock.mockReturnValueOnce(json(ev({ state: 'PUBLISHED', activities: [activity] })))
+    fetchMock.mockReturnValueOnce(json(ev({ state: 'Published', activities: [activity] })))
       .mockReturnValueOnce(json({ code: 'CAPACITY_BELOW_CONFIRMED', message: 'Capacity is below confirmed signups', violations: [] }, 409))
     renderAt(`/authoring/events/${ID}`)
     const user = userEvent.setup()

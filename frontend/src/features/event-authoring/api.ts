@@ -10,7 +10,7 @@ export interface Activity {
 }
 export interface AuthoringEvent {
   id: string; organizationRef: string; title: string; description: string; category: Category
-  state: 'DRAFT' | 'PUBLISHED' | 'COMPLETED' | 'CANCELLED'; version: number
+  state: 'Draft' | 'Published' | 'Completed' | 'Cancelled'; version: number
   activities: Activity[]; capabilities: { canEdit: boolean; canPublish: boolean }
 }
 export interface Violation { path: string; code: string; message: string }
@@ -34,10 +34,15 @@ export type AgendaInput = Omit<AgendaItem, 'id'>
 
 const BASE = '/api/event-authoring/events'
 
-// The host session owns identity; Spring's cookie CSRF token is echoed back as a header.
+// Cookie CSRF token echoed as a header. Provisional: like the lifecycle client, the dev user id
+// (localStorage 'devUserId') is sent as X-User-Id until the identity share provides real sessions.
 function csrfHeaders(): Record<string, string> {
+  const devUser = localStorage.getItem('devUserId')
   const token = document.cookie.split('; ').find((c) => c.startsWith('XSRF-TOKEN='))?.slice(11)
-  return token ? { 'X-XSRF-TOKEN': decodeURIComponent(token) } : {}
+  return {
+    ...(devUser ? { 'X-User-Id': devUser } : {}),
+    ...(token ? { 'X-XSRF-TOKEN': decodeURIComponent(token) } : {}),
+  }
 }
 
 async function call(path: string, method = 'GET', body?: unknown): Promise<AuthoringEvent> {

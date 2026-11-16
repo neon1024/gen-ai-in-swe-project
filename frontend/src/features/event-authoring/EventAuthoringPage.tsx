@@ -90,7 +90,7 @@ export function EventAuthoringPage() {
   if (loading) return <main className="p-4">Loading…</main>
   if (!event) return <main className="mx-auto max-w-3xl p-4"><ErrorBox error={error} /></main>
 
-  const locked = event.state === 'COMPLETED' || event.state === 'CANCELLED'
+  const locked = event.state === 'Completed' || event.state === 'Cancelled'
   const canEdit = event.capabilities.canEdit && !locked
 
   function saveDetails(e: FormEvent<HTMLFormElement>) {
@@ -104,7 +104,7 @@ export function EventAuthoringPage() {
   return (
     <main className="mx-auto max-w-3xl p-4">
       <h1 className="text-2xl font-semibold">{event.title}</h1>
-      <p className="mb-4">State: {event.state === 'DRAFT' ? 'Draft' : event.state[0] + event.state.slice(1).toLowerCase()}</p>
+      <p className="mb-4">State: {event.state}</p>
       <ErrorBox error={error} />
       {done && <p role="status" className="mb-4 rounded bg-green-100 p-3 text-green-800">{done}</p>}
 
@@ -162,7 +162,7 @@ export function EventAuthoringPage() {
       {canEdit && (
         <div className="mt-4 space-x-2">
           <button type="button" className={btn} onClick={() => setEditing('new')}>Add activity</button>
-          {event.state === 'DRAFT' && event.capabilities.canPublish && (
+          {event.state === 'Draft' && event.capabilities.canPublish && (
             <button type="button" className="rounded bg-green-700 px-3 py-1 text-white"
               onClick={() => write('Event published.', (ev) => api.publish(ev.id, ev.version))}>Publish event</button>
           )}
