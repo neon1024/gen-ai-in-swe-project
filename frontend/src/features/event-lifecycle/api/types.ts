@@ -13,6 +13,67 @@ export interface EventSummary {
   nextActivityStartsAt: string | null
 }
 
+export interface EventDetail extends EventSummary {
+  activities: EventActivity[]
+}
+
+export interface EventActivity {
+  id: string
+  title: string
+  description: string | null
+  startsAt: string
+  endsAt: string
+  location: string | null
+  onlineLink: string | null
+  agenda: AgendaItem[]
+  registrationStatus: 'NOT_YET_OPEN' | 'OPEN' | 'FULL' | 'CLOSED'
+  signup: SignupSummary | null
+}
+
+export interface AgendaItem {
+  id: string
+  time: string
+  title: string
+  speaker: string | null
+}
+
+export type SignupStatus = 'CONFIRMED' | 'WAITLISTED' | 'CANCELLED' | 'ATTENDED'
+
+export interface SignupSummary {
+  id: string
+  activityId: string
+  activityTitle: string
+  eventTitle: string
+  startsAt: string
+  endsAt: string
+  location: string | null
+  status: SignupStatus
+  waitlistPosition: number | null
+}
+
+export interface NotificationItem {
+  id: string
+  title: string
+  message: string
+  createdAt: string
+  read: boolean
+}
+
+export interface PersonalQrPass {
+  signupId: string
+  activityTitle: string
+  startsAt: string
+  qrCode: string
+  qrCodeType: 'image' | 'text'
+}
+
+export interface AttendanceParticipant {
+  signupId: string
+  displayName: string
+  username: string
+  status: 'CONFIRMED' | 'ATTENDED'
+}
+
 export interface OrganizationOption {
   id: string
   name: string

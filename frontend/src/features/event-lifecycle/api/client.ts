@@ -1,3 +1,5 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
+
 export class ApiError extends Error {
   readonly status: number
   readonly code: string
@@ -8,6 +10,7 @@ export class ApiError extends Error {
     this.status = status
     this.code = code
   }
+
 }
 
 interface ProblemDetail {
@@ -24,7 +27,19 @@ export async function request(path: string, init: RequestInit = {}): Promise<Res
   if (devUserId) {
     headers.set('X-User-Id', devUserId)
   }
-  const response = await fetch(path, { ...init, headers })
+  let response: Response
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      credentials: 'include',
+      headers,
+    })
+  } catch {
+    throw new ApiError(0, 'NETWORK_ERROR', 'The backend is not reachable. Start Spring Boot on http://localhost:8080 and try again.')
+  }
+  if (response.status === 401) {
+    window.dispatchEvent(new Event('auth:unauthorized'))
+  }
   if (!response.ok) {
     let problem: ProblemDetail = {}
     try {
@@ -43,8 +58,9 @@ export async function request(path: string, init: RequestInit = {}): Promise<Res
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await request(path, init)
-  if (response.status === 204) {
+  const body = await response.text()
+  if (!body) {
     return undefined as T
   }
-  return (await response.json()) as T
+  return JSON.parse(body) as T
 }

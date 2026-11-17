@@ -66,23 +66,23 @@ export function EventReportPage() {
     })
   }
 
-  const cell = 'border-b border-gray-200 px-2 py-1 text-left'
+  const cell = ''
 
   return (
-    <main className="mx-auto max-w-5xl p-4">
+    <main className="page report-page">
       {error && (
-        <p role="alert" className="mb-4 rounded bg-red-100 p-3 text-red-800">
+        <p role="alert" className="notice error">
           {error}
         </p>
       )}
       {report && (
         <>
-          <h1 className="mb-2 text-2xl font-semibold">Report: {report.eventTitle}</h1>
-          <button type="button" onClick={download} className="mb-4 rounded border border-gray-400 px-3 py-1">
+          <h1>Report: {report.eventTitle}</h1>
+          <button type="button" onClick={download} className="button secondary report-download">
             Download CSV
           </button>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+          <div className="report-table-wrap">
+            <table className="report-table">
               <thead>
                 <tr>
                   {['Activity', 'Start', 'Status', 'Confirmed', 'Waitlist', 'Cancellations', 'Attendance', 'Average rating', 'Feedback'].map(
@@ -115,7 +115,7 @@ export function EventReportPage() {
                             aria-expanded={open}
                             aria-label={`${open ? 'Hide' : 'Show'} feedback for ${row.title}`}
                             onClick={() => toggle(row.activityId)}
-                            className="rounded border border-gray-400 px-2 py-0.5"
+                            className="button secondary feedback-toggle"
                           >
                             {open ? 'Hide' : 'Show'}
                           </button>

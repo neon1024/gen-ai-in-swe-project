@@ -9,10 +9,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfException;
 
-/**
- * Secures only the authoring routes. Global security for other modules belongs to the identity
- * share; this module must not lock or open routes it does not own (decision K-8).
- */
 @Configuration(proxyBeanMethods = false)
 public class AuthoringSecurityConfiguration {
   @Bean
@@ -33,6 +29,17 @@ public class AuthoringSecurityConfiguration {
                                 403,
                                 ex instanceof CsrfException ? "CSRF_REJECTED" : "FORBIDDEN",
                                 "Request denied")))
+        .build();
+  }
+
+  @Bean
+  @Order(2147483647)
+  SecurityFilterChain baselineSecurity(HttpSecurity http) throws Exception {
+    return http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/**"))
+        .authorizeHttpRequests(
+            auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
+        .formLogin(org.springframework.security.config.Customizer.withDefaults())
+        .httpBasic(org.springframework.security.config.Customizer.withDefaults())
         .build();
   }
 

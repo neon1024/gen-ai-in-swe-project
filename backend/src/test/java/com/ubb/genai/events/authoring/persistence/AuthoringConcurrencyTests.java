@@ -38,8 +38,7 @@ class AuthoringConcurrencyTests {
     }
 
     @Bean
-    @org.springframework.context.annotation.Primary
-    Clock authoringTestClock() {
+    Clock clock() {
       return Clock.fixed(Instant.parse("2026-11-10T10:00:00Z"), ZoneOffset.UTC);
     }
   }
