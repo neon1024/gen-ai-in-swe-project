@@ -8,6 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfException;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 @Configuration(proxyBeanMethods = false)
 public class AuthoringSecurityConfiguration {
@@ -38,8 +39,8 @@ public class AuthoringSecurityConfiguration {
     return http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/**"))
         .authorizeHttpRequests(
             auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
-        .formLogin(org.springframework.security.config.Customizer.withDefaults())
-        .httpBasic(org.springframework.security.config.Customizer.withDefaults())
+            .formLogin(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
         .build();
   }
 
