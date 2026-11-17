@@ -59,26 +59,30 @@ Migrations live in `backend/src/main/resources/db/migration/eventlifecycle/` and
 | Flyway versions | `V2026111001` and `V2026111002` are timestamp versions and sort after teammates' small integer versions. Integration needs an agreed version scheme, or `spring.flyway.out-of-order=true`. |
 | Scheduling | `@EnableScheduling` on `EventLifecycleConfiguration` enables scheduling for the whole application, not only this share. |
 
-## Interfaces stubbed
+## Interface implementations
 
-Ports live in `shared.port`; each has a `@Component` stub in `shared.port.stub` whose Javadoc names the owning share. A real implementation replaces the stub bean at reconciliation. Stubs are plain `@Component` beans (not conditional), so delete the stub class when the real bean is added; two beans of the same port type fail startup.
+Ports live in `shared.port`. Unimplemented ports retain their `@Component` stubs in `shared.port.stub`. A real implementation replaces its stub; stubs are plain `@Component` beans (not conditional), so both implementations cannot remain registered for the same port.
 
 `OrganizationDirectory.organizationIdsWithNameContaining(keyword)` must match case-insensitively as a literal substring of the organization name; the keyword is already trimmed and non-blank, and `%` and `_` are ordinary characters.
 
-| Port | Method | Semantics | Owning share | Stub behaviour |
+| Port | Method | Semantics | Owning share | Implementation |
 |---|---|---|---|---|
-| `CurrentUserProvider` | `Optional<UUID> currentUserId()` | Caller of the current request; empty for a guest. | neon1024 | `HeaderCurrentUserProvider`: reads `X-User-Id` through `RequestContextHolder`; empty when missing or not a UUID. |
-| `OrganizationDirectory` | `boolean isMember(orgId, userId)` | User belongs to the organization. | All16 | `false` |
-| | `boolean isOrgAdmin(orgId, userId)` | User is an Org Admin of the organization. | All16 | `false` |
-| | `Optional<String> organizationName(orgId)` | Display name of the organization. | All16 | empty |
-| | `Set<UUID> organizationIdsWithNameContaining(keyword)` | Organizations whose name contains the keyword, case-insensitive. | All16 | empty set |
-| `EventTeamDirectory` | `Optional<EventRole> roleOf(eventId, userId)` | Event-team role (`OWNER`, `EDITOR`, `STAFF`). | All16 | empty |
-| `PrivateActivityInvitations` | `boolean isInvited(activityId, userId)` | User holds an invitation to a private activity. | jose03pedro | `false` |
-| `SignupPort` | `Set<UUID> cancelAllSignups(activityId)` | Cancels all signups; returns users who held a Confirmed or Waitlisted signup. | lucianvaleanu | empty set |
-| | `SignupFigures figures(activityId)` | `confirmed`, `waitlisted`, `cancelled`, `attended` counts. | lucianvaleanu | all zero |
-| | `boolean wasMarkedPresent(activityId, userId)` | User was marked present at the activity. | lucianvaleanu | `false` |
-| `NotificationPort` | `void activityCancelled(activityId, recipients)` | Notify users of an activity cancellation. | neon1024 | logs ids at INFO |
+| `CurrentUserProvider` | `Optional<UUID> currentUserId()` | Caller of the current request; empty for a guest. | neon1024 | `HeaderCurrentUserProvider`: reads `X-User-Id` through `RequestContextHolder`; empty when missing or not a UUID. This remains a provisional, impersonable demo seam, not authentication. |
+| `OrganizationDirectory` | `boolean isMember(orgId, userId)` | User belongs to the organization. | All16 | `JpaLifecycleOrganizationDirectory`: PostgreSQL membership lookup. |
+| | `boolean isOrgAdmin(orgId, userId)` | User is an Org Admin of the organization. | All16 | `JpaLifecycleOrganizationDirectory`: role lookup. |
+| | `Optional<String> organizationName(orgId)` | Display name of the organization. | All16 | `JpaLifecycleOrganizationDirectory`: active organization lookup. |
+| | `Set<UUID> organizationIdsWithNameContaining(keyword)` | Organizations whose name contains the keyword, case-insensitive. | All16 | `JpaLifecycleOrganizationDirectory`: literal, case-insensitive substring match. |
+| `EventTeamDirectory` | `Optional<EventRole> roleOf(eventId, userId)` | Event-team role (`OWNER`, `EDITOR`, `STAFF`). | All16 | `JpaLifecycleEventTeamDirectory`: Owner from event authoring; Editor/Staff from `organizations.event_team_membership`. |
+| `PrivateActivityInvitations` | `boolean isInvited(activityId, userId)` | User holds an invitation to a private activity. | jose03pedro | Stub returns `false`. |
+| `SignupPort` | `Set<UUID> cancelAllSignups(activityId)` | Cancels all signups; returns users who held a Confirmed or Waitlisted signup. | lucianvaleanu | Stub returns an empty set. |
+| | `SignupFigures figures(activityId)` | `confirmed`, `waitlisted`, `cancelled`, `attended` counts. | lucianvaleanu | Stub returns zero counts. |
+| | `boolean wasMarkedPresent(activityId, userId)` | User was marked present at the activity. | lucianvaleanu | Stub returns `false`. |
+| `NotificationPort` | `void activityCancelled(activityId, recipients)` | Notify users of an activity cancellation. | neon1024 | Stub logs ids at INFO. |
+
+The membership endpoints, PostgreSQL schema, business rules and demo identity boundary are documented in the [organization membership contract](organization-membership-contract.md).
 | | `void eventCancelled(eventId, recipients)` | Notify users of an event cancellation. | neon1024 | logs ids at INFO |
+
+`JpaOrganizationDirectory` and `JpaEventTeamDirectory` implement the event-authoring access ports; the lifecycle adapters above expose the separate event-lifecycle port contracts.
 
 ## Authorization assumptions
 

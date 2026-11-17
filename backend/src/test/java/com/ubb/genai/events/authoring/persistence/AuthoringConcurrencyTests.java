@@ -28,11 +28,13 @@ class AuthoringConcurrencyTests {
     }
 
     @Bean
+    @org.springframework.context.annotation.Primary
     OrganizationAccessPort organizations() {
       return (s, o) -> OrganizationAccessPort.Role.ORGANIZER;
     }
 
     @Bean
+    @org.springframework.context.annotation.Primary
     EventTeamAccessPort team() {
       return (s, e) -> EventTeamAccessPort.Role.NONE;
     }
