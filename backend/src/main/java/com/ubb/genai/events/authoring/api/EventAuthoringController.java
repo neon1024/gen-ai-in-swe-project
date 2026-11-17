@@ -4,6 +4,7 @@ import com.ubb.genai.events.authoring.api.AuthoringViews.EventView;
 import com.ubb.genai.events.authoring.application.AuthoringException;
 import com.ubb.genai.events.authoring.application.EventAuthoringService;
 import com.ubb.genai.events.authoring.domain.EventCategory;
+import com.ubb.genai.events.authoring.integration.LifecycleProjection;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,10 +29,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/event-authoring/events")
 public class EventAuthoringController {
+  private static final org.slf4j.Logger LOG =
+      org.slf4j.LoggerFactory.getLogger(EventAuthoringController.class);
   private final EventAuthoringService service;
+  private final org.springframework.beans.factory.ObjectProvider<LifecycleProjection> projection;
 
-  public EventAuthoringController(EventAuthoringService service) {
+  public EventAuthoringController(
+      EventAuthoringService service,
+      org.springframework.beans.factory.ObjectProvider<LifecycleProjection> projection) {
     this.service = service;
+    this.projection = projection;
+  }
+
+  /** Mirrors a committed Published event into lifecycle (K-7); authoring's own write already succeeded. */
+  private EventView mirrored(EventView view) {
+    var p = projection.getIfAvailable();
+    if (p == null) return view;
+    try {
+      p.sync(view);
+    } catch (RuntimeException ex) {
+      LOG.error("Lifecycle projection failed for event {}; search may be stale", view.id(), ex);
+    }
+    return view;
   }
 
   @PostMapping
@@ -85,8 +104,8 @@ public class EventAuthoringController {
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventView.class)))
   public EventView editDetails(@PathVariable UUID eventId,
       @RequestBody AuthoringRequests.EventDetails request) {
-    return service.editEventDetails(eventId, new EventAuthoringService.EventDetailsCommand(
-        request.expectedVersion(), request.title(), request.description(), category(request.category())));
+    return mirrored(service.editEventDetails(eventId, new EventAuthoringService.EventDetailsCommand(
+        request.expectedVersion(), request.title(), request.description(), category(request.category()))));
   }
 
   @PostMapping("/{eventId}/publish")
@@ -98,7 +117,7 @@ public class EventAuthoringController {
       @RequestBody AuthoringRequests.VersionCommand request) {
     if (request.expectedVersion() == null || request.expectedVersion() < 0)
       throw new AuthoringException(400, "INVALID_INPUT", "Nonnegative version is required");
-    return service.publish(eventId, request.expectedVersion());
+    return mirrored(service.publish(eventId, request.expectedVersion()));
   }
 
   @GetMapping("/{eventId}")
@@ -111,20 +130,20 @@ public class EventAuthoringController {
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventView.class)))
   public ResponseEntity<EventView> addActivity(@PathVariable UUID eventId,
       @RequestBody AuthoringRequests.ActivityWrite request) {
-    return ResponseEntity.status(201).body(service.addActivity(eventId, activityCommand(request)));
+    return ResponseEntity.status(201).body(mirrored(service.addActivity(eventId, activityCommand(request))));
   }
 
   @PutMapping("/{eventId}/activities/{activityId}")
   public EventView updateActivity(@PathVariable UUID eventId, @PathVariable UUID activityId,
       @RequestBody AuthoringRequests.ActivityWrite request) {
-    return service.updateActivity(eventId, activityId, activityCommand(request));
+    return mirrored(service.updateActivity(eventId, activityId, activityCommand(request)));
   }
 
   @DeleteMapping("/{eventId}/activities/{activityId}")
   public EventView removeActivity(@PathVariable UUID eventId, @PathVariable UUID activityId,
       @Parameter(schema = @Schema(type = "integer", format = "int64", minimum = "0"))
       @RequestParam String expectedVersion) {
-    return service.removeActivity(eventId, activityId, version(expectedVersion));
+    return mirrored(service.removeActivity(eventId, activityId, version(expectedVersion)));
   }
 
   @PostMapping("/{eventId}/activities/{activityId}/agenda")
@@ -132,20 +151,20 @@ public class EventAuthoringController {
       content = @Content(mediaType = "application/json", schema = @Schema(implementation = EventView.class)))
   public ResponseEntity<EventView> addAgenda(@PathVariable UUID eventId, @PathVariable UUID activityId,
       @RequestBody AuthoringRequests.AgendaWrite request) {
-    return ResponseEntity.status(201).body(service.addAgenda(eventId, activityId, agendaCommand(request)));
+    return ResponseEntity.status(201).body(mirrored(service.addAgenda(eventId, activityId, agendaCommand(request))));
   }
 
   @PutMapping("/{eventId}/activities/{activityId}/agenda/{itemId}")
   public EventView updateAgenda(@PathVariable UUID eventId, @PathVariable UUID activityId,
       @PathVariable UUID itemId, @RequestBody AuthoringRequests.AgendaWrite request) {
-    return service.updateAgenda(eventId, activityId, itemId, agendaCommand(request));
+    return mirrored(service.updateAgenda(eventId, activityId, itemId, agendaCommand(request)));
   }
 
   @DeleteMapping("/{eventId}/activities/{activityId}/agenda/{itemId}")
   public EventView removeAgenda(@PathVariable UUID eventId, @PathVariable UUID activityId,
       @PathVariable UUID itemId, @Parameter(schema = @Schema(type = "integer", format = "int64", minimum = "0"))
       @RequestParam String expectedVersion) {
-    return service.removeAgenda(eventId, activityId, itemId, version(expectedVersion));
+    return mirrored(service.removeAgenda(eventId, activityId, itemId, version(expectedVersion)));
   }
 
   private static EventAuthoringService.AgendaCommand agendaCommand(AuthoringRequests.AgendaWrite r) {

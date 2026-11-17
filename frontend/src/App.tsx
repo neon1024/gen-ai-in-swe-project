@@ -1,4 +1,5 @@
 import { BrowserRouter, useRoutes } from 'react-router'
+import { eventAuthoringRoutes } from './features/event-authoring/routes'
 import { eventLifecycleRoutes } from './features/event-lifecycle/routes'
 import { authenticationRoutes } from './features/authentication/routes'
 import { organizationMembershipRoutes } from './features/organization-membership/routes'
@@ -9,7 +10,7 @@ import { RequireAuth } from './features/authentication/guards'
 function AppRoutes() {
   return useRoutes([
     ...authenticationRoutes,
-    { element: <RequireAuth />, children: [...eventLifecycleRoutes, ...organizationMembershipRoutes] },
+    { element: <RequireAuth />, children: [...eventLifecycleRoutes, ...organizationMembershipRoutes, ...eventAuthoringRoutes] },
   ])
 }
 
