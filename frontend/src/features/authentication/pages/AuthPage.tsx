@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
@@ -8,12 +8,20 @@ import { Button } from '../../../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
 import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
+import { useAuth } from '../context'
 
 export default function AuthPage() {
   const isRegister = useLocation().pathname.endsWith('register')
   const navigate = useNavigate()
+  const { isAuthenticated, setUser } = useAuth()
   const [values, setValues] = useState({ email: '', password: '', username: '', displayName: '' })
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (isAuthenticated) navigate('/events', { replace: true })
+  }, [isAuthenticated, navigate])
+
+  if (isAuthenticated) return null
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -25,7 +33,7 @@ export default function AuthPage() {
         navigate('/auth/login')
       } else {
         const session = await login(values.email, values.password)
-        localStorage.setItem('devUserId', session.userId)
+        setUser(session)
         toast.success(`Welcome, ${session.displayName}`)
         navigate('/')
       }

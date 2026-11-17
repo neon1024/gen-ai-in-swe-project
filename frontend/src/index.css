@@ -109,6 +109,8 @@ a { color: inherit; }
 }
 .brand > span:last-child { font-size: .95rem; font-weight: 800; letter-spacing: -.03em; }
 .topbar-note { color: var(--text-muted); font-size: .8rem; }
+.account-menu { align-items: center; display: flex; gap: 12px; }
+.account-name { color: var(--text-secondary); font-size: .82rem; font-weight: 600; }
 .shell-body { display: flex; min-height: calc(100vh - 76px); }
 .sidebar {
   background: var(--bg-sidebar);

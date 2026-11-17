@@ -1,6 +1,8 @@
 import { NavLink, Outlet } from 'react-router'
 import { CalendarDays, Compass, Inbox, Sparkles } from 'lucide-react'
 import { Separator } from './ui/separator'
+import { Button } from './ui/button'
+import { useAuth } from '../features/authentication/context'
 
 const links = [
   { to: '/events', label: 'Discover', icon: Compass },
@@ -9,6 +11,7 @@ const links = [
 ]
 
 export function AppShell() {
+  const { user, logout } = useAuth()
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -17,6 +20,12 @@ export function AppShell() {
           <span>UBB / together</span>
         </NavLink>
         <span className="topbar-note">A better way to show up</span>
+        {user && (
+          <div className="account-menu">
+            <span className="account-name">{user.displayName}</span>
+            <Button type="button" variant="ghost" size="sm" onClick={logout}>Log out</Button>
+          </div>
+        )}
       </header>
       <div className="shell-body">
         <aside className="sidebar" aria-label="Main navigation">
