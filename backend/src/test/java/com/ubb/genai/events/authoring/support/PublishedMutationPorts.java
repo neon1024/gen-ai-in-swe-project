@@ -103,6 +103,7 @@ public class PublishedMutationPorts {
   }
 
   @Bean
+  @org.springframework.context.annotation.Primary
   AuthoringIdentityPort identity(Probe p) {
     return () -> new AuthoringIdentityPort.Actor(p.subject, true);
   }

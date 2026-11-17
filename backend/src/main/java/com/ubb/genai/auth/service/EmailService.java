@@ -15,10 +15,10 @@ import java.util.Map;
 public class EmailService {
     private final RestClient resendRestClient;
 
-    @Value("${resend.from-email}")
+    @Value("${resend.from-email:}")
     private String fromEmail;
 
-    @Value("${app.frontend-url}")
+    @Value("${app.frontend-url:http://localhost:5173}")
     private String baseUrl;
 
     @Value("${resend.api-key:}")

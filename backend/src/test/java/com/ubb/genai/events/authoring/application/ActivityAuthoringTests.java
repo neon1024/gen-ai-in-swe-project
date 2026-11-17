@@ -38,13 +38,13 @@ class ActivityAuthoringTests {
     }
   }
   @TestConfiguration static class Ports {
-    @Bean AuthoringIdentityPort identity() { return () -> new AuthoringIdentityPort.Actor("owner", true); }
+    @Bean @org.springframework.context.annotation.Primary AuthoringIdentityPort identity() { return () -> new AuthoringIdentityPort.Actor("owner", true); }
     @Bean @org.springframework.context.annotation.Primary
     OrganizationAccessPort organizations() { return (s, o) -> OrganizationAccessPort.Role.ORGANIZER; }
     @Bean @org.springframework.context.annotation.Primary
     EventTeamAccessPort team() { return (s, e) -> EventTeamAccessPort.Role.NONE; }
     @Bean Guard guard() { return new Guard(); }
-    @Bean Clock clock() { return Clock.fixed(Instant.parse("2026-11-10T10:00:00Z"), ZoneOffset.UTC); }
+    @Bean @org.springframework.context.annotation.Primary Clock authoringTestClock() { return Clock.fixed(Instant.parse("2026-11-10T10:00:00Z"), ZoneOffset.UTC); }
   }
   @BeforeEach void reset() {
     guard.history = false;

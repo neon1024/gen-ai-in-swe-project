@@ -23,6 +23,7 @@ class AuthoringConcurrencyTests {
   @TestConfiguration
   static class Ports {
     @Bean
+    @org.springframework.context.annotation.Primary
     AuthoringIdentityPort identity() {
       return () -> new AuthoringIdentityPort.Actor("owner", true);
     }
@@ -40,7 +41,8 @@ class AuthoringConcurrencyTests {
     }
 
     @Bean
-    Clock clock() {
+    @org.springframework.context.annotation.Primary
+    Clock authoringTestClock() {
       return Clock.fixed(Instant.parse("2026-11-10T10:00:00Z"), ZoneOffset.UTC);
     }
   }

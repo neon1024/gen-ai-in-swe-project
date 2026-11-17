@@ -2,6 +2,8 @@ package com.ubb.genai.organizations.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -25,6 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -33,7 +36,6 @@ import tools.jackson.databind.ObjectMapper;
 @Import(PostgresTestConfiguration.class)
 class OrganizationMembershipApiTests {
 
-    private static final String USER_HEADER = "X-User-Id";
     private static final UUID AI_SOCIETY = UUID.fromString("10000000-0000-4000-8000-000000000001");
     private static final UUID ROBOTICS_CLUB = UUID.fromString("10000000-0000-4000-8000-000000000002");
     private static final UUID LANGUAGE_EXCHANGE = UUID.fromString("10000000-0000-4000-8000-000000000003");
@@ -68,21 +70,21 @@ class OrganizationMembershipApiTests {
         UUID applicant = createMemberlessUser();
 
         mvc.perform(post("/api/organizations/{organizationId}/join-requests", AI_SOCIETY)
-                        .header(USER_HEADER, applicant))
+                        .with(as(applicant)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.applicantId").value(applicant.toString()));
 
         mvc.perform(post("/api/organizations/{organizationId}/join-requests", AI_SOCIETY)
-                        .header(USER_HEADER, applicant))
+                        .with(as(applicant)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("REQUEST_PENDING"));
 
         mvc.perform(delete("/api/organizations/{organizationId}/join-requests/me", AI_SOCIETY)
-                        .header(USER_HEADER, applicant))
+                        .with(as(applicant)))
                 .andExpect(status().isNoContent());
 
         mvc.perform(post("/api/organizations/{organizationId}/join-requests", AI_SOCIETY)
-                        .header(USER_HEADER, applicant))
+                        .with(as(applicant)))
                 .andExpect(status().isCreated());
     }
 
@@ -94,7 +96,7 @@ class OrganizationMembershipApiTests {
 
         mvc.perform(post("/api/organizations/{organizationId}/join-requests/{requestId}/approve",
                                 AI_SOCIETY, approvalRequest)
-                        .header(USER_HEADER, AI_ADMIN))
+                        .with(as(AI_ADMIN)))
                 .andExpect(status().isNoContent());
         JsonNode approved = organizationFor(applicant, AI_SOCIETY);
         assertTrue(approved.get("member").asBoolean());
@@ -105,7 +107,7 @@ class OrganizationMembershipApiTests {
         UUID rejectedRequest = createRequest(rejectedApplicant, AI_SOCIETY);
         mvc.perform(post("/api/organizations/{organizationId}/join-requests/{requestId}/reject",
                                 AI_SOCIETY, rejectedRequest)
-                        .header(USER_HEADER, AI_ADMIN))
+                        .with(as(AI_ADMIN)))
                 .andExpect(status().isNoContent());
         createRequest(rejectedApplicant, AI_SOCIETY);
         assertEquals("PENDING", organizationFor(rejectedApplicant, AI_SOCIETY).get("requestStatus").asText());
@@ -117,20 +119,20 @@ class OrganizationMembershipApiTests {
         UUID member = createMember(AI_SOCIETY, "MEMBER");
 
         mvc.perform(patch("/api/organizations/{organizationId}/members/{userId}", AI_SOCIETY, member)
-                        .header(USER_HEADER, AI_ADMIN)
+                        .with(as(AI_ADMIN))
                         .contentType("application/json")
                         .content("{\"role\":\"ORGANIZER\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.role").value("ORGANIZER"));
         mvc.perform(patch("/api/organizations/{organizationId}/members/{userId}", AI_SOCIETY, member)
-                        .header(USER_HEADER, AI_ADMIN)
+                        .with(as(AI_ADMIN))
                         .contentType("application/json")
                         .content("{\"role\":\"ORG_ADMIN\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.role").value("ORG_ADMIN"));
 
         mvc.perform(patch("/api/organizations/{organizationId}/members/{userId}", ROBOTICS_CLUB, ROBOTICS_ADMIN)
-                        .header(USER_HEADER, ROBOTICS_ADMIN)
+                        .with(as(ROBOTICS_ADMIN))
                         .contentType("application/json")
                         .content("{\"role\":\"MEMBER\"}"))
                 .andExpect(status().isConflict())
@@ -145,7 +147,7 @@ class OrganizationMembershipApiTests {
         createEventTeamAssignment(AI_SOCIETY, eventId, member);
 
         mvc.perform(delete("/api/organizations/{organizationId}/members/{userId}", AI_SOCIETY, member)
-                        .header(USER_HEADER, AI_ADMIN))
+                        .with(as(AI_ADMIN)))
                 .andExpect(status().isNoContent());
         assertEquals(0L, jdbc.queryForObject(
                 "select count(*) from organizations.organization_membership where organization_id = ? and user_id = ?",
@@ -157,12 +159,12 @@ class OrganizationMembershipApiTests {
         UUID activeOwner = createMember(AI_SOCIETY, "MEMBER");
         createEvent(AI_SOCIETY, activeOwner, "PUBLISHED");
         mvc.perform(delete("/api/organizations/{organizationId}/members/{userId}", AI_SOCIETY, activeOwner)
-                        .header(USER_HEADER, AI_ADMIN))
+                        .with(as(AI_ADMIN)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("ACTIVE_EVENT_OWNER"));
 
         mvc.perform(delete("/api/organizations/{organizationId}/members/{userId}", ROBOTICS_CLUB, ROBOTICS_ADMIN)
-                        .header(USER_HEADER, ROBOTICS_ADMIN))
+                        .with(as(ROBOTICS_ADMIN)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("LAST_ORG_ADMIN"));
     }
@@ -175,7 +177,7 @@ class OrganizationMembershipApiTests {
         createEventTeamAssignment(LANGUAGE_EXCHANGE, eventId, member);
 
         mvc.perform(delete("/api/organizations/{organizationId}/members/me", LANGUAGE_EXCHANGE)
-                        .header(USER_HEADER, member))
+                        .with(as(member)))
                 .andExpect(status().isNoContent());
         assertEquals(0L, jdbc.queryForObject(
                 "select count(*) from organizations.organization_membership where organization_id = ? and user_id = ?",
@@ -187,12 +189,12 @@ class OrganizationMembershipApiTests {
         UUID activeOwner = createMember(LANGUAGE_EXCHANGE, "MEMBER");
         createEvent(LANGUAGE_EXCHANGE, activeOwner, "DRAFT");
         mvc.perform(delete("/api/organizations/{organizationId}/members/me", LANGUAGE_EXCHANGE)
-                        .header(USER_HEADER, activeOwner))
+                        .with(as(activeOwner)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("ACTIVE_EVENT_OWNER"));
 
         mvc.perform(delete("/api/organizations/{organizationId}/members/me", ROBOTICS_CLUB)
-                        .header(USER_HEADER, ROBOTICS_ADMIN))
+                        .with(as(ROBOTICS_ADMIN)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("LAST_ORG_ADMIN"));
     }
@@ -202,10 +204,10 @@ class OrganizationMembershipApiTests {
     void requiresAnIdentityForBrowse() throws Exception {
         mvc.perform(get("/api/organizations"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("AUTHENTICATION_REQUIRED"));
+                .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
 
         mvc.perform(get("/api/organizations/{organizationId}/members", AI_SOCIETY)
-                        .header(USER_HEADER, UUID.randomUUID()))
+                        .with(as(UUID.randomUUID())))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value("ORG_ADMIN_REQUIRED"));
     }
@@ -229,7 +231,7 @@ class OrganizationMembershipApiTests {
 
     private UUID createRequest(UUID applicant, UUID organizationId) throws Exception {
         MvcResult result = mvc.perform(post("/api/organizations/{organizationId}/join-requests", organizationId)
-                        .header(USER_HEADER, applicant))
+                        .with(as(applicant)))
                 .andExpect(status().isCreated())
                 .andReturn();
         return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsByteArray()).get("id").asText());
@@ -237,7 +239,7 @@ class OrganizationMembershipApiTests {
 
     private JsonNode organizationFor(UUID userId, UUID organizationId) throws Exception {
         JsonNode organizations = objectMapper.readTree(mvc.perform(get("/api/organizations")
-                        .header(USER_HEADER, userId))
+                        .with(as(userId)))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsByteArray());
         for (JsonNode organization : organizations) {
@@ -265,5 +267,10 @@ class OrganizationMembershipApiTests {
                     (id, organization_id, event_id, user_id, role)
                 values (?, ?, ?, ?, 'STAFF')
                 """, UUID.randomUUID(), organizationId, eventId, userId);
+    }
+
+    /** Session user (principal = user id, as at login) plus the CSRF token the SPA echoes. */
+    private static RequestPostProcessor as(Object userId) {
+        return request -> csrf().postProcessRequest(user(String.valueOf(userId)).postProcessRequest(request));
     }
 }

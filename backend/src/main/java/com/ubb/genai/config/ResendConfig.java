@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient;
 public class ResendConfig {
     @Bean
     public RestClient resendRestClient(
-            @Value("${resend.api-key}") String apiKey
+            @Value("${resend.api-key:}") String apiKey
     ) {
         return RestClient.builder()
                 .baseUrl("https://api.resend.com")

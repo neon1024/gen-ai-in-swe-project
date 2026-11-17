@@ -71,7 +71,7 @@ public class AuthController {
             }
 
             var authentication = UsernamePasswordAuthenticationToken.authenticated(
-                    response.email(), null, java.util.List.of());
+                    response.userId().toString(), null, java.util.List.of());
             var context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);

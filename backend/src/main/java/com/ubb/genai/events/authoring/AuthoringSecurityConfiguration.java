@@ -2,7 +2,7 @@ package com.ubb.genai.events.authoring;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -17,23 +17,39 @@ import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 /**
- * Secures only the authoring routes. Global security for other modules belongs to the identity
- * share; this module must not lock or open routes it does not own (decision K-8).
+ * Session security for the SPA API: cookie CSRF token echoed as X-XSRF-TOKEN and JSON 401/403
+ * bodies. Authoring routes keep their own chain (decision K-8); every other non-auth route uses
+ * the baseline chain, where only event discovery is open to guests.
  */
 @Configuration(proxyBeanMethods = false)
 public class AuthoringSecurityConfiguration {
   @Bean
   @Order(1)
-  SecurityFilterChain authoringSecurity(
-      HttpSecurity http, ObjectProvider<AuthoringChainCustomizer> customizer) throws Exception {
-    // Cookie token so the SPA can echo it as X-XSRF-TOKEN; the filter makes Spring write the cookie.
-    http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-            .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
-        .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class);
-    var extra = customizer.getIfAvailable();
-    if (extra != null) extra.customize(http);
-    return http.securityMatcher("/api/event-authoring/**")
+  SecurityFilterChain authoringSecurity(HttpSecurity http) throws Exception {
+    return spaDefaults(http.securityMatcher("/api/event-authoring/**"))
         .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+        .build();
+  }
+
+  @Bean
+  @Order(2)
+  SecurityFilterChain baselineSecurity(HttpSecurity http) throws Exception {
+    return spaDefaults(http)
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/discovery/**").permitAll()
+                    .anyRequest().authenticated())
+        .build();
+  }
+
+  private static HttpSecurity spaDefaults(HttpSecurity http) throws Exception {
+    // Cookie token so the SPA can echo it as X-XSRF-TOKEN; the filter makes Spring write the cookie.
+    return http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+        .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class)
+        .formLogin(AbstractHttpConfigurer::disable)
+        .httpBasic(AbstractHttpConfigurer::disable)
         .exceptionHandling(
             errors ->
                 errors
@@ -46,19 +62,7 @@ public class AuthoringSecurityConfiguration {
                                 res,
                                 403,
                                 ex instanceof CsrfException ? "CSRF_REJECTED" : "FORBIDDEN",
-                                "Request denied")))
-        .build();
-  }
-
-  @Bean
-  @Order(2)
-  SecurityFilterChain baselineSecurity(HttpSecurity http) {
-    return http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/**"))
-        .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
-            .formLogin(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable)
-        .build();
+                                "Request denied")));
   }
 
   private static void error(HttpServletResponse response, int status, String code, String message)
