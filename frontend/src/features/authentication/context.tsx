@@ -35,14 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const setUser = useCallback((nextUser: LoginResponse) => {
     localStorage.setItem(SESSION_KEY, JSON.stringify(nextUser))
-    localStorage.setItem('devUserId', nextUser.userId)
     setUserState(nextUser)
   }, [])
 
   const logout = useCallback(() => {
     void logoutRequest().catch(() => undefined)
     localStorage.removeItem(SESSION_KEY)
-    localStorage.removeItem('devUserId')
     setUserState(null)
     navigate('/login', { replace: true })
   }, [navigate])
@@ -50,8 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handleUnauthorized = () => {
       localStorage.removeItem(SESSION_KEY)
-      localStorage.removeItem('devUserId')
-      setUserState(null)
+        setUserState(null)
       navigate('/login', { replace: true })
     }
     window.addEventListener('auth:unauthorized', handleUnauthorized)

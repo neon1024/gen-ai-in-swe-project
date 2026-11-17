@@ -19,13 +19,18 @@ interface ProblemDetail {
   code?: string
 }
 
+/** Spring's cookie CSRF token, echoed as X-XSRF-TOKEN on every request. */
+export function csrfToken(): string | undefined {
+  const cookie = document.cookie.split('; ').find((c) => c.startsWith('XSRF-TOKEN='))
+  return cookie ? decodeURIComponent(cookie.slice('XSRF-TOKEN='.length)) : undefined
+}
+
 /** Sends the request with the shared headers and turns a non-2xx answer into an {@link ApiError}. */
 export async function request(path: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers)
-  // Provisional: the authentication share replaces the dev user header.
-  const devUserId = localStorage.getItem('devUserId')
-  if (devUserId) {
-    headers.set('X-User-Id', devUserId)
+  const token = csrfToken()
+  if (token) {
+    headers.set('X-XSRF-TOKEN', token)
   }
   let response: Response
   try {

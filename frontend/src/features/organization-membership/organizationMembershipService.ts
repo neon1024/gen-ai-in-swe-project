@@ -38,29 +38,6 @@ export interface OrganizationMembershipService {
   leaveOrganization(organizationId: string): Promise<void>
 }
 
-export const demoUsers = [
-  { id: '00000000-0000-4000-8000-000000000001', label: 'Student applicant' },
-  { id: '00000000-0000-4000-8000-000000000002', label: 'AI Society admin' },
-  { id: '00000000-0000-4000-8000-000000000003', label: 'Robotics Club admin' },
-  { id: '00000000-0000-4000-8000-000000000004', label: 'Language Exchange admin' },
-  { id: '00000000-0000-4000-8000-000000000005', label: 'Photography Group admin' },
-  { id: '00000000-0000-4000-8000-000000000006', label: 'AI Society co-admin' },
-  { id: '00000000-0000-4000-8000-000000000007', label: 'Organizer / member' },
-  { id: '00000000-0000-4000-8000-000000000008', label: 'Member / organizer' },
-] as const
-
-export const DEMO_USER_STORAGE_KEY = 'devUserId'
-
-export function ensureDemoIdentity(): string {
-  const savedUserId = localStorage.getItem(DEMO_USER_STORAGE_KEY)
-  if (savedUserId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(savedUserId)) {
-    return savedUserId
-  }
-  const defaultUserId = demoUsers[0].id
-  localStorage.setItem(DEMO_USER_STORAGE_KEY, defaultUserId)
-  return defaultUserId
-}
-
 export const organizationMembershipApi: OrganizationMembershipService = {
   listOrganizations: () => apiFetch('/api/organizations'),
 

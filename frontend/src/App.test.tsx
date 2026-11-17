@@ -12,6 +12,8 @@ test('provides an accessible campus navigation shell', () => {
   }))
   render(<App />)
   expect(screen.getByRole('link', { name: 'UBB / together' })).toBeInTheDocument()
-  expect(screen.getByRole('link', { name: 'Discover' })).toBeInTheDocument()
+  for (const name of ['Discover', 'Organizations', 'New event']) {
+    expect(screen.getByRole('link', { name })).toBeInTheDocument()
+  }
   expect(screen.getByRole('heading', { name: 'Events', level: 1 })).toBeInTheDocument()
 })

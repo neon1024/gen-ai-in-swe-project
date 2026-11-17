@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
+import { useAuth } from '../authentication/context'
 import {
-  DEMO_USER_STORAGE_KEY,
-  demoUsers,
-  ensureDemoIdentity,
   organizationMembershipApi,
   type JoinRequest,
   type OrganizationMember,
@@ -46,7 +44,7 @@ export function OrganizationMembershipPage({
 }: {
   service?: OrganizationMembershipService
 }) {
-  const [userId, setUserId] = useState(() => ensureDemoIdentity())
+  const userId = useAuth().user?.userId
   const [organizations, setOrganizations] = useState<OrganizationMembership[]>([])
   const [adminData, setAdminData] = useState<Record<string, AdminData>>({})
   const [error, setError] = useState<string | null>(null)
@@ -110,14 +108,6 @@ export function OrganizationMembershipPage({
     }
   }
 
-  function changeIdentity(nextUserId: string) {
-    localStorage.setItem(DEMO_USER_STORAGE_KEY, nextUserId)
-    setUserId(nextUserId)
-    setLoading(true)
-    setError(null)
-    setAnnouncement(null)
-  }
-
   function changeJoinRequest(organization: OrganizationMembership) {
     if (organization.requestStatus === 'PENDING') {
       void runAction(
@@ -156,27 +146,6 @@ export function OrganizationMembershipPage({
           Request membership, manage requests, and maintain organization roles.
         </p>
       </header>
-
-      <section className="mb-6 rounded border border-amber-300 bg-amber-50 p-4" aria-labelledby="demo-identity-title">
-        <h2 id="demo-identity-title" className="font-semibold">Demo identity</h2>
-        <p className="mt-1 text-sm text-gray-700">
-          This selector sends the provisional X-User-Id header. It is for local demonstration only, not authentication.
-        </p>
-        <label className="mt-3 block text-sm font-medium" htmlFor="demo-identity">Act as</label>
-        <select
-          id="demo-identity"
-          className="mt-1 rounded border border-gray-300 bg-white px-3 py-2"
-          value={userId}
-          onChange={(event) => changeIdentity(event.target.value)}
-        >
-          {!demoUsers.some((user) => user.id === userId) && (
-            <option value={userId}>Current development identity</option>
-          )}
-          {demoUsers.map((user) => (
-            <option key={user.id} value={user.id}>{user.label}</option>
-          ))}
-        </select>
-      </section>
 
       {error && (
         <p role="alert" className="mb-4 rounded border border-red-300 bg-red-50 p-3 text-red-800">

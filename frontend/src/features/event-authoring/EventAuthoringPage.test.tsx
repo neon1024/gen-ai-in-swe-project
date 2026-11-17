@@ -33,27 +33,46 @@ function renderAt(path: string) {
 }
 const lastBody = () => JSON.parse(fetchMock.mock.calls.at(-1)![1].body)
 
+const orgs = [
+  { id: 'org', name: 'AI Society', description: '', member: true, role: 'ORGANIZER', requestStatus: 'APPROVED' },
+  { id: 'other', name: 'Chess Club', description: '', member: true, role: 'MEMBER', requestStatus: 'APPROVED' },
+]
+
 describe('US-14 create a draft event', () => {
+  it('offers only organizations where the user may organize', async () => {
+    fetchMock.mockReturnValueOnce(json(orgs))
+    renderAt('/authoring/events/new')
+    const select = screen.getByLabelText('Organization')
+    await waitFor(() => expect(within(select).getAllByRole('option').map((o) => o.textContent)).toEqual(['AI Society']))
+  })
+
+  it('explains why a plain member cannot create a draft', async () => {
+    fetchMock.mockReturnValueOnce(json([orgs[1]]))
+    renderAt('/authoring/events/new')
+    expect(await screen.findByText(/need the Organizer or Org Admin role/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Create draft' })).toBeDisabled()
+  })
+
   it('posts the draft and opens its authoring page', async () => {
-    fetchMock.mockReturnValueOnce(json(ev(), 201)).mockReturnValueOnce(json(ev()))
+    fetchMock.mockReturnValueOnce(json(orgs)).mockReturnValueOnce(json(ev(), 201)).mockReturnValueOnce(json(ev()))
     const router = renderAt('/authoring/events/new')
     const user = userEvent.setup()
     await user.type(screen.getByLabelText('Title'), 'Chess night')
     await user.type(screen.getByLabelText('Description'), 'Fun')
-    await user.type(screen.getByLabelText('Organization'), 'org')
+    await screen.findByRole('option', { name: 'AI Society' })
     await user.click(screen.getByRole('button', { name: 'Create draft' }))
     await waitFor(() => expect(router.state.location.pathname).toBe(`/authoring/events/${ID}`))
-    expect(fetchMock.mock.calls[0][1].method).toBe('POST')
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({ title: 'Chess night', category: 'Workshop', organizationRef: 'org' })
+    expect(fetchMock.mock.calls[1][1].method).toBe('POST')
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toMatchObject({ title: 'Chess night', category: 'Workshop', organizationRef: 'org' })
   })
 
   it('shows the server refusal', async () => {
-    fetchMock.mockReturnValueOnce(json({ code: 'FORBIDDEN', message: 'Not allowed', violations: [] }, 403))
+    fetchMock.mockReturnValueOnce(json(orgs)).mockReturnValueOnce(json({ code: 'FORBIDDEN', message: 'Not allowed', violations: [] }, 403))
     renderAt('/authoring/events/new')
     const user = userEvent.setup()
     await user.type(screen.getByLabelText('Title'), 'x')
     await user.type(screen.getByLabelText('Description'), 'x')
-    await user.type(screen.getByLabelText('Organization'), 'x')
+    await screen.findByRole('option', { name: 'AI Society' })
     await user.click(screen.getByRole('button', { name: 'Create draft' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Not allowed')
   })

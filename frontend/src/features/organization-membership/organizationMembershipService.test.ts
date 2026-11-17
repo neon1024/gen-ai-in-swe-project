@@ -1,18 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-  DEMO_USER_STORAGE_KEY,
-  organizationMembershipApi,
-} from './organizationMembershipService'
+import { organizationMembershipApi } from './organizationMembershipService'
 
 const organizationId = '10000000-0000-4000-8000-000000000001'
-const requestId = '12000000-0000-4000-8000-000000000001'
 const userId = '00000000-0000-4000-8000-000000000001'
+const requestId = '12000000-0000-4000-8000-000000000001'
 
 const fetchMock = vi.fn<typeof fetch>()
 
 beforeEach(() => {
   localStorage.clear()
-  localStorage.setItem(DEMO_USER_STORAGE_KEY, userId)
+  document.cookie = 'XSRF-TOKEN=csrf-123'
   fetchMock.mockReset()
   fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
   vi.stubGlobal('fetch', fetchMock)
@@ -23,7 +20,7 @@ afterEach(() => {
 })
 
 describe('organizationMembershipApi', () => {
-  it('uses the shared demo identity header when loading organizations', async () => {
+  it('sends the session cookie and CSRF token, never an identity header', async () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify([]), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
@@ -33,7 +30,9 @@ describe('organizationMembershipApi', () => {
 
     const [path, init] = fetchMock.mock.calls[0]
     expect(path).toBe('/api/organizations')
-    expect(new Headers(init?.headers).get('X-User-Id')).toBe(userId)
+    expect(init?.credentials).toBe('include')
+    expect(new Headers(init?.headers).get('X-XSRF-TOKEN')).toBe('csrf-123')
+    expect(new Headers(init?.headers).get('X-User-Id')).toBeNull()
   })
 
   it('maps membership actions to their backend routes and role payload', async () => {

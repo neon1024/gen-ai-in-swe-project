@@ -16,8 +16,6 @@ DB_PORT="${DB_PORT:-55432}"  # not 5432, to avoid clashing with other local data
 export DB_URL="${DB_URL:-jdbc:postgresql://localhost:${DB_PORT}/ubb_events}"
 export DB_USERNAME="${DB_USERNAME:-ubb}"
 export DB_PASSWORD="${DB_PASSWORD:-ubb-local-dev}"
-# Provisional identity for authoring (X-User-Id header), like the lifecycle share; dev only.
-export AUTHORING_DEV_STUBS_ENABLED=true
 BACKEND_PORT=8080
 LOG_DIR="$ROOT/.cache/run-app"
 

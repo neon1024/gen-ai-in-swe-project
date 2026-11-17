@@ -1,3 +1,4 @@
+import { csrfToken } from '../event-lifecycle/api/client'
 export type Category = 'Workshop' | 'Conference' | 'Training' | 'Social' | 'Competition' | 'Other'
 export const CATEGORIES: Category[] = ['Workshop', 'Conference', 'Training', 'Social', 'Competition', 'Other']
 
@@ -34,15 +35,9 @@ export type AgendaInput = Omit<AgendaItem, 'id'>
 
 const BASE = '/api/event-authoring/events'
 
-// Cookie CSRF token echoed as a header. Provisional: like the lifecycle client, the dev user id
-// (localStorage 'devUserId') is sent as X-User-Id until the identity share provides real sessions.
 function csrfHeaders(): Record<string, string> {
-  const devUser = localStorage.getItem('devUserId')
-  const token = document.cookie.split('; ').find((c) => c.startsWith('XSRF-TOKEN='))?.slice(11)
-  return {
-    ...(devUser ? { 'X-User-Id': devUser } : {}),
-    ...(token ? { 'X-XSRF-TOKEN': decodeURIComponent(token) } : {}),
-  }
+  const token = csrfToken()
+  return token ? { 'X-XSRF-TOKEN': token } : {}
 }
 
 async function call(path: string, method = 'GET', body?: unknown): Promise<AuthoringEvent> {
@@ -52,6 +47,7 @@ async function call(path: string, method = 'GET', body?: unknown): Promise<Autho
     headers: { ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), ...csrfHeaders() },
     body: body === undefined ? undefined : JSON.stringify(body),
   })
+  if (response.status === 401) window.dispatchEvent(new Event('auth:unauthorized'))
   if (!response.ok) {
     let p: { code?: string; message?: string; violations?: Violation[] } = {}
     try { p = await response.json() } catch { /* non-JSON error body */ }

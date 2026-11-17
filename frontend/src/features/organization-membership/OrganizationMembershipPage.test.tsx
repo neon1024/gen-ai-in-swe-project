@@ -1,9 +1,8 @@
-import { render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
-  demoUsers,
   type JoinRequest,
   type OrganizationMember,
   type OrganizationMembership,
@@ -11,17 +10,22 @@ import {
   type OrganizationRole,
 } from './organizationMembershipService'
 import { OrganizationMembershipPage } from './OrganizationMembershipPage'
+import { AuthProvider } from '../authentication/context'
 
 const ids = {
   ai: '10000000-0000-4000-8000-000000000001',
   robotics: '10000000-0000-4000-8000-000000000002',
   language: '10000000-0000-4000-8000-000000000003',
   photo: '10000000-0000-4000-8000-000000000004',
-  student: demoUsers[0].id,
-  admin: demoUsers[1].id,
-  organizer: demoUsers[6].id,
-  member: demoUsers[7].id,
+  student: '00000000-0000-4000-8000-000000000001',
+  admin: '00000000-0000-4000-8000-000000000002',
+  coAdmin: '00000000-0000-4000-8000-000000000006',
+  organizer: '00000000-0000-4000-8000-000000000007',
+  member: '00000000-0000-4000-8000-000000000008',
 }
+
+const SESSION_KEY = 'ubb.events.session'
+const currentUserId = () => (JSON.parse(localStorage.getItem(SESSION_KEY) ?? '{}') as { userId?: string }).userId
 
 function createService() {
   const statuses: Record<string, OrganizationMembership['requestStatus']> = {
@@ -32,7 +36,7 @@ function createService() {
   }
   const members: OrganizationMember[] = [
     { userId: ids.admin, role: 'ORG_ADMIN', eventTeamAssignmentCount: 0, ownsActiveEvents: false },
-    { userId: demoUsers[5].id, role: 'ORG_ADMIN', eventTeamAssignmentCount: 1, ownsActiveEvents: false },
+    { userId: ids.coAdmin, role: 'ORG_ADMIN', eventTeamAssignmentCount: 1, ownsActiveEvents: false },
     { userId: ids.organizer, role: 'ORGANIZER', eventTeamAssignmentCount: 1, ownsActiveEvents: false },
     { userId: ids.member, role: 'MEMBER', eventTeamAssignmentCount: 0, ownsActiveEvents: false },
   ]
@@ -44,7 +48,7 @@ function createService() {
 
   const service: OrganizationMembershipService = {
     async listOrganizations() {
-      const currentUser = localStorage.getItem('devUserId')
+      const currentUser = currentUserId()
       return [
         { id: ids.ai, name: 'AI Society', description: 'AI projects.', member: currentUser === ids.admin || (currentUser === ids.student && statuses[ids.ai] === 'APPROVED'), role: currentUser === ids.admin ? 'ORG_ADMIN' : currentUser === ids.student && statuses[ids.ai] === 'APPROVED' ? 'MEMBER' : null, requestStatus: currentUser === ids.admin || (currentUser === ids.student && statuses[ids.ai] === 'APPROVED') ? 'APPROVED' : statuses[ids.ai] },
         { id: ids.robotics, name: 'Robotics Club', description: 'Robotics projects.', member: currentUser === ids.organizer, role: null, requestStatus: currentUser === ids.organizer ? 'APPROVED' : statuses[ids.robotics] },
@@ -87,7 +91,7 @@ function createService() {
       if (index >= 0) members.splice(index, 1)
     },
     async leaveOrganization() {
-      const currentUser = localStorage.getItem('devUserId')
+      const currentUser = currentUserId()
       const index = members.findIndex((item) => item.userId === currentUser)
       if (index >= 0) members.splice(index, 1)
     },
@@ -95,9 +99,11 @@ function createService() {
   return { service, members, pending }
 }
 
-function renderPage(service: OrganizationMembershipService) {
+/** Renders the page for the logged-in user, as AuthProvider restores it from the stored session. */
+function renderPage(service: OrganizationMembershipService, userId: string = ids.student) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ userId, email: 'u@example.invalid', username: 'u', displayName: 'U', status: 'ACTIVE' }))
   const router = createMemoryRouter([
-    { path: '/organizations', element: <OrganizationMembershipPage service={service} /> },
+    { path: '/organizations', element: <AuthProvider><OrganizationMembershipPage service={service} /></AuthProvider> },
   ], { initialEntries: ['/organizations'] })
   return render(<RouterProvider router={router} />)
 }
@@ -142,8 +148,7 @@ describe('OrganizationMembershipPage', () => {
   it('US-07 lets organization admins accept and reject pending requests', async () => {
     const user = userEvent.setup()
     const { service } = createService()
-    renderPage(service)
-    await user.selectOptions(screen.getByLabelText('Act as'), ids.admin)
+    renderPage(service, ids.admin)
 
     const pendingRequests = await screen.findByRole('region', { name: 'AI Society pending requests' })
     expect(within(pendingRequests).getByText(`Applicant: ${ids.student}`)).toBeInTheDocument()
@@ -155,14 +160,14 @@ describe('OrganizationMembershipPage', () => {
   it('US-07 allows an applicant to request again after rejection', async () => {
     const user = userEvent.setup()
     const { service } = createService()
-    renderPage(service)
-    await user.selectOptions(screen.getByLabelText('Act as'), ids.admin)
+    renderPage(service, ids.admin)
 
     const pendingRequests = await screen.findByRole('region', { name: 'AI Society pending requests' })
     await user.click(within(pendingRequests).getByRole('button', { name: 'Reject' }))
     expect(await screen.findByText('Join request rejected.')).toBeInTheDocument()
 
-    await user.selectOptions(screen.getByLabelText('Act as'), ids.student)
+    cleanup()
+    renderPage(service, ids.student)
     const photography = await screen.findByRole('heading', { name: 'Photography Group' })
     expect(within(organizationCard('AI Society')).getByRole('button', { name: 'Request to join again' })).toBeInTheDocument()
     await user.click(within(organizationCard('AI Society')).getByRole('button', { name: 'Request to join again' }))
@@ -173,8 +178,7 @@ describe('OrganizationMembershipPage', () => {
   it('US-08 lets an organization admin change a member role', async () => {
     const user = userEvent.setup()
     const { service, members } = createService()
-    renderPage(service)
-    await user.selectOptions(screen.getByLabelText('Act as'), ids.admin)
+    renderPage(service, ids.admin)
 
     const roleSelector = await screen.findByRole('combobox', { name: `Role for ${ids.member}` })
     await user.selectOptions(roleSelector, 'ORGANIZER')
@@ -185,8 +189,7 @@ describe('OrganizationMembershipPage', () => {
   it('US-09 lets an organization admin remove a member', async () => {
     const user = userEvent.setup()
     const { service, members } = createService()
-    renderPage(service)
-    await user.selectOptions(screen.getByLabelText('Act as'), ids.admin)
+    renderPage(service, ids.admin)
 
     const memberText = await screen.findByText(ids.member)
     const memberRow = memberText.closest('li')
@@ -199,9 +202,9 @@ describe('OrganizationMembershipPage', () => {
   it('US-10 lets a member leave without being an organization admin', async () => {
     const user = userEvent.setup()
     const { service, members } = createService()
-    renderPage(service)
-    await user.selectOptions(screen.getByLabelText('Act as'), ids.member)
+    renderPage(service, ids.member)
 
+    await screen.findByRole('heading', { name: 'Language Exchange' })
     const languageExchange = within(organizationCard('Language Exchange'))
     await user.click(languageExchange.getByRole('button', { name: 'Leave organization' }))
     expect(await screen.findByText('You left Language Exchange.')).toBeInTheDocument()

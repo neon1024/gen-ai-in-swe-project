@@ -6,11 +6,18 @@ import { organizationMembershipRoutes } from './features/organization-membership
 import { Toaster } from 'sonner'
 import { AuthProvider } from './features/authentication/context'
 import { RequireAuth } from './features/authentication/guards'
+import { AppShell } from './components/AppShell'
 
 function AppRoutes() {
   return useRoutes([
     ...authenticationRoutes,
-    { element: <RequireAuth />, children: [...eventLifecycleRoutes, ...organizationMembershipRoutes, ...eventAuthoringRoutes] },
+    {
+      element: <RequireAuth />,
+      children: [
+        ...eventLifecycleRoutes,
+        { element: <AppShell />, children: [...organizationMembershipRoutes, ...eventAuthoringRoutes] },
+      ],
+    },
   ])
 }
 
