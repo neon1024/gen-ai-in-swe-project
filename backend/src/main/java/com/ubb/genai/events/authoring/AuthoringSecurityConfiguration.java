@@ -13,7 +13,7 @@ import org.springframework.security.web.csrf.CsrfException;
 public class AuthoringSecurityConfiguration {
   @Bean
   @Order(1)
-  SecurityFilterChain authoringSecurity(HttpSecurity http) throws Exception {
+  SecurityFilterChain authoringSecurity(HttpSecurity http) {
     return http.securityMatcher("/api/event-authoring/**")
         .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
         .exceptionHandling(
@@ -33,8 +33,8 @@ public class AuthoringSecurityConfiguration {
   }
 
   @Bean
-  @Order(2147483647)
-  SecurityFilterChain baselineSecurity(HttpSecurity http) throws Exception {
+  @Order(2)
+  SecurityFilterChain baselineSecurity(HttpSecurity http) {
     return http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/**"))
         .authorizeHttpRequests(
             auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())

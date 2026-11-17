@@ -1,12 +1,13 @@
 package com.ubb.genai.auth.service;
 
+import com.ubb.genai.auth.domain.*;
 import com.ubb.genai.auth.domain.RegisterRequest;
-import com.ubb.genai.auth.domain.LoginRequest;
-import com.ubb.genai.auth.domain.LoginResponse;
 import com.ubb.genai.auth.domain.User;
 import com.ubb.genai.auth.domain.VerificationToken;
 import com.ubb.genai.auth.domain.exception.UsernameAlreadyExistsException;
 import com.ubb.genai.auth.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,20 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
-import org.springframework.security.authentication.BadCredentialsException;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final TokenService tokenService;
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService, TokenService tokenService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.emailService = emailService;
-        this.tokenService = tokenService;
-    }
 
     @Transactional
     public void register(RegisterRequest request) throws UsernameAlreadyExistsException {
@@ -52,8 +47,6 @@ public class AuthService {
 
         userRepository.save(user);
 
-        // TODO send email verification to change user status from PENDING to ACTIVE
-
         String token = tokenService.generateVerificationToken();
         VerificationToken verificationToken = new VerificationToken();
         verificationToken.setUser(user);
@@ -63,6 +56,50 @@ public class AuthService {
         tokenService.saveVerificationToken(verificationToken);
 
         emailService.sendVerificationEmail(email, token);
+    }
+
+    @Transactional
+    public void verifyEmail(String token) {
+        VerificationToken verificationToken = tokenService.findByToken(token);
+
+        if (verificationToken == null) {
+            throw new IllegalArgumentException("Invalid verification token");
+        }
+
+        if (verificationToken.getUsedAt() != null) {
+            throw new IllegalArgumentException("Verification token has already been used");
+        }
+
+        if (verificationToken.getExpiresAt().isBefore(Instant.now())) {
+            throw new IllegalArgumentException("Verification token has expired");
+        }
+
+        User user = verificationToken.getUser();
+        user.setStatus(UserStatus.ACTIVE);
+
+        verificationToken.setUsedAt(Instant.now());
+    }
+
+    @Transactional
+    public void resendVerificationEmail(String email) {
+        String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);
+
+        userRepository.findByEmailIgnoreCase(normalizedEmail)
+                .filter(user -> user.getStatus() == UserStatus.PENDING)
+                .ifPresent(user -> {
+                    tokenService.deleteVerificationTokensByUser(user.getId());
+
+                    String token = tokenService.generateVerificationToken();
+
+                    VerificationToken verificationToken = new VerificationToken();
+                    verificationToken.setUser(user);
+                    verificationToken.setTokenHash(tokenService.hashToken(token));
+                    verificationToken.setExpiresAt(Instant.now().plus(24, ChronoUnit.HOURS));
+
+                    tokenService.saveVerificationToken(verificationToken);
+
+                    emailService.sendVerificationEmail(normalizedEmail, token);
+                });
     }
 
     @Transactional(readOnly = true)
