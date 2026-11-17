@@ -35,7 +35,9 @@ public class AuthoringSecurityConfiguration {
   @Bean
   @Order(2147483647)
   SecurityFilterChain baselineSecurity(HttpSecurity http) throws Exception {
-    return http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+    return http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/**"))
+        .authorizeHttpRequests(
+            auth -> auth.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
         .formLogin(org.springframework.security.config.Customizer.withDefaults())
         .httpBasic(org.springframework.security.config.Customizer.withDefaults())
         .build();
