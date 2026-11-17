@@ -11,7 +11,7 @@ import { Label } from '../../../components/ui/label'
 import { useAuth } from '../context'
 
 export default function AuthPage() {
-  const isRegister = useLocation().pathname.endsWith('register')
+  const isRegister = ['/signup', '/auth/register'].includes(useLocation().pathname)
   const navigate = useNavigate()
   const { isAuthenticated, setUser } = useAuth()
   const [values, setValues] = useState({ email: '', password: '', username: '', displayName: '' })
