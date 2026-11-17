@@ -17,8 +17,9 @@ Record dated 2026-11-10. **Confirmed**: explicit evidence; **Inferred**: support
 | D-009 | jose03pedro uses Sol 6.1 Medium; DuarteLagoela uses Opus 5.5 Medium | Explicit user reply in this session, 2026-11-10 | Prepare separate prompts for actual assigned issues; still confirm model/effort per task |
 | D-010 | Commit and safely push one shared preparation baseline after checks | Phase 0.3 request and latest completion instruction | No force-push/history rewriting; baseline-branch fallback if protected; no implementation branches |
 | D-011 | Event Authoring follow-up decisions K-1–K-9 (cancelled activities read-only, Draft removal unguarded, registration guard request and lock order, migration range V2026111010–019, category precedence, frontend host adoption, canonical authoring model, authoring-scoped security, shared Flyway history) | Requesting student asked the agent to take all decisions, 2026-11-10 | Recorded in [contract section K](../integration/event-authoring-contract.md); K-3 and K-7 bind other owners and remain proposals until they accept |
+| D-012 | Local implementation of All16's US-06–US-10 membership slice using PostgreSQL, seeded demo data, the provisional identity header, and minimal event-team cleanup | Requesting student authorization, 2026-11-16; request to continue implementation, 2026-11-17 | Scoped in [ADR-009](ADR-009-organization-membership-demo-persistence.md); does not authorize production use of `X-User-Id`, changes outside US-06–US-10, commit, or push |
 
-The earlier phases had no architecture approval. This is superseded by the requesting student’s explicit Phase 0.2 Completion authorization below. Do not claim independent Duarte approval. No application functionality or dependency installation is authorized; a single Phase 0.3 baseline commit and safe push are authorized after validation.
+The earlier phases had no architecture approval. This is superseded by the requesting student’s explicit Phase 0.2 Completion authorization below. Do not claim independent Duarte approval. The Phase 0.3 implementation prohibition remains the baseline except for the requesting student's later, scoped D-012 authorization to implement issues #8–#12 locally. That exception does not authorize other application work, dependency installation, commit, or push.
 
 ## ADR register
 
@@ -34,6 +35,7 @@ All eight ADRs are **Accepted for the development baseline by the requesting stu
 | [ADR-006 — Automated testing strategy](ADR-006-testing-strategy.md) | Technical direction and stated guardrails | Accepted — requesting student; peer review pending |
 | [ADR-007 — Local infrastructure, CI and deployment](ADR-007-local-development-and-ci.md) | Technical direction and stated guardrails | Accepted — requesting student; peer review pending |
 | [ADR-008 — GenAI separation and independent student work](ADR-008-genai-boundaries.md) | Technical direction and stated guardrails | Accepted — requesting student; peer review pending |
+| [ADR-009 — Organization membership persistence and demo identity](ADR-009-organization-membership-demo-persistence.md) | Scoped persistence/demo identity boundary for US-06–US-10 | Accepted for local demonstration by All16; student review pending |
 
 ## Baseline versus execution blockers
 

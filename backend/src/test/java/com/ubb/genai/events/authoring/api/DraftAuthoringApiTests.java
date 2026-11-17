@@ -69,6 +69,7 @@ class DraftAuthoringApiTests {
     }
 
     @Bean
+    @org.springframework.context.annotation.Primary
     AuthoringIdentityPort identity(Fixture f) {
       return () -> {
         if (f.unavailable) throw AuthoringException.unavailable();
@@ -77,6 +78,7 @@ class DraftAuthoringApiTests {
     }
 
     @Bean
+    @org.springframework.context.annotation.Primary
     OrganizationAccessPort organization(Fixture f) {
       return (s, o) -> {
         f.organizationLookups++;
@@ -92,6 +94,7 @@ class DraftAuthoringApiTests {
     }
 
     @Bean
+    @org.springframework.context.annotation.Primary
     EventTeamAccessPort team(Fixture f) {
       return (s, e) ->
           f.teams.getOrDefault(new Fixture.TeamKey(s, e), EventTeamAccessPort.Role.NONE);

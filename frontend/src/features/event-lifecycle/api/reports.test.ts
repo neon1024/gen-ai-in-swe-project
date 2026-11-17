@@ -17,8 +17,8 @@ afterEach(() => {
 })
 
 describe('downloadReportCsv', () => {
-  it('US-50 fetches the CSV with the user header and saves it through an object URL', async () => {
-    localStorage.setItem('devUserId', 'user-7')
+  it('US-50 fetches the CSV with the session CSRF header and saves it through an object URL', async () => {
+    document.cookie = 'XSRF-TOKEN=csrf-7'
     const fetchMock = vi.fn().mockResolvedValue(new Response('a,b\n1,2\n', { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
@@ -30,7 +30,7 @@ describe('downloadReportCsv', () => {
 
     const [url, init] = fetchMock.mock.calls[0]
     expect(url).toBe(`/api/reports/events/${EVENT_ID}/csv`)
-    expect(new Headers(init.headers).get('X-User-Id')).toBe('user-7')
+    expect(new Headers(init.headers).get('X-XSRF-TOKEN')).toBe('csrf-7')
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1)
     expect(click).toHaveBeenCalledTimes(1)
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:report')

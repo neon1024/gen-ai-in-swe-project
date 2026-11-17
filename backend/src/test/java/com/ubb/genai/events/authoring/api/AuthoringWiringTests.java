@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
@@ -19,21 +20,53 @@ class AuthoringWiringTests {
   @Autowired MockMvc mvc;
 
   @Test
-  void unrelatedRoutesAreNotGovernedByAuthoringSecurity() throws Exception {
-    // K-8: the authoring chain neither locks nor opens routes owned by other modules.
-    mvc.perform(get("/no-such-route").accept("application/json")).andExpect(status().isNotFound());
+  void unrelatedRoutesRetainBaselineAuthentication() throws Exception {
+    mvc.perform(get("/api/lifecycle/events/00000000-0000-0000-0000-000000000000"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
   }
 
   @Test
-  void defaultIdentityDoesNotInferEligibilityFromSession() throws Exception {
+  void guestsCanDiscoverEvents() throws Exception {
+    mvc.perform(get("/api/discovery/events")).andExpect(status().isOk());
+  }
+
+  @Test
+  void sessionWithoutAnActiveAccountIsNotEligible() throws Exception {
     mvc.perform(
             post("/api/event-authoring/events")
                 .with(user("boot-user"))
                 .with(csrf())
                 .contentType("application/json")
                 .content(DraftAuthoringApiTests.BODY))
-        .andExpect(status().isServiceUnavailable())
-        .andExpect(jsonPath("$.code").value("DEPENDENCY_UNAVAILABLE"));
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
+  }
+
+  @Test
+  void loginSessionAuthorsDraftForItsOrganization() throws Exception {
+    MockHttpSession session =
+        (MockHttpSession)
+            mvc.perform(
+                    post("/api/auth/login")
+                        .contentType("application/json")
+                        .content(
+                            "{\"email\":\"organizer@example.invalid\",\"password\":\"DemoPass123!\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value("00000000-0000-4000-8000-000000000007"))
+                .andReturn()
+                .getRequest()
+                .getSession(false);
+    mvc.perform(
+            post("/api/event-authoring/events")
+                .session(session)
+                .with(csrf())
+                .contentType("application/json")
+                .content(
+                    "{\"title\":\"Workshop\",\"description\":\"Details\",\"category\":\"Workshop\","
+                        + "\"organizationRef\":\"10000000-0000-4000-8000-000000000001\"}"))
+        .andExpect(status().isCreated());
+    mvc.perform(get("/api/organizations").session(session)).andExpect(status().isOk());
   }
 
   @Test

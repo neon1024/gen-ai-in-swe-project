@@ -4,6 +4,10 @@ import { ApiError } from '../api/client'
 import { searchEvents } from '../api/discovery'
 import type { EventCategory, EventSearchResult } from '../api/types'
 import { CATEGORY_LABELS } from '../categories'
+import { Button } from '../../../components/ui/button'
+import { Input } from '../../../components/ui/input'
+import { Label } from '../../../components/ui/label'
+import { Card, CardContent } from '../../../components/ui/card'
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as EventCategory[]
 
@@ -88,28 +92,31 @@ export function EventSearchPage() {
     setSearchParams(next)
   }
 
-  const field = 'mt-1 block w-full rounded border border-gray-300 px-2 py-1'
-
   return (
-    <main className="mx-auto max-w-3xl p-4">
-      <h1 className="mb-4 text-2xl font-semibold">Events</h1>
-      <form onSubmit={submit} className="mb-6 grid gap-3 sm:grid-cols-2">
-        <label className="sm:col-span-2">
+    <main className="page">
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">Find your next room full of people</p>
+          <h1>Events</h1>
+          <p className="lede">Browse workshops, talks, and gatherings across campus.</p>
+        </div>
+      </div>
+      <form onSubmit={submit} className="search-form">
+        <Label className="search-keyword">
           Keyword
-          <input className={field} value={form.q} onChange={(e) => setForm({ ...form, q: e.target.value })} />
-        </label>
-        <label>
+          <Input value={form.q} onChange={(e) => setForm({ ...form, q: e.target.value })} placeholder="Try “design”, “music”, or “career”" />
+        </Label>
+        <Label>
           From
-          <input type="date" className={field} value={form.from} onChange={(e) => setForm({ ...form, from: e.target.value })} />
-        </label>
-        <label>
+          <Input type="date" value={form.from} onChange={(e) => setForm({ ...form, from: e.target.value })} />
+        </Label>
+        <Label>
           To
-          <input type="date" className={field} value={form.to} onChange={(e) => setForm({ ...form, to: e.target.value })} />
-        </label>
-        <label>
+          <Input type="date" value={form.to} onChange={(e) => setForm({ ...form, to: e.target.value })} />
+        </Label>
+        <Label>
           Organization
           <select
-            className={field}
             value={form.organizationId}
             onChange={(e) => setForm({ ...form, organizationId: e.target.value })}
           >
@@ -120,10 +127,10 @@ export function EventSearchPage() {
               </option>
             ))}
           </select>
-        </label>
-        <label>
+        </Label>
+        <Label>
           Category
-          <select className={field} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+          <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
             <option value="">All categories</option>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -131,27 +138,27 @@ export function EventSearchPage() {
               </option>
             ))}
           </select>
-        </label>
-        <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white sm:col-span-2">
+        </Label>
+        <Button type="submit" className="search-submit">
           Search
-        </button>
+        </Button>
       </form>
 
       {error && (
-        <p role="alert" className="rounded bg-red-100 p-3 text-red-800">
+        <p role="alert" className="notice error">
           {error}
         </p>
       )}
 
-      {!error && result && result.items.length === 0 && <p>No events match your search.</p>}
+      {!error && result && result.items.length === 0 && <Card className="empty"><CardContent><strong>No events match your search.</strong><p>Try a broader keyword or remove a filter.</p></CardContent></Card>}
 
       {!error && result && result.items.length > 0 && (
-        <ul className="space-y-3">
+        <ul className="event-results">
           {result.items.map((event) => (
-            <li key={event.id} className="rounded border border-gray-200 p-3">
-              <h2 className="text-lg font-medium">{event.title}</h2>
-              <p className="text-sm text-gray-600">{event.organizationName}</p>
-              <p className="text-sm">
+            <li key={event.id} className="event-result">
+              <h2>{event.title}</h2>
+              <p className="event-organization">{event.organizationName}</p>
+              <p className="event-meta">
                 <span>{CATEGORY_LABELS[event.category]}</span> · {event.nextActivityStartsAt === null ? (
                   formatStart(null)
                 ) : (
@@ -164,26 +171,26 @@ export function EventSearchPage() {
       )}
 
       {!error && result && result.items.length > 0 && (
-        <nav aria-label="Pagination" className="mt-4 flex items-center justify-between">
-          <button
+        <nav aria-label="Pagination" className="pagination">
+          <Button
             type="button"
             disabled={page <= 0}
             onClick={() => goToPage(page - 1)}
-            className="rounded border border-gray-400 px-3 py-1 disabled:opacity-50"
+            variant="outline"
           >
             Previous
-          </button>
-          <span className="text-sm">
+          </Button>
+          <span className="pagination-label">
             Page {page + 1} of {Math.max(1, Math.ceil(result.totalItems / result.size))}
           </span>
-          <button
+          <Button
             type="button"
             disabled={(page + 1) * result.size >= result.totalItems}
             onClick={() => goToPage(page + 1)}
-            className="rounded border border-gray-400 px-3 py-1 disabled:opacity-50"
+            variant="outline"
           >
             Next
-          </button>
+          </Button>
         </nav>
       )}
     </main>

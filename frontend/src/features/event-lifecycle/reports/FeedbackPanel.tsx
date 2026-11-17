@@ -28,40 +28,40 @@ export function FeedbackPanel({ activityId, title }: { activityId: string; title
   }, [activityId])
 
   return (
-    <section aria-label={`Feedback for ${title}`} className="p-3">
+    <section aria-label={`Feedback for ${title}`} className="feedback-panel">
       {error && (
-        <p role="alert" className="text-red-800">
+        <p role="alert" className="notice error">
           {error}
         </p>
       )}
       {summary && (
         <>
-          <p className="mb-2">
+          <p className="feedback-summary">
             {summary.averageRating === null
               ? 'No ratings yet.'
               : `Average rating: ${Number(summary.averageRating.toFixed(2))} (${summary.count} ${summary.count === 1 ? 'rating' : 'ratings'})`}
           </p>
-          <ul className="mb-3 space-y-1">
+          <ul className="feedback-distribution">
             {STARS.map((star) => {
               const count = summary.distribution[star] ?? 0
               const share = summary.count > 0 ? (count / summary.count) * 100 : 0
               return (
-                <li key={star} aria-label={`${star} ${star === 1 ? 'star' : 'stars'}`} className="flex items-center gap-2">
-                  <span className="w-16">{star} {star === 1 ? 'star' : 'stars'}</span>
-                  <span className="h-3 w-40 rounded bg-gray-200" aria-hidden="true">
-                    <span className="block h-3 rounded bg-blue-600" style={{ width: `${share}%` }} />
+                <li key={star} aria-label={`${star} ${star === 1 ? 'star' : 'stars'}`} className="feedback-bar-row">
+                  <span className="feedback-star">{star} {star === 1 ? 'star' : 'stars'}</span>
+                  <span className="feedback-bar" aria-hidden="true">
+                    <span className="feedback-bar-fill" style={{ width: `${share}%` }} />
                   </span>
                   <span>{count}</span>
                 </li>
               )
             })}
           </ul>
-          <ul className="space-y-1">
+          <ul className="feedback-comments">
             {summary.comments
               .filter((c) => c.comment)
               .map((c, index) => (
                 <li key={index}>
-                  <span className="mr-2 font-medium">{c.rating}/5</span>
+                  <span className="feedback-rating">{c.rating}/5</span>
                   {c.comment}
                 </li>
               ))}
