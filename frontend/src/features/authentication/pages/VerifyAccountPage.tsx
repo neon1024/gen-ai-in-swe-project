@@ -87,7 +87,7 @@ export default function VerifyAccountPage() {
                                     type="button"
                                     onClick={() => navigate('/login', { replace: true })}
                                 >
-                                    Continue to sign in
+                                    Continue
                                 </Button>
                             </>
                         ) : (
