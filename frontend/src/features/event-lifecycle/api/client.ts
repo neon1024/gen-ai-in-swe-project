@@ -58,8 +58,9 @@ export async function request(path: string, init: RequestInit = {}): Promise<Res
 
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await request(path, init)
-  if (response.status === 204) {
+  const body = await response.text()
+  if (!body) {
     return undefined as T
   }
-  return (await response.json()) as T
+  return JSON.parse(body) as T
 }
