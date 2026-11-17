@@ -1,9 +1,10 @@
 import { BrowserRouter, useRoutes } from 'react-router'
 import { eventLifecycleRoutes } from './features/event-lifecycle/routes'
+import { authenticationRoutes } from './features/authentication/routes'
 import { Toaster } from 'sonner'
 
 function AppRoutes() {
-  return useRoutes(eventLifecycleRoutes)
+  return useRoutes([...authenticationRoutes, ...eventLifecycleRoutes])
 }
 
 export default function App() {

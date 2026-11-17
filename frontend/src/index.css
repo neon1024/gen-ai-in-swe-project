@@ -337,6 +337,34 @@ h3 { font-size: 1.15rem; font-weight: 800; margin: 12px 0 8px; }
   .search-keyword, .search-submit { grid-column: span 2; }
 }
 
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background: var(--bg-canvas);
+}
+
+.auth-card {
+  width: min(100%, 28rem);
+}
+
+.form-stack {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.auth-switch {
+  margin: 1.25rem 0 0;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.auth-switch a {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
