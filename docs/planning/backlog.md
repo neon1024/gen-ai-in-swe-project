@@ -117,10 +117,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): All16; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
-- PR: Not recorded; PRs were not inspected/linked in this update.
-- Verification: Not verified for implementation; tests above are a future strategy.
+- Development status: Local implementation in progress; backend build and PostgreSQL verification are still pending. No remote state is inferred from this local work.
+- Branch: `feat/issue-8-all16-ask-to-join` (shared local slice branch).
+- PR: None created; branch was not pushed.
+- Verification: Frontend tests/build/lint pass; backend tests and database/API integration remain unverified.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 
@@ -134,10 +134,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): All16; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
-- PR: Not recorded; PRs were not inspected/linked in this update.
-- Verification: Not verified for implementation; tests above are a future strategy.
+- Development status: Local implementation in progress; backend build and PostgreSQL verification are still pending. No remote state is inferred from this local work.
+- Branch: `feat/issue-8-all16-ask-to-join` (shared local slice branch).
+- PR: None created; branch was not pushed.
+- Verification: Frontend tests/build/lint pass; backend tests and database/API integration remain unverified.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 
@@ -151,10 +151,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; positive/negative cases and persistence.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): All16; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
-- PR: Not recorded; PRs were not inspected/linked in this update.
-- Verification: Not verified for implementation; tests above are a future strategy.
+- Development status: Local implementation in progress; backend build and PostgreSQL verification are still pending. No remote state is inferred from this local work.
+- Branch: `feat/issue-8-all16-ask-to-join` (shared local slice branch).
+- PR: None created; branch was not pushed.
+- Verification: Frontend tests/build/lint pass; backend tests and database/API integration remain unverified.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 
@@ -168,10 +168,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; last admin and Owner of an active event.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): All16; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
-- PR: Not recorded; PRs were not inspected/linked in this update.
-- Verification: Not verified for implementation; tests above are a future strategy.
+- Development status: Local implementation in progress; backend build and PostgreSQL verification are still pending. No remote state is inferred from this local work.
+- Branch: `feat/issue-8-all16-ask-to-join` (shared local slice branch).
+- PR: None created; branch was not pushed.
+- Verification: Frontend tests/build/lint pass; backend tests and database/API integration remain unverified.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 
@@ -185,10 +185,10 @@ Global dependency: P-04 and P-05 (slice design/contract), approval and applicabl
 - Tests: automate every story criterion; API/UI integration and permission denial; last admin and Owner of an active event.
 - Initial status: Phase 0 (historical), not implemented; unassigned at the initial query.
 - Human owner (GitHub Phase 0.1): All16; model does not determine ownership.
-- Development status: Open on GitHub; development status not confirmed. Technical design awaits approval; do not claim active or completed work without evidence.
-- Branch: Not recorded; confirm a dedicated branch before implementation.
-- PR: Not recorded; PRs were not inspected/linked in this update.
-- Verification: Not verified for implementation; tests above are a future strategy.
+- Development status: Local implementation in progress; backend build and PostgreSQL verification are still pending. No remote state is inferred from this local work.
+- Branch: `feat/issue-8-all16-ask-to-join` (shared local slice branch).
+- PR: None created; branch was not pushed.
+- Verification: Frontend tests/build/lint pass; backend tests and database/API integration remain unverified.
 - Human review: Pending student review.
 - Shared scope: API/data/authorization contracts and configuration require agreement; compare planned files with active issues/PRs before parallel work.
 

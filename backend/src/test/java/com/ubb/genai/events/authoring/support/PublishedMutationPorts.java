@@ -108,11 +108,13 @@ public class PublishedMutationPorts {
   }
 
   @Bean
+  @org.springframework.context.annotation.Primary
   OrganizationAccessPort organizations(Probe p) {
     return (s, o) -> p.organization;
   }
 
   @Bean
+  @org.springframework.context.annotation.Primary
   EventTeamAccessPort team(Probe p) {
     return (s, e) -> p.team;
   }

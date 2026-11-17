@@ -77,6 +77,7 @@ class DraftAuthoringApiTests {
     }
 
     @Bean
+    @org.springframework.context.annotation.Primary
     OrganizationAccessPort organization(Fixture f) {
       return (s, o) -> {
         f.organizationLookups++;
@@ -92,6 +93,7 @@ class DraftAuthoringApiTests {
     }
 
     @Bean
+    @org.springframework.context.annotation.Primary
     EventTeamAccessPort team(Fixture f) {
       return (s, e) ->
           f.teams.getOrDefault(new Fixture.TeamKey(s, e), EventTeamAccessPort.Role.NONE);
