@@ -1,16 +1,19 @@
 package com.ubb.genai.auth.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
     private final RestClient resendRestClient;
-    public EmailService(RestClient resendRestClient) { this.resendRestClient = resendRestClient; }
 
     @Value("${resend.from-email}")
     private String fromEmail;
@@ -25,7 +28,9 @@ public class EmailService {
         if (apiKey.isBlank() || fromEmail.isBlank()) {
             return;
         }
-        String verificationUrl = baseUrl + "/verify-email?token=" + token;
+
+        String verificationUrl = baseUrl + "/verify-email?token="
+                + URLEncoder.encode(token, StandardCharsets.UTF_8);
 
         String emailBody = """
                 <h2>Welcome!</h2>

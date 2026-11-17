@@ -1,12 +1,18 @@
 package com.ubb.genai.auth.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @Table(name = "verification_tokens")
+@Getter
+@Setter
+@NoArgsConstructor
 public class VerificationToken {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,10 +27,6 @@ public class VerificationToken {
 
     @Column(nullable = false)
     private Instant expiresAt;
-    public VerificationToken() {}
-    public void setUser(User user) { this.user = user; }
-    public void setTokenHash(String tokenHash) { this.tokenHash = tokenHash; }
-    public void setExpiresAt(Instant expiresAt) { this.expiresAt = expiresAt; }
 
     private Instant usedAt;
 }

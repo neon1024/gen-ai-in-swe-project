@@ -30,7 +30,9 @@ export default function AuthPage() {
       if (isRegister) {
         await register(values)
         toast.success('Account created. You can now sign in.')
-        navigate('/login')
+        navigate('/check-email', {
+          state: { email: values.email }
+        })
       } else {
         const session = await login(values.email, values.password)
         setUser(session)

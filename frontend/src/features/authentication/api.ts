@@ -1,4 +1,4 @@
-import { apiFetch } from '../event-lifecycle/api/client'
+import {apiFetch} from '../event-lifecycle/api/client'
 
 export type LoginResponse = {
   userId: string
@@ -18,6 +18,24 @@ export function register(values: {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(values),
+  })
+}
+
+export async function verifyEmail(token: string): Promise<void> {
+  await apiFetch<void>('/api/auth/verification/confirm', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token }),
+  })
+}
+
+export function resendVerificationEmail(email: string) {
+  return apiFetch<void>('/api/auth/verification/resend', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
   })
 }
 
