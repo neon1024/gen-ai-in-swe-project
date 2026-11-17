@@ -27,11 +27,16 @@ export async function request(path: string, init: RequestInit = {}): Promise<Res
   if (devUserId) {
     headers.set('X-User-Id', devUserId)
   }
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    credentials: 'include',
-    headers,
-  })
+  let response: Response
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      credentials: 'include',
+      headers,
+    })
+  } catch {
+    throw new ApiError(0, 'NETWORK_ERROR', 'The backend is not reachable. Start Spring Boot on http://localhost:8080 and try again.')
+  }
   if (response.status === 401) {
     window.dispatchEvent(new Event('auth:unauthorized'))
   }

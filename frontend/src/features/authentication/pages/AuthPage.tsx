@@ -11,7 +11,7 @@ import { Label } from '../../../components/ui/label'
 import { useAuth } from '../context'
 
 export default function AuthPage() {
-  const isRegister = ['/signup', '/auth/register'].includes(useLocation().pathname)
+  const isRegister = useLocation().pathname === '/signup'
   const navigate = useNavigate()
   const { isAuthenticated, setUser } = useAuth()
   const [values, setValues] = useState({ email: '', password: '', username: '', displayName: '' })
@@ -30,7 +30,7 @@ export default function AuthPage() {
       if (isRegister) {
         await register(values)
         toast.success('Account created. You can now sign in.')
-        navigate('/auth/login')
+        navigate('/login')
       } else {
         const session = await login(values.email, values.password)
         setUser(session)
@@ -66,7 +66,7 @@ export default function AuthPage() {
           </form>
           <p className="auth-switch">
             {isRegister ? 'Already have an account?' : 'New to UBB Events?'}{' '}
-            <Link to={isRegister ? '/auth/login' : '/auth/register'}>{isRegister ? 'Sign in' : 'Create one'}</Link>
+            <Link to={isRegister ? '/login' : '/signup'}>{isRegister ? 'Sign in' : 'Create one'}</Link>
           </p>
         </CardContent>
       </Card>

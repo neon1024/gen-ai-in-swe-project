@@ -4,6 +4,7 @@ import com.ubb.genai.auth.domain.LoginRequest;
 import com.ubb.genai.auth.domain.LoginResponse;
 import com.ubb.genai.auth.domain.RegisterRequest;
 import com.ubb.genai.auth.service.AuthService;
+import com.ubb.genai.auth.domain.exception.UsernameAlreadyExistsException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,14 @@ public class AuthController {
     public AuthController(AuthService authService) { this.authService = authService; }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequest request) throws Exception {
-        authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest request) {
+        try {
+            authService.register(request);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (UsernameAlreadyExistsException exception) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(java.util.Map.of("code", "USERNAME_ALREADY_EXISTS", "detail", "That username is already in use."));
+        }
     }
 
     @PostMapping("/login")
