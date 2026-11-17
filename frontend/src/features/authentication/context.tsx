@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import type { LoginResponse } from './api'
+import { logout as logoutRequest } from './api'
 
 const SESSION_KEY = 'ubb.events.session'
 
@@ -39,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(() => {
+    void logoutRequest().catch(() => undefined)
     localStorage.removeItem(SESSION_KEY)
     localStorage.removeItem('devUserId')
     setUserState(null)

@@ -28,3 +28,7 @@ export function login(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   })
 }
+
+export function logout() {
+  return apiFetch<void>('/api/auth/logout', { method: 'POST' })
+}
