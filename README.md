@@ -19,7 +19,7 @@ Requirements: Java 21, Node.js 22 and Docker. From this root:
 
 | Goal | Command |
 |---|---|
-| Develop: PostgreSQL in Docker, backend and Vite dev server (http://localhost:5173) | `scripts/run-app.sh` (`--reset` wipes the local database) |
+| Develop: PostgreSQL and Mailpit in Docker, backend and Vite dev server (http://localhost:5173); emails land in http://localhost:8025 | `scripts/run-app.sh` (`--reset` wipes the local database and inbox) |
 | Run the CI checks locally (backend `verify`, frontend lint, test and build) | `scripts/ci.sh` (`--images` also builds the Docker images) |
 | Run the production images (http://localhost:8081) | `docker compose up --build` |
 | Same, with the local demo accounts | `APP_FLYWAY_DEMO_LOCATION=",classpath:db/demo" docker compose up --build` |
