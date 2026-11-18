@@ -30,6 +30,7 @@ class AuthoringWiringTests {
   @Test
   void guestsCanDiscoverEvents() throws Exception {
     mvc.perform(get("/api/discovery/events")).andExpect(status().isOk());
+    mvc.perform(get("/actuator/health")).andExpect(status().isOk());
   }
 
   @Test
