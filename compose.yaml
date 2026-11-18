@@ -1,0 +1,41 @@
+# Full stack from the same images CI publishes: docker compose up --build, then http://localhost:8081
+# Local demo accounts: APP_FLYWAY_DEMO_LOCATION=",classpath:db/demo" docker compose up --build
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ubb_events
+      POSTGRES_USER: ubb
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-ubb-local-dev}  # local default, not a secret
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ubb", "-d", "ubb_events"]
+      interval: 2s
+      retries: 30
+
+  backend:
+    build: backend
+    image: ubb-events-backend
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/ubb_events
+      DB_USERNAME: ubb
+      DB_PASSWORD: ${DB_PASSWORD:-ubb-local-dev}
+      APP_FLYWAY_DEMO_LOCATION: ${APP_FLYWAY_DEMO_LOCATION:-}
+      FRONTEND_URL: http://localhost:${WEB_PORT:-8081}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: frontend
+    image: ubb-events-frontend
+    ports:
+      - "${WEB_PORT:-8081}:80"
+    depends_on:
+      - backend
+
+volumes:
+  db-data:

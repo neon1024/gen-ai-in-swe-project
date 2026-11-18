@@ -2,7 +2,7 @@
 
 Event management platform for student organizations at Babeș-Bolyai University (UBB), developed for the GenAI in Software Engineering project.
 
-This Git root is the only development root. Status on 2026-11-10: product requirements approved by the team, user research pending, and an initial backend with `GET /` returning `Hello`. Product workflows are not implemented.
+This Git root is the only development root. Status on 2026-11-18: accounts, organization membership, event authoring, discovery, lifecycle, feedback and reports are integrated (Spring Boot API + React SPA + PostgreSQL); participant registration and organization registration are not implemented yet. User research is pending. See the [mid-term demo script](docs/demo/mid-term-demo.md).
 
 - [Agent instructions](AGENTS.md), [student/agent collaboration](docs/planning/collaborative-development.md) and [primary GenAI usage log](docs/genai_usage_log.md)
 - [Existing requirements](docs/requirements/README.md) and [academic and technical supplement](docs/requirements/overview.md)
@@ -13,17 +13,18 @@ This Git root is the only development root. Status on 2026-11-10: product requir
 - [Phase 0 audit and validation](docs/planning/phase-0-audit.md)
 - [Preserved academic sources](docs/sources/README.md)
 
-## Existing backend
+## Run, test and deploy
 
-Declared stack: Java 21, Spring Boot 4.1.1, Maven 3.9.16 through the wrapper. From this root:
+Requirements: Java 21, Node.js 22 and Docker. From this root:
 
-```bash
-rtk proxy bash backend/mvnw -f backend/pom.xml test
-rtk proxy bash backend/mvnw -f backend/pom.xml verify
-rtk proxy bash backend/mvnw -f backend/pom.xml spring-boot:run
-```
+| Goal | Command |
+|---|---|
+| Develop: PostgreSQL in Docker, backend and Vite dev server (http://localhost:5173) | `scripts/run-app.sh` (`--reset` wipes the local database) |
+| Run the CI checks locally (backend `verify`, frontend lint, test and build) | `scripts/ci.sh` (`--images` also builds the Docker images) |
+| Run the production images (http://localhost:8081) | `docker compose up --build` |
+| Same, with the local demo accounts | `APP_FLYWAY_DEMO_LOCATION=",classpath:db/demo" docker compose up --build` |
 
-These commands were identified in existing files; execution has not been validated during this preparation. The wrapper may download tools/dependencies. Frontend, database, pipeline, lint and deployment are not configured. The requesting student authorized the technical direction in ADR-001–008; independent peer review and detailed slice approval remain required before implementation. Selected frontend/database/security tools are not installed by this documentation baseline. All repository artifacts must be in English; direct conversation with students may use European Portuguese.
+GitHub Actions ([`ci-cd.yml`](.github/workflows/ci-cd.yml)) runs the same checks on every pull request and push. After both pass on `main`, it publishes `ghcr.io/neon1024/gen-ai-in-swe-project-backend` and `-frontend` (tags `latest` and the commit SHA). In the frontend image, nginx serves the SPA and proxies `/api` to the backend, so the session cookie and CSRF token stay same-origin. Configure the backend with `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `FRONTEND_URL` and, for verification emails, `RESEND_API_KEY`/`RESEND_FROM_EMAIL`. Never set `APP_FLYWAY_DEMO_LOCATION` outside local development.
 
 ## Collaborative kickoff
 

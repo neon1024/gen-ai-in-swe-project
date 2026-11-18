@@ -19,7 +19,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 /**
  * Session security for the SPA API: cookie CSRF token echoed as X-XSRF-TOKEN and JSON 401/403
  * bodies. Authoring routes keep their own chain (decision K-8); every other non-auth route uses
- * the baseline chain, where only event discovery is open to guests.
+ * the baseline chain, where only event discovery and the health check are open to guests.
  */
 @Configuration(proxyBeanMethods = false)
 public class AuthoringSecurityConfiguration {
@@ -39,6 +39,7 @@ public class AuthoringSecurityConfiguration {
             auth ->
                 auth.requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/discovery/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                     .anyRequest().authenticated())
         .build();
   }
