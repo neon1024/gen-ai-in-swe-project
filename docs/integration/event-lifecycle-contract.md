@@ -67,7 +67,7 @@ Ports live in `shared.port`. Unimplemented ports retain their `@Component` stubs
 
 | Port | Method | Semantics | Owning share | Implementation |
 |---|---|---|---|---|
-| `CurrentUserProvider` | `Optional<UUID> currentUserId()` | Caller of the current request; empty for a guest. | neon1024 | `HeaderCurrentUserProvider`: reads `X-User-Id` through `RequestContextHolder`; empty when missing or not a UUID. This remains a provisional, impersonable demo seam, not authentication. |
+| `CurrentUserProvider` | `Optional<UUID> currentUserId()` | Caller of the current request; empty for a guest. | neon1024 | `SessionCurrentUserProvider` (auth module): the user id stored in the server session at login; empty for a guest. Replaced the `X-User-Id` header stub in PR #64. |
 | `OrganizationDirectory` | `boolean isMember(orgId, userId)` | User belongs to the organization. | All16 | `JpaLifecycleOrganizationDirectory`: PostgreSQL membership lookup. |
 | | `boolean isOrgAdmin(orgId, userId)` | User is an Org Admin of the organization. | All16 | `JpaLifecycleOrganizationDirectory`: role lookup. |
 | | `Optional<String> organizationName(orgId)` | Display name of the organization. | All16 | `JpaLifecycleOrganizationDirectory`: active organization lookup. |
@@ -336,7 +336,7 @@ Folder `frontend/` (React, TypeScript, Vite, React Router 7, Tailwind CSS; tests
 
 | Item | Provisional (this share) | Replaced by |
 |---|---|---|
-| Stub `HeaderCurrentUserProvider` | `CurrentUserProvider`, reads `X-User-Id` | Real authentication bean (neon1024); remove the stub class and the frontend `devUserId` header. |
+| ~~Stub `HeaderCurrentUserProvider`~~ | `CurrentUserProvider`, reads `X-User-Id` | Done in PR #64: replaced by `SessionCurrentUserProvider`; the stub class and the frontend `devUserId` header are removed. |
 | Stub `StubOrganizationDirectory` | `OrganizationDirectory` | Organization-membership bean (All16): membership, Org Admin, name, case-insensitive name search. |
 | Stub `StubEventTeamDirectory` | `EventTeamDirectory` | Event-team bean (All16): `OWNER`, `EDITOR`, `STAFF` roles. |
 | Stub `StubPrivateActivityInvitations` | `PrivateActivityInvitations` | Invitation bean (jose03pedro). |

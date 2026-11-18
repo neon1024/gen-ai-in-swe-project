@@ -1,13 +1,12 @@
 import { NavLink, Outlet } from 'react-router'
-import { CalendarDays, Compass, Inbox, PlusCircle, Sparkles, Users } from 'lucide-react'
+import { Compass, PlusCircle, Sparkles, Users } from 'lucide-react'
 import { Separator } from './ui/separator'
 import { Button } from './ui/button'
 import { useAuth } from '../features/authentication/context'
 
 const links = [
   { to: '/events', label: 'Discover', icon: Compass },
-  { to: '/my-activities', label: 'My activities', icon: CalendarDays },
-  { to: '/notifications', label: 'Notifications', icon: Inbox },
+  // shortcut: My activities and Notifications are hidden until the registration backend (US-27–US-31) exists.
   { to: '/organizations', label: 'Organizations', icon: Users },
   { to: '/authoring/events/new', label: 'New event', icon: PlusCircle },
 ]

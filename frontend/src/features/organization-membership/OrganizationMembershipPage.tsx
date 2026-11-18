@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router'
 import { useAuth } from '../authentication/context'
 import {
   organizationMembershipApi,
@@ -134,11 +133,6 @@ export function OrganizationMembershipPage({
 
   return (
     <main className="mx-auto max-w-5xl p-4">
-      <nav className="mb-5 text-sm">
-        <Link className="text-blue-700 underline" to="/events">
-          Events
-        </Link>
-      </nav>
       <header className="mb-6">
         <p className="text-sm font-medium uppercase tracking-wide text-gray-600">Organization membership</p>
         <h1 className="mt-1 text-2xl font-semibold">Organizations</h1>

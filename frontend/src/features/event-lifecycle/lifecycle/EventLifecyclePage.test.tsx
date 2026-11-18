@@ -93,6 +93,14 @@ describe('EventLifecyclePage', () => {
     expect(screen.queryByRole('button', { name: 'Cancel activity' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Cancel event' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Delete draft' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Edit event' })).not.toBeInTheDocument()
+  })
+
+  it('links owners to the editor and the report', async () => {
+    fetchMock.mockImplementation(() => jsonResponse(view()))
+    renderPage()
+    expect(await screen.findByRole('link', { name: 'Edit event' })).toHaveAttribute('href', expect.stringContaining('/authoring/events/'))
+    expect(screen.getByRole('link', { name: 'Report' })).toHaveAttribute('href', expect.stringMatching(/\/report$/))
   })
 
   it('US-21 cancelling the event shows the cancelled read-only state', async () => {

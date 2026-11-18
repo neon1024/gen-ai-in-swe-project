@@ -1,5 +1,5 @@
 -- Local demonstration accounts for the seeded organization identities (ADR-009); all use the
--- password DemoPass123!. Not for deployment.
+-- password DemoPass123!. Loaded only when app.flyway.demo-location points here (run-app.sh, tests).
 INSERT INTO users (id, email, password_hash, username, display_name, status) VALUES
     ('00000000-0000-4000-8000-000000000001', 'applicant@example.invalid', '$argon2id$v=19$m=15360,t=2,p=1$46B7pu2sLXHAtmJ39QiP0LFPLAbG/UoiCm/i1yncvOc0/NTw5ZK2VP7nuFL83axXwMD+ooNNAoIaTnOBa2r23Q$VtWzIg98/2+NrJwc0byoqePwtRUjjQT7XBWoDVJBUSs', 'applicant', 'Demo Applicant', 'ACTIVE'),
     ('00000000-0000-4000-8000-000000000002', 'ai.admin@example.invalid', '$argon2id$v=19$m=15360,t=2,p=1$46B7pu2sLXHAtmJ39QiP0LFPLAbG/UoiCm/i1yncvOc0/NTw5ZK2VP7nuFL83axXwMD+ooNNAoIaTnOBa2r23Q$VtWzIg98/2+NrJwc0byoqePwtRUjjQT7XBWoDVJBUSs', 'ai_admin', 'AI Society Admin', 'ACTIVE'),

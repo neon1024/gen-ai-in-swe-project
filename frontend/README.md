@@ -24,6 +24,5 @@ npm run lint
 npm run test
 ```
 
-Authentication is supplied by the backend session. During development, the
-shared API client also forwards `localStorage.devUserId` as `X-User-Id` for the
-existing development adapter.
+Authentication is supplied by the backend session cookie. API clients echo the
+`XSRF-TOKEN` cookie as the `X-XSRF-TOKEN` header on every request.

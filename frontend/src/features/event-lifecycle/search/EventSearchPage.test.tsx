@@ -79,6 +79,12 @@ describe('EventSearchPage', () => {
     expect(within(items[1]).getByText('Workshop')).toBeInTheDocument()
   })
 
+  it('US-24 links each result to its event page', async () => {
+    renderPage()
+    const link = await screen.findByRole('link', { name: 'Chess night' })
+    expect(link).toHaveAttribute('href', '/events/0d5c4a52-6a0e-4a38-9f3e-2f0f1c8a7b11/lifecycle')
+  })
+
   it('US-24 shows the empty state when nothing matches', async () => {
     fetchMock.mockImplementation(() => jsonResponse({ ...RESULT, items: [], totalItems: 0 }))
     renderPage()
