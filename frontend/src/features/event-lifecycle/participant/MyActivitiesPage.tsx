@@ -6,6 +6,7 @@ import type { SignupStatus, SignupSummary } from '../api/types'
 import { Tabs, TabsList, TabsTrigger } from '../../../components/ui/tabs'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { Badge } from '../../../components/ui/badge'
+import { useConfirm } from '../../../components/ui/use-confirm'
 
 const statusLabels: Record<SignupStatus, string> = {
   CONFIRMED: 'Confirmed',
@@ -23,6 +24,7 @@ export function MyActivitiesPage() {
   const [error, setError] = useState<string | null>(null)
   const [cancelling, setCancelling] = useState<string | null>(null)
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming')
+  const { confirm, dialog } = useConfirm()
   const [now] = useState(Date.now)
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export function MyActivitiesPage() {
   }, [now, signups, tab])
 
   async function cancel(signup: SignupSummary) {
-    if (!window.confirm(`Leave ${signup.activityTitle}?`)) return
+    if (!(await confirm({ title: 'Leave activity?', message: `Leave ${signup.activityTitle}? Your place may go to someone on the waitlist.`, confirmLabel: 'Leave activity', cancelLabel: 'Stay', destructive: true }))) return
     setCancelling(signup.id)
     try {
       await cancelSignup(signup.id)
@@ -70,6 +72,7 @@ export function MyActivitiesPage() {
           </article>
         ))}
       </div>
+      {dialog}
     </main>
   )
 }

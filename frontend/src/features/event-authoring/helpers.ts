@@ -31,3 +31,14 @@ export function toLocalInput(iso: string | null): string {
 export function fromLocalInput(v: string): string | null {
   return v ? new Date(v).toISOString() : null
 }
+
+/** Local datetime-input value shifted by some minutes. */
+export function addMinutes(local: string, minutes: number): string {
+  return toLocalInput(new Date(new Date(local).getTime() + minutes * 60000).toISOString())
+}
+
+/** The current local time rounded up to the next quarter hour, as a datetime-input value. */
+export function nextQuarterHour(now: Date = new Date()): string {
+  const quarter = 15 * 60000
+  return toLocalInput(new Date(Math.ceil(now.getTime() / quarter) * quarter).toISOString())
+}

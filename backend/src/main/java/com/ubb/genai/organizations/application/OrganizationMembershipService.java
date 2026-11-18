@@ -18,6 +18,7 @@ import com.ubb.genai.organizations.persistence.OrganizationRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class OrganizationMembershipService {
     private final JoinRequestRepository requests;
     private final EventTeamMembershipRepository eventTeamMemberships;
     private final ActiveEventOwnerRepository activeEventOwners;
+    private final UserDirectory users;
     private final CurrentUserProvider currentUser;
     private final Clock clock;
 
@@ -40,6 +42,7 @@ public class OrganizationMembershipService {
             EventTeamMembershipRepository eventTeamMemberships,
             ActiveEventOwnerRepository activeEventOwners,
             CurrentUserProvider currentUser,
+            UserDirectory users,
             Clock clock) {
         this.organizations = organizations;
         this.memberships = memberships;
@@ -47,6 +50,7 @@ public class OrganizationMembershipService {
         this.eventTeamMemberships = eventTeamMemberships;
         this.activeEventOwners = activeEventOwners;
         this.currentUser = currentUser;
+        this.users = users;
         this.clock = clock;
     }
 
@@ -71,7 +75,7 @@ public class OrganizationMembershipService {
         }
         Instant now = clock.instant();
         JoinRequestEntity request = requests.save(new JoinRequestEntity(organization.id(), actor, now));
-        return new JoinRequestView(request.id(), request.applicantId(), request.createdAt());
+        return joinRequestView(request, users.displayNames(List.of(actor)));
     }
 
     @Transactional
@@ -87,11 +91,10 @@ public class OrganizationMembershipService {
     @Transactional(readOnly = true)
     public List<JoinRequestView> listPendingRequests(UUID organizationId) {
         requireAdminForRead(organizationId);
-        return requests.findAllByOrganizationIdAndStatusOrderByCreatedAtAscIdAsc(
-                        organizationId, JoinRequestStatus.PENDING)
-                .stream()
-                .map(request -> new JoinRequestView(request.id(), request.applicantId(), request.createdAt()))
-                .toList();
+        List<JoinRequestEntity> pending = requests.findAllByOrganizationIdAndStatusOrderByCreatedAtAscIdAsc(
+                organizationId, JoinRequestStatus.PENDING);
+        Map<UUID, String> names = users.displayNames(pending.stream().map(JoinRequestEntity::applicantId).toList());
+        return pending.stream().map(request -> joinRequestView(request, names)).toList();
     }
 
     @Transactional
@@ -117,9 +120,9 @@ public class OrganizationMembershipService {
     @Transactional(readOnly = true)
     public List<MemberView> listMembers(UUID organizationId) {
         requireAdminForRead(organizationId);
-        return memberships.findAllByOrganizationIdOrderByCreatedAtAsc(organizationId).stream()
-                .map(member -> memberView(organizationId, member))
-                .toList();
+        List<OrganizationMembershipEntity> members = memberships.findAllByOrganizationIdOrderByCreatedAtAsc(organizationId);
+        Map<UUID, String> names = users.displayNames(members.stream().map(OrganizationMembershipEntity::userId).toList());
+        return members.stream().map(member -> memberView(organizationId, member, names)).toList();
     }
 
     @Transactional
@@ -133,7 +136,7 @@ public class OrganizationMembershipService {
             throw conflict("LAST_ORG_ADMIN", "The last organization administrator cannot be demoted.");
         }
         member.changeRole(newRole);
-        return memberView(organizationId, member);
+        return memberView(organizationId, member, users.displayNames(List.of(userId)));
     }
 
     @Transactional
@@ -182,9 +185,15 @@ public class OrganizationMembershipService {
                 status);
     }
 
-    private MemberView memberView(UUID organizationId, OrganizationMembershipEntity member) {
+    private static JoinRequestView joinRequestView(JoinRequestEntity request, Map<UUID, String> names) {
+        return new JoinRequestView(
+                request.id(), request.applicantId(), names.get(request.applicantId()), request.createdAt());
+    }
+
+    private MemberView memberView(UUID organizationId, OrganizationMembershipEntity member, Map<UUID, String> names) {
         return new MemberView(
                 member.userId(),
+                names.get(member.userId()),
                 member.role(),
                 eventTeamMemberships.countByOrganizationIdAndUserId(organizationId, member.userId()),
                 activeEventOwners.hasActiveOwnedEvents(organizationId, member.userId()));

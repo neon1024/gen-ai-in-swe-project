@@ -87,8 +87,15 @@ describe('EventSearchPage', () => {
 
   it('US-24 shows the empty state when nothing matches', async () => {
     fetchMock.mockImplementation(() => jsonResponse({ ...RESULT, items: [], totalItems: 0 }))
-    renderPage()
+    renderPage('/events?q=chess')
     expect(await screen.findByText('No events match your search.')).toBeInTheDocument()
+  })
+
+  it('US-24 lists upcoming events without a search and says when there are none', async () => {
+    fetchMock.mockImplementation(() => jsonResponse({ ...RESULT, items: [], totalItems: 0 }))
+    renderPage()
+    expect(await screen.findByText('No upcoming events yet.')).toBeInTheDocument()
+    expect(screen.queryByText('No events match your search.')).not.toBeInTheDocument()
   })
 
   it('US-24 sends the trimmed keyword as q', async () => {

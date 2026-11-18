@@ -25,6 +25,8 @@ import com.ubb.genai.organizations.persistence.OrganizationRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +45,7 @@ class OrganizationMembershipServiceTest {
     private final EventTeamMembershipRepository eventTeamMemberships = mock(EventTeamMembershipRepository.class);
     private final ActiveEventOwnerRepository activeEventOwners = mock(ActiveEventOwnerRepository.class);
     private final CurrentUserProvider currentUser = mock(CurrentUserProvider.class);
+    private final UserDirectory users = mock(UserDirectory.class);
     private final OrganizationEntity organization = new OrganizationEntity(
             ORGANIZATION_ID, "AI Society", "AI projects.", "ai-society@example.invalid");
     private OrganizationMembershipService service;
@@ -56,6 +59,7 @@ class OrganizationMembershipServiceTest {
                 eventTeamMemberships,
                 activeEventOwners,
                 currentUser,
+                users,
                 Clock.fixed(NOW, ZoneOffset.UTC));
         when(organizations.findActiveForUpdate(ORGANIZATION_ID)).thenReturn(Optional.of(organization));
     }
@@ -200,5 +204,39 @@ class OrganizationMembershipServiceTest {
         OrganizationProblem lastAdmin = assertThrows(
                 OrganizationProblem.class, () -> service.leaveOrganization(ORGANIZATION_ID));
         assertEquals("LAST_ORG_ADMIN", lastAdmin.code());
+    }
+
+    @Test
+    void US08_membersAreListedWithDisplayNames() {
+        actAsAdmin();
+        when(memberships.findAllByOrganizationIdOrderByCreatedAtAsc(ORGANIZATION_ID)).thenReturn(List.of(
+                new OrganizationMembershipEntity(ORGANIZATION_ID, ADMIN_ID, OrganizationRole.ORG_ADMIN, NOW),
+                new OrganizationMembershipEntity(ORGANIZATION_ID, MEMBER_ID, OrganizationRole.MEMBER, NOW)));
+        when(users.displayNames(any())).thenReturn(Map.of(ADMIN_ID, "AI Society Admin", MEMBER_ID, "Demo Organizer"));
+
+        var members = service.listMembers(ORGANIZATION_ID);
+
+        assertEquals("AI Society Admin", members.get(0).displayName());
+        assertEquals("Demo Organizer", members.get(1).displayName());
+    }
+
+    @Test
+    void US07_pendingRequestsShowTheApplicantsDisplayName() {
+        actAsAdmin();
+        UUID applicantId = UUID.fromString("00000000-0000-4000-8000-000000000001");
+        when(requests.findAllByOrganizationIdAndStatusOrderByCreatedAtAscIdAsc(ORGANIZATION_ID, JoinRequestStatus.PENDING))
+                .thenReturn(List.of(new JoinRequestEntity(ORGANIZATION_ID, applicantId, NOW)));
+        when(users.displayNames(any())).thenReturn(Map.of(applicantId, "Demo Applicant"));
+
+        var pending = service.listPendingRequests(ORGANIZATION_ID);
+
+        assertEquals("Demo Applicant", pending.get(0).applicantName());
+    }
+
+    private void actAsAdmin() {
+        when(currentUser.currentUserId()).thenReturn(Optional.of(ADMIN_ID));
+        when(organizations.findByIdAndActiveTrue(ORGANIZATION_ID)).thenReturn(Optional.of(organization));
+        when(memberships.findByOrganizationIdAndUserId(ORGANIZATION_ID, ADMIN_ID)).thenReturn(Optional.of(
+                new OrganizationMembershipEntity(ORGANIZATION_ID, ADMIN_ID, OrganizationRole.ORG_ADMIN, NOW)));
     }
 }

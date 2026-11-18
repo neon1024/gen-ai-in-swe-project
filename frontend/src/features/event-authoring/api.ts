@@ -40,7 +40,7 @@ function csrfHeaders(): Record<string, string> {
   return token ? { 'X-XSRF-TOKEN': token } : {}
 }
 
-async function call(path: string, method = 'GET', body?: unknown): Promise<AuthoringEvent> {
+async function call<T = AuthoringEvent>(path: string, method = 'GET', body?: unknown): Promise<T> {
   const response = await fetch(`${BASE}${path}`, {
     method,
     credentials: 'same-origin',
@@ -53,12 +53,14 @@ async function call(path: string, method = 'GET', body?: unknown): Promise<Autho
     try { p = await response.json() } catch { /* non-JSON error body */ }
     throw new AuthoringError(response.status, p.code ?? 'UNKNOWN', p.message ?? response.statusText, p.violations ?? [])
   }
-  return (await response.json()) as AuthoringEvent
+  return (await response.json()) as T
 }
 
 export const createDraft = (b: { title: string; description: string; category: Category; organizationRef: string }) =>
   call('', 'POST', b)
 export const getEvent = (id: string) => call(`/${id}`)
+/** Drafts and published events the caller may edit, newest first. */
+export const listEvents = () => call<AuthoringEvent[]>('')
 export const editDetails = (id: string, v: number, b: { title: string; description: string; category: Category }) =>
   call(`/${id}`, 'PUT', { expectedVersion: v, ...b })
 export const publish = (id: string, v: number) => call(`/${id}/publish`, 'POST', { expectedVersion: v })

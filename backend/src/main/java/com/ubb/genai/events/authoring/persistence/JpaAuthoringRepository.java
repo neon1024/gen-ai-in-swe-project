@@ -8,6 +8,7 @@ import jakarta.persistence.LockModeType;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
@@ -34,6 +35,15 @@ public class JpaAuthoringRepository implements AuthoringEventRepository, com.ubb
                     activity.onlineLink(), activity.capacity(),
                     activity.registration().effectiveOpen(event.publishedAt(), activity.createdAt()),
                     activity.registration().effectiveClose(activity.schedule()))).toList())).toList();
+  }
+
+  @Override
+  public List<AuthoringEvent> findAllInStates(Set<com.ubb.genai.events.authoring.domain.EventState> states) {
+    return em.createQuery(
+            "select e from EventEntity e where e.state in :states order by e.createdAt desc, e.id",
+            EventEntity.class)
+        .setParameter("states", states)
+        .getResultList().stream().map(this::domain).toList();
   }
 
   public AuthoringEvent save(AuthoringEvent event) {

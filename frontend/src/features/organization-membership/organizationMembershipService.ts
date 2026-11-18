@@ -15,11 +15,13 @@ export interface OrganizationMembership {
 export interface JoinRequest {
   id: string
   applicantId: string
+  applicantName?: string | null
   createdAt: string
 }
 
 export interface OrganizationMember {
   userId: string
+  displayName?: string | null
   role: OrganizationRole
   eventTeamAssignmentCount: number
   ownsActiveEvents: boolean

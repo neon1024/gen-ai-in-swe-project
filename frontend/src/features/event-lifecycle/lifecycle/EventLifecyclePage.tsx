@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { ApiError } from '../api/client'
 import { cancelActivity, cancelEvent, deleteDraft, getLifecycleEvent } from '../api/lifecycle'
 import type { ActivityState, EventState, LifecycleEventView } from '../api/types'
+import { useConfirm, type ConfirmOptions } from '../../../components/ui/use-confirm'
 
 const EVENT_STATE_LABELS: Record<EventState, string> = {
   DRAFT: 'Draft',
@@ -37,6 +38,8 @@ export function EventLifecyclePage() {
   const [event, setEvent] = useState<LifecycleEventView | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  const { confirm, dialog } = useConfirm()
+
   useEffect(() => {
     let current = true
     getLifecycleEvent(eventId)
@@ -56,8 +59,8 @@ export function EventLifecyclePage() {
     }
   }, [eventId])
 
-  async function run(question: string, action: () => Promise<LifecycleEventView | void>) {
-    if (!window.confirm(question)) {
+  async function run(question: ConfirmOptions, action: () => Promise<LifecycleEventView | void>) {
+    if (!(await confirm(question))) {
       return
     }
     try {
@@ -97,7 +100,7 @@ export function EventLifecyclePage() {
             <button
               type="button"
               className={`${button} button danger`}
-              onClick={() => run(`Cancel this event? ${CASCADE}`, () => cancelEvent(event.id))}
+              onClick={() => run({ title: 'Cancel event?', message: `Cancel ${event.title}? ${CASCADE}`, confirmLabel: 'Cancel event', cancelLabel: 'Keep event', destructive: true }, () => cancelEvent(event.id))}
             >
               Cancel event
             </button>
@@ -106,7 +109,7 @@ export function EventLifecyclePage() {
             <button
               type="button"
               className={`${button} button danger`}
-              onClick={() => run('Delete this draft? This cannot be undone.', () => deleteDraft(event.id))}
+              onClick={() => run({ title: 'Delete draft?', message: `Delete ${event.title}? This cannot be undone.`, confirmLabel: 'Delete draft', cancelLabel: 'Keep draft', destructive: true }, () => deleteDraft(event.id))}
             >
               Delete draft
             </button>
@@ -124,7 +127,7 @@ export function EventLifecyclePage() {
                   <button
                     type="button"
                     className={button}
-                    onClick={() => run(`Cancel this activity? ${CASCADE}`, () => cancelActivity(activity.id))}
+                    onClick={() => run({ title: 'Cancel activity?', message: `Cancel ${activity.title}? ${CASCADE}`, confirmLabel: 'Cancel activity', cancelLabel: 'Keep activity', destructive: true }, () => cancelActivity(activity.id))}
                   >
                     Cancel activity
                   </button>
@@ -134,6 +137,7 @@ export function EventLifecyclePage() {
           </ul>
         </>
       )}
+      {dialog}
     </main>
   )
 }

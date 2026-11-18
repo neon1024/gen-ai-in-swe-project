@@ -1,9 +1,10 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AuthoringEvent } from './api'
 import { eventAuthoringRoutes } from './routes'
+import { toLocalInput } from './helpers'
 
 const ID = '0d5c4a52-6a0e-4a38-9f3e-2f0f1c8a7b11'
 const ACT = '2a6e1d33-8c2f-4b71-9d10-4e5f7a8b9c01'
@@ -30,6 +31,10 @@ function renderAt(path: string) {
   const router = createMemoryRouter(eventAuthoringRoutes, { initialEntries: [path] })
   render(<RouterProvider router={router} />)
   return router
+}
+async function pick(user: ReturnType<typeof userEvent.setup>, scope: HTMLElement, label: string, date: string, time: string) {
+  fireEvent.change(within(scope).getByLabelText(`${label} date`), { target: { value: date } })
+  await user.selectOptions(within(scope).getByLabelText(`${label} time`), time)
 }
 const lastBody = () => JSON.parse(fetchMock.mock.calls.at(-1)![1].body)
 
@@ -88,32 +93,55 @@ describe('US-15 and US-16 activities and agenda', () => {
     const form = screen.getByRole('form', { name: 'Activity form' })
     await user.type(within(form).getByLabelText('Activity title'), 'Opening')
     await user.type(within(form).getByLabelText('Activity description'), 'd')
-    await user.type(within(form).getByLabelText('Start'), '2027-02-01T18:00')
-    await user.type(within(form).getByLabelText('End'), '2027-02-01T20:00')
+    await pick(user, form, 'Start', '2027-02-01', '18:00')
+    await pick(user, form, 'End', '2027-02-01', '20:00')
     await user.type(within(form).getByLabelText('Location'), 'Room A')
     await user.type(within(form).getByLabelText('Capacity'), '10')
     await user.click(within(form).getByRole('button', { name: 'Save activity' }))
     expect(await screen.findByText(/capacity 10/)).toBeInTheDocument()
     expect(lastBody()).toMatchObject({ title: 'Opening', capacity: 10, expectedVersion: 3, visibility: 'Public' })
+    expect(lastBody().start).toBe(new Date('2027-02-01T18:00').toISOString())
+    expect(lastBody().end).toBe(new Date('2027-02-01T20:00').toISOString())
   })
 
   it('adds an agenda item and removes an activity', async () => {
     fetchMock.mockReturnValueOnce(json(ev({ activities: [activity] })))
       .mockReturnValueOnce(json(ev({ version: 4, activities: [{ ...activity, agenda: [{ id: 'i1', time: '2027-02-01T18:30:00Z', title: 'Talk', speaker: 'Ana' }] }] }), 201))
       .mockReturnValueOnce(json(ev({ version: 5 })))
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderAt(`/authoring/events/${ID}`)
     const user = userEvent.setup()
     await screen.findByText('Opening')
     const agenda = screen.getByRole('form', { name: 'Agenda form' })
-    await user.type(within(agenda).getByLabelText('Agenda time'), '2027-02-01T18:30')
+    expect(within(agenda).getByLabelText('Agenda time date')).toHaveValue(toLocalInput(activity.start).slice(0, 10))
+    await user.selectOptions(within(agenda).getByLabelText('Agenda time time'), '18:30')
     await user.type(within(agenda).getByLabelText('Agenda title'), 'Talk')
+    expect(within(agenda).queryByLabelText(/Speaker/)).not.toBeInTheDocument()
+    await user.click(within(agenda).getByRole('button', { name: '+ Add speaker (optional)' }))
+    await user.type(within(agenda).getByLabelText(/Speaker/), 'Ana')
     await user.click(within(agenda).getByRole('button', { name: 'Add agenda item' }))
     expect(await screen.findByText(/Talk \(Ana\)/)).toBeInTheDocument()
+    expect(lastBody()).toMatchObject({ title: 'Talk', speaker: 'Ana' })
     await user.click(screen.getByRole('button', { name: 'Remove Opening' }))
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Remove activity' }))
     await waitFor(() => expect(screen.queryByText('Opening')).not.toBeInTheDocument())
     expect(fetchMock.mock.calls.at(-1)![0]).toContain('expectedVersion=4')
     expect(fetchMock.mock.calls.at(-1)![1].method).toBe('DELETE')
+  })
+})
+
+describe('US-15 schedule entry', () => {
+  it('suggests an end one hour after the start and a registration window closing at the start', async () => {
+    fetchMock.mockReturnValueOnce(json(ev()))
+    renderAt(`/authoring/events/${ID}`)
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole('button', { name: 'Add activity' }))
+    const form = screen.getByRole('form', { name: 'Activity form' })
+    await pick(user, form, 'Start', '2030-03-10', '17:45')
+    expect(within(form).getByLabelText('End date')).toHaveValue('2030-03-10')
+    expect(within(form).getByLabelText('End time')).toHaveValue('18:45')
+    expect(within(form).getByLabelText('Registration closes date')).toHaveValue('2030-03-10')
+    expect(within(form).getByLabelText('Registration closes time')).toHaveValue('17:45')
+    expect(within(form).getByLabelText('Registration opens time')).not.toHaveValue('')
   })
 })
 
@@ -125,6 +153,7 @@ describe('US-17 publish', () => {
         { path: 'title', code: 'X', message: 'Second problem' }] }, 422))
     renderAt(`/authoring/events/${ID}`)
     await userEvent.setup().click(await screen.findByRole('button', { name: 'Publish event' }))
+    await userEvent.setup().click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Publish' }))
     const alert = await screen.findByRole('alert')
     expect(alert).toHaveTextContent('At least one activity is required')
     expect(alert).toHaveTextContent('Second problem')
@@ -135,6 +164,7 @@ describe('US-17 publish', () => {
     fetchMock.mockReturnValueOnce(json(ev())).mockReturnValueOnce(json(ev({ state: 'Published', version: 4 })))
     renderAt(`/authoring/events/${ID}`)
     await userEvent.setup().click(await screen.findByRole('button', { name: 'Publish event' }))
+    await userEvent.setup().click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Publish' }))
     expect(await screen.findByText('State: Published')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Publish event' })).not.toBeInTheDocument()
   })
