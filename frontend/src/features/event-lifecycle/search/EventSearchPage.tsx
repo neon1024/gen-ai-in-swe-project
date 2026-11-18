@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { ApiError } from '../api/client'
 import { searchEvents } from '../api/discovery'
 import type { EventCategory, EventSearchResult } from '../api/types'
@@ -156,7 +156,8 @@ export function EventSearchPage() {
         <ul className="event-results">
           {result.items.map((event) => (
             <li key={event.id} className="event-result">
-              <h2>{event.title}</h2>
+              {/* shortcut: links to the lifecycle view until the participant event-details API (US-26) exists. */}
+              <h2><Link to={`/events/${event.id}/lifecycle`}>{event.title}</Link></h2>
               <p className="event-organization">{event.organizationName}</p>
               <p className="event-meta">
                 <span>{CATEGORY_LABELS[event.category]}</span> · {event.nextActivityStartsAt === null ? (

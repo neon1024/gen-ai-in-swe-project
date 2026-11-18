@@ -16,6 +16,8 @@ DB_PORT="${DB_PORT:-55432}"  # not 5432, to avoid clashing with other local data
 export DB_URL="${DB_URL:-jdbc:postgresql://localhost:${DB_PORT}/ubb_events}"
 export DB_USERNAME="${DB_USERNAME:-ubb}"
 export DB_PASSWORD="${DB_PASSWORD:-ubb-local-dev}"
+# Local demo accounts (db/demo, password DemoPass123!); never set this outside local development.
+export APP_FLYWAY_DEMO_LOCATION=",classpath:db/demo"
 BACKEND_PORT=8080
 LOG_DIR="$ROOT/.cache/run-app"
 

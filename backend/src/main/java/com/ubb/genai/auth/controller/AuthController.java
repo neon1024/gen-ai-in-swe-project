@@ -1,8 +1,6 @@
 package com.ubb.genai.auth.controller;
 
 import com.ubb.genai.auth.domain.*;
-import com.ubb.genai.auth.domain.exception.AccountDeactivatedException;
-import com.ubb.genai.auth.domain.exception.AccountNotVerifiedException;
 import com.ubb.genai.auth.service.AuthService;
 import com.ubb.genai.auth.domain.exception.UsernameAlreadyExistsException;
 import jakarta.validation.Valid;
@@ -12,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -55,31 +54,34 @@ public class AuthController {
             @RequestBody @Valid LoginRequest request,
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
+        LoginResponse response;
         try {
-            LoginResponse response = authService.login(request);
-
-            boolean isAccountVerified = response.status() != UserStatus.PENDING;
-
-            if (!isAccountVerified) {
-                throw new AccountNotVerifiedException();
-            }
-
-            boolean isAccountDeactivated = response.status() == UserStatus.DEACTIVATED;
-
-            if (isAccountDeactivated) {
-                throw new AccountDeactivatedException();
-            }
-
-            var authentication = UsernamePasswordAuthenticationToken.authenticated(
-                    response.userId().toString(), null, java.util.List.of());
-            var context = SecurityContextHolder.createEmptyContext();
-            context.setAuthentication(authentication);
-            SecurityContextHolder.setContext(context);
-            new HttpSessionSecurityContextRepository().saveContext(context, httpRequest, httpResponse);
-            return ResponseEntity.ok(response);
-        } catch(Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            response = authService.login(request);
+        } catch (BadCredentialsException e) {
+            return loginRefused("INVALID_CREDENTIALS", "Invalid email or password.");
         }
+        if (response.status() == UserStatus.PENDING) {
+            return loginRefused("ACCOUNT_NOT_VERIFIED", "Verify your email address before signing in.");
+        }
+        if (response.status() == UserStatus.DEACTIVATED) {
+            return loginRefused("ACCOUNT_DEACTIVATED", "This account is deactivated.");
+        }
+
+        // A new session id at login, so an id planted before login cannot be reused (session fixation).
+        if (httpRequest.getSession(false) != null) {
+            httpRequest.changeSessionId();
+        }
+        var authentication = UsernamePasswordAuthenticationToken.authenticated(
+                response.userId().toString(), null, java.util.List.of());
+        var context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        new HttpSessionSecurityContextRepository().saveContext(context, httpRequest, httpResponse);
+        return ResponseEntity.ok(response);
+    }
+
+    private static ResponseEntity<Map<String, String>> loginRefused(String code, String detail) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("code", code, "detail", detail));
     }
 
     @PostMapping("/logout")

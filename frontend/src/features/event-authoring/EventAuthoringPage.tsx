@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import * as api from './api'
 import { CATEGORIES, type Activity, type AuthoringEvent, type Category } from './api'
 import { btn, field, fromLocalInput, toLocalInput, useRun } from './helpers'
@@ -105,6 +105,12 @@ export function EventAuthoringPage() {
     <main className="mx-auto max-w-3xl p-4">
       <h1 className="text-2xl font-semibold">{event.title}</h1>
       <p className="mb-4">State: {event.state}</p>
+      {event.state !== 'Draft' && (
+        <nav className="mb-4 space-x-3 text-sm" aria-label="Event management">
+          <Link className="text-blue-700 underline" to={`/events/${event.id}/lifecycle`}>Manage event</Link>
+          <Link className="text-blue-700 underline" to={`/events/${event.id}/report`}>Report</Link>
+        </nav>
+      )}
       <ErrorBox error={error} />
       {done && <p role="status" className="mb-4 rounded bg-green-100 p-3 text-green-800">{done}</p>}
 

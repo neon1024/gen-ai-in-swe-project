@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { ApiError } from '../api/client'
 import { cancelActivity, cancelEvent, deleteDraft, getLifecycleEvent } from '../api/lifecycle'
 import type { ActivityState, EventState, LifecycleEventView } from '../api/types'
@@ -87,6 +87,11 @@ export function EventLifecyclePage() {
         <>
           <h1>{event.title}</h1>
           <p className="lede">Event state: {EVENT_STATE_LABELS[event.state]}</p>
+          {(event.permissions.canCancel || event.permissions.canDelete) && (
+            <nav className="lifecycle-links" aria-label="Event management">
+              <Link to={`/authoring/events/${event.id}`}>Edit event</Link> · <Link to={`/events/${event.id}/report`}>Report</Link>
+            </nav>
+          )}
           {readOnly && <p className="notice muted-notice">This event is read-only.</p>}
           {!readOnly && event.permissions.canCancel && (
             <button
