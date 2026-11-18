@@ -35,14 +35,15 @@ function createService() {
     [ids.photo]: 'REJECTED',
   }
   const members: OrganizationMember[] = [
-    { userId: ids.admin, role: 'ORG_ADMIN', eventTeamAssignmentCount: 0, ownsActiveEvents: false },
-    { userId: ids.coAdmin, role: 'ORG_ADMIN', eventTeamAssignmentCount: 1, ownsActiveEvents: false },
-    { userId: ids.organizer, role: 'ORGANIZER', eventTeamAssignmentCount: 1, ownsActiveEvents: false },
-    { userId: ids.member, role: 'MEMBER', eventTeamAssignmentCount: 0, ownsActiveEvents: false },
+    { userId: ids.admin, displayName: 'AI Society Admin', role: 'ORG_ADMIN', eventTeamAssignmentCount: 0, ownsActiveEvents: false },
+    { userId: ids.coAdmin, displayName: 'AI Society Co-admin', role: 'ORG_ADMIN', eventTeamAssignmentCount: 1, ownsActiveEvents: false },
+    { userId: ids.organizer, displayName: 'Demo Organizer', role: 'ORGANIZER', eventTeamAssignmentCount: 1, ownsActiveEvents: false },
+    { userId: ids.member, displayName: 'Demo Member', role: 'MEMBER', eventTeamAssignmentCount: 0, ownsActiveEvents: false },
   ]
   let pending: JoinRequest[] = [{
     id: '12000000-0000-4000-8000-000000000001',
     applicantId: ids.student,
+    applicantName: 'Demo Applicant',
     createdAt: '2026-11-16T00:00:00Z',
   }]
 
@@ -70,7 +71,7 @@ function createService() {
       pending = pending.filter((item) => item.id !== requestId)
       if (request) {
         statuses[_organizationId] = 'APPROVED'
-        members.push({ userId: request.applicantId, role: 'MEMBER', eventTeamAssignmentCount: 0, ownsActiveEvents: false })
+        members.push({ userId: request.applicantId, displayName: request.applicantName, role: 'MEMBER', eventTeamAssignmentCount: 0, ownsActiveEvents: false })
       }
     },
     async rejectRequest(_organizationId, requestId) {
@@ -108,6 +109,10 @@ function renderPage(service: OrganizationMembershipService, userId: string = ids
   return render(<RouterProvider router={router} />)
 }
 
+async function openDiscover() {
+  await userEvent.setup().click(await screen.findByRole('tab', { name: /Discover/ }))
+}
+
 function organizationCard(name: string): HTMLLIElement {
   const card = screen.getByRole('heading', { name }).closest('li')
   if (!card) throw new Error(`Organization card not found for ${name}.`)
@@ -123,9 +128,11 @@ describe('OrganizationMembershipPage', () => {
     const { service } = createService()
     renderPage(service)
 
+    expect(await screen.findByText('Member · member')).toBeInTheDocument()
+    expect(within(organizationCard('Language Exchange')).getByText('Member · member')).toBeInTheDocument()
+    await openDiscover()
     expect(await screen.findByText('Pending')).toBeInTheDocument()
     expect(within(organizationCard('Robotics Club')).getByRole('button', { name: 'Withdraw request' })).toBeInTheDocument()
-    expect(within(organizationCard('Language Exchange')).getByText('Member · member')).toBeInTheDocument()
     expect(within(organizationCard('Photography Group')).getByText('Rejected')).toBeInTheDocument()
     expect(within(organizationCard('Photography Group')).getByRole('button', { name: 'Request to join again' })).toBeInTheDocument()
   })
@@ -134,6 +141,7 @@ describe('OrganizationMembershipPage', () => {
     const user = userEvent.setup()
     const { service } = createService()
     renderPage(service)
+    await openDiscover()
     await screen.findByRole('heading', { name: 'AI Society' })
     const aiSociety = within(organizationCard('AI Society'))
 
@@ -151,7 +159,7 @@ describe('OrganizationMembershipPage', () => {
     renderPage(service, ids.admin)
 
     const pendingRequests = await screen.findByRole('region', { name: 'AI Society pending requests' })
-    expect(within(pendingRequests).getByText(`Applicant: ${ids.student}`)).toBeInTheDocument()
+    expect(within(pendingRequests).getByText('Demo Applicant')).toBeInTheDocument()
     await user.click(within(pendingRequests).getByRole('button', { name: 'Accept' }))
     expect(await screen.findByText('Join request approved.')).toBeInTheDocument()
     expect(within(pendingRequests).getByText('No pending requests.')).toBeInTheDocument()
@@ -164,10 +172,13 @@ describe('OrganizationMembershipPage', () => {
 
     const pendingRequests = await screen.findByRole('region', { name: 'AI Society pending requests' })
     await user.click(within(pendingRequests).getByRole('button', { name: 'Reject' }))
+    expect(await screen.findByRole('dialog', { name: 'Reject request?' })).toHaveTextContent("Reject Demo Applicant's request to join AI Society?")
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Reject' }))
     expect(await screen.findByText('Join request rejected.')).toBeInTheDocument()
 
     cleanup()
     renderPage(service, ids.student)
+    await openDiscover()
     const photography = await screen.findByRole('heading', { name: 'Photography Group' })
     expect(within(organizationCard('AI Society')).getByRole('button', { name: 'Request to join again' })).toBeInTheDocument()
     await user.click(within(organizationCard('AI Society')).getByRole('button', { name: 'Request to join again' }))
@@ -180,8 +191,11 @@ describe('OrganizationMembershipPage', () => {
     const { service, members } = createService()
     renderPage(service, ids.admin)
 
-    const roleSelector = await screen.findByRole('combobox', { name: `Role for ${ids.member}` })
+    const roleSelector = await screen.findByRole('combobox', { name: 'Role for Demo Member' })
     await user.selectOptions(roleSelector, 'ORGANIZER')
+    const dialog = screen.getByRole('dialog', { name: 'Change role?' })
+    expect(dialog).toHaveTextContent('Change Demo Member from Member to Organizer?')
+    await user.click(within(dialog).getByRole('button', { name: 'Change role' }))
     expect(await screen.findByText('Member role updated.')).toBeInTheDocument()
     expect(members.find((member) => member.userId === ids.member)?.role).toBe('ORGANIZER')
   })
@@ -191,10 +205,11 @@ describe('OrganizationMembershipPage', () => {
     const { service, members } = createService()
     renderPage(service, ids.admin)
 
-    const memberText = await screen.findByText(ids.member)
+    const memberText = await screen.findByText('Demo Member')
     const memberRow = memberText.closest('li')
     if (!memberRow) throw new Error('Target member row not found.')
     await user.click(within(memberRow).getByRole('button', { name: 'Remove' }))
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Remove member' }))
     expect(await screen.findByText('Member removed from the organization.')).toBeInTheDocument()
     expect(members.some((member) => member.userId === ids.member)).toBe(false)
   })
@@ -207,7 +222,56 @@ describe('OrganizationMembershipPage', () => {
     await screen.findByRole('heading', { name: 'Language Exchange' })
     const languageExchange = within(organizationCard('Language Exchange'))
     await user.click(languageExchange.getByRole('button', { name: 'Leave organization' }))
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Leave organization' }))
     expect(await screen.findByText('You left Language Exchange.')).toBeInTheDocument()
     expect(members.some((member) => member.userId === ids.member)).toBe(false)
+  })
+
+  it('US-07 and US-08 show display names instead of user ids', async () => {
+    const { service } = createService()
+    renderPage(service, ids.admin)
+
+    const pendingRequests = await screen.findByRole('region', { name: 'AI Society pending requests' })
+    expect(within(pendingRequests).getByText('Demo Applicant')).toBeInTheDocument()
+    const memberList = screen.getByRole('region', { name: 'AI Society members' })
+    expect(within(memberList).getByText('Demo Organizer')).toBeInTheDocument()
+    expect(within(memberList).queryByText(ids.organizer)).not.toBeInTheDocument()
+  })
+
+  it('US-08 cancelling the role confirmation keeps the current role', async () => {
+    const user = userEvent.setup()
+    const { service, members } = createService()
+    renderPage(service, ids.admin)
+
+    const roleSelector = await screen.findByRole('combobox', { name: 'Role for Demo Member' })
+    await user.selectOptions(roleSelector, 'ORG_ADMIN')
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(roleSelector).toHaveValue('MEMBER')
+    expect(members.find((member) => member.userId === ids.member)?.role).toBe('MEMBER')
+  })
+
+  it('US-06 separates my organizations from the ones to discover', async () => {
+    const { service } = createService()
+    renderPage(service)
+
+    const mine = await screen.findByRole('tabpanel', { name: /My organizations/ })
+    expect(within(mine).getByRole('heading', { name: 'Language Exchange' })).toBeInTheDocument()
+    expect(within(mine).queryByRole('heading', { name: 'Robotics Club' })).not.toBeInTheDocument()
+    await openDiscover()
+    const discover = screen.getByRole('tabpanel', { name: /Discover/ })
+    expect(within(discover).getByRole('heading', { name: 'Robotics Club' })).toBeInTheDocument()
+    expect(within(discover).queryByRole('heading', { name: 'Language Exchange' })).not.toBeInTheDocument()
+  })
+
+  it('US-10 staying in the leave confirmation keeps the membership', async () => {
+    const user = userEvent.setup()
+    const { service, members } = createService()
+    renderPage(service, ids.member)
+
+    await screen.findByRole('heading', { name: 'Language Exchange' })
+    await user.click(within(organizationCard('Language Exchange')).getByRole('button', { name: 'Leave organization' }))
+    await user.click(within(screen.getByRole('dialog', { name: 'Leave organization?' })).getByRole('button', { name: 'Stay' }))
+    expect(members.some((member) => member.userId === ids.member)).toBe(true)
   })
 })

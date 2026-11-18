@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
@@ -118,6 +119,11 @@ public class EventAuthoringController {
     if (request.expectedVersion() == null || request.expectedVersion() < 0)
       throw new AuthoringException(400, "INVALID_INPUT", "Nonnegative version is required");
     return mirrored(service.publish(eventId, request.expectedVersion()));
+  }
+
+  @GetMapping
+  public List<EventView> listEditable() {
+    return service.listEditableEvents();
   }
 
   @GetMapping("/{eventId}")

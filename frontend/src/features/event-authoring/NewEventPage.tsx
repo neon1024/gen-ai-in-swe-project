@@ -34,17 +34,16 @@ export function NewEventPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl p-4">
-      <h1 className="mb-4 text-2xl font-semibold">Create a draft event</h1>
+    <main className="mx-auto max-w-2xl space-y-4 p-4">
+      <header>
+        <p className="text-sm font-medium uppercase tracking-wide text-gray-600">New event</p>
+        <h1 className="text-2xl font-semibold">Create a draft event</h1>
+        <p className="mt-2 text-gray-700">
+          Start with the basics. After creating the draft you add activities and publish it.
+        </p>
+      </header>
       <ErrorBox error={error} />
-      <form onSubmit={submit} className="space-y-3">
-        <label className="block">Title<input name="title" required className={field} /></label>
-        <label className="block">Description<textarea name="description" required className={field} /></label>
-        <label className="block">Category
-          <select value={category} onChange={(e) => setCategory(e.target.value as Category)} className={field}>
-            {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-          </select>
-        </label>
+      <form onSubmit={submit} className="space-y-4 rounded-lg border border-gray-200 bg-white p-4">
         <label className="block">Organization
           <select name="organizationRef" required className={field}>
             {organizations?.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
@@ -55,7 +54,16 @@ export function NewEventPage() {
             You need the Organizer or Org Admin role in an organization to create events.
           </p>
         )}
-        <button type="submit" disabled={!organizations?.length} className="rounded bg-blue-700 px-4 py-2 text-white disabled:opacity-50">Create draft</button>
+        <label className="block">Title<input name="title" required placeholder="For example: Intro to machine learning" className={field} /></label>
+        <label className="block sm:w-64">Category
+          <select value={category} onChange={(e) => setCategory(e.target.value as Category)} className={field}>
+            {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+          </select>
+        </label>
+        <label className="block">Description<textarea name="description" required rows={4} placeholder="What will participants do or learn?" className={field} /></label>
+        <div className="flex justify-end">
+          <button type="submit" disabled={!organizations?.length} className="rounded bg-blue-700 px-4 py-2 text-white disabled:opacity-50">Create draft</button>
+        </div>
       </form>
     </main>
   )

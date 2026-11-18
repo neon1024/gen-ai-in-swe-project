@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router'
-import { Compass, PlusCircle, Sparkles, Users } from 'lucide-react'
+import { CalendarDays, Compass, PlusCircle, Sparkles, Users } from 'lucide-react'
 import { Separator } from './ui/separator'
 import { Button } from './ui/button'
 import { useAuth } from '../features/authentication/context'
@@ -8,6 +8,7 @@ const links = [
   { to: '/events', label: 'Discover', icon: Compass },
   // shortcut: My activities and Notifications are hidden until the registration backend (US-27–US-31) exists.
   { to: '/organizations', label: 'Organizations', icon: Users },
+  { to: '/authoring/events', label: 'My events', icon: CalendarDays, end: true },
   { to: '/authoring/events/new', label: 'New event', icon: PlusCircle },
 ]
 
@@ -33,7 +34,7 @@ export function AppShell() {
           <p className="sidebar-caption">Your campus</p>
           <nav className="nav-list">
             {links.map((link) => (
-              <NavLink key={link.to} to={link.to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+              <NavLink key={link.to} to={link.to} end={link.end} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
                 <link.icon size={17} aria-hidden="true" />
                 {link.label}
               </NavLink>

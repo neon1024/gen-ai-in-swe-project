@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../authentication/context'
+import { useConfirm, type ConfirmOptions } from '../../components/ui/use-confirm'
+import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import {
   organizationMembershipApi,
   type JoinRequest,
@@ -12,6 +14,14 @@ import {
 interface AdminData {
   requests: JoinRequest[]
   members: OrganizationMember[]
+}
+
+type OrganizationTab = 'mine' | 'discover'
+
+const ROLE_LABELS: Record<OrganizationRole, string> = {
+  MEMBER: 'Member',
+  ORGANIZER: 'Organizer',
+  ORG_ADMIN: 'Org Admin',
 }
 
 function errorMessage(error: unknown): string {
@@ -50,6 +60,8 @@ export function OrganizationMembershipPage({
   const [announcement, setAnnouncement] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [busyAction, setBusyAction] = useState<string | null>(null)
+  const [selectedTab, setSelectedTab] = useState<OrganizationTab | null>(null)
+  const { confirm, dialog } = useConfirm()
 
   const loadData = useCallback(async () => {
     const listedOrganizations = await service.listOrganizations()
@@ -90,7 +102,8 @@ export function OrganizationMembershipPage({
     }
   }, [loadData, userId])
 
-  async function runAction(key: string, success: string, action: () => Promise<void>) {
+  async function runAction(key: string, success: string, action: () => Promise<void>, question?: ConfirmOptions) {
+    if (question && !(await confirm(question))) return
     setBusyAction(key)
     setError(null)
     setAnnouncement(null)
@@ -124,12 +137,24 @@ export function OrganizationMembershipPage({
   }
 
   function changeMemberRole(organization: OrganizationMembership, member: OrganizationMember, role: OrganizationRole) {
+    const name = member.displayName ?? member.userId
     void runAction(
       `role-${organization.id}-${member.userId}`,
       'Member role updated.',
       () => service.changeRole(organization.id, member.userId, role),
+      {
+        title: 'Change role?',
+        message: `Change ${name} from ${ROLE_LABELS[member.role]} to ${ROLE_LABELS[role]}?`,
+        confirmLabel: 'Change role',
+      },
     )
   }
+
+  const mine = organizations.filter((organization) => organization.member)
+  const others = organizations.filter((organization) => !organization.member)
+  // Open on the user's own organizations when they have any, otherwise on the ones to discover.
+  const tab: OrganizationTab = selectedTab ?? (mine.length > 0 ? 'mine' : 'discover')
+  const shown = tab === 'mine' ? mine : others
 
   return (
     <main className="mx-auto max-w-5xl p-4">
@@ -137,7 +162,7 @@ export function OrganizationMembershipPage({
         <p className="text-sm font-medium uppercase tracking-wide text-gray-600">Organization membership</p>
         <h1 className="mt-1 text-2xl font-semibold">Organizations</h1>
         <p className="mt-2 text-gray-700">
-          Request membership, manage requests, and maintain organization roles.
+          See the organizations you belong to, or discover others and ask to join.
         </p>
       </header>
 
@@ -153,8 +178,23 @@ export function OrganizationMembershipPage({
       )}
       {loading && <p role="status" className="mb-4 text-gray-700">Loading organizations…</p>}
 
+      <Tabs value={tab} onValueChange={(value) => setSelectedTab(value as OrganizationTab)} className="mb-4">
+        <TabsList aria-label="Organization lists">
+          <TabsTrigger value="mine">My organizations ({mine.length})</TabsTrigger>
+          <TabsTrigger value="discover">Discover ({others.length})</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <div role="tabpanel" aria-label={tab === 'mine' ? 'My organizations' : 'Discover'}>
+      {!loading && shown.length === 0 && (
+        <p className="rounded border border-dashed border-gray-300 p-6 text-center text-gray-700">
+          {tab === 'mine'
+            ? 'You are not a member of any organization yet. Open Discover to find one.'
+            : 'You are already a member of every organization.'}
+        </p>
+      )}
       <ul className="space-y-4">
-        {organizations.map((organization) => {
+        {shown.map((organization) => {
           const admin = adminData[organization.id]
           return (
             <li key={organization.id} className="rounded border border-gray-200 p-4">
@@ -174,6 +214,13 @@ export function OrganizationMembershipPage({
                       `leave-${organization.id}`,
                       `You left ${organization.name}.`,
                       () => service.leaveOrganization(organization.id),
+                      {
+                        title: 'Leave organization?',
+                        message: `Leave ${organization.name}? You lose your role and event-team assignments there, and must ask to join again.`,
+                        confirmLabel: 'Leave organization',
+                        cancelLabel: 'Stay',
+                        destructive: true,
+                      },
                     )}
                     className="rounded border border-gray-400 px-3 py-2 text-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
                   >
@@ -205,7 +252,7 @@ export function OrganizationMembershipPage({
                       <ul className="mt-2 space-y-2">
                         {admin.requests.map((request) => (
                           <li key={request.id} className="flex flex-wrap items-center justify-between gap-2 rounded bg-gray-50 p-3">
-                            <span className="break-all text-sm">Applicant: {request.applicantId}</span>
+                            <span className="break-all text-sm">{request.applicantName ?? request.applicantId}</span>
                             <div className="flex gap-2">
                               <button
                                 type="button"
@@ -226,6 +273,12 @@ export function OrganizationMembershipPage({
                                   `reject-${request.id}`,
                                   'Join request rejected.',
                                   () => service.rejectRequest(organization.id, request.id),
+                                  {
+                                    title: 'Reject request?',
+                                    message: `Reject ${request.applicantName ?? 'this applicant'}'s request to join ${organization.name}?`,
+                                    confirmLabel: 'Reject',
+                                    destructive: true,
+                                  },
                                 )}
                                 className="rounded border border-gray-400 px-3 py-1.5 text-sm disabled:opacity-60"
                               >
@@ -244,14 +297,14 @@ export function OrganizationMembershipPage({
                       {admin.members.map((member) => (
                         <li key={member.userId} className="rounded bg-gray-50 p-3">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="break-all text-sm">{member.userId}</span>
+                            <span className="break-all text-sm">{member.displayName ?? member.userId}</span>
                             <div className="flex flex-wrap items-center gap-2">
                               <label className="sr-only" htmlFor={`role-${organization.id}-${member.userId}`}>
-                                Role for {member.userId}
+                                Role for {member.displayName ?? member.userId}
                               </label>
                               <select
                                 id={`role-${organization.id}-${member.userId}`}
-                                aria-label={`Role for ${member.userId}`}
+                                aria-label={`Role for ${member.displayName ?? member.userId}`}
                                 className="rounded border border-gray-300 bg-white px-2 py-1 text-sm"
                                 value={member.role}
                                 disabled={busyAction !== null}
@@ -273,6 +326,12 @@ export function OrganizationMembershipPage({
                                     `remove-${member.userId}`,
                                     'Member removed from the organization.',
                                     () => service.removeMember(organization.id, member.userId),
+                                    {
+                                      title: 'Remove member?',
+                                      message: `Remove ${member.displayName ?? member.userId} from ${organization.name}? Their event-team assignments there are removed too.`,
+                                      confirmLabel: 'Remove member',
+                                      destructive: true,
+                                    },
                                   )}
                                   className="rounded border border-red-400 px-2 py-1 text-sm text-red-800 disabled:opacity-60"
                                 >
@@ -295,6 +354,9 @@ export function OrganizationMembershipPage({
           )
         })}
       </ul>
+      </div>
+
+      {dialog}
     </main>
   )
 }

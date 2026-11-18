@@ -54,11 +54,16 @@ member@example.invalid
 ## Seed data
 
 - **Seeded:** the five accounts above, four organizations (AI Society, Robotics Club, Language
-  Exchange, Photography Group), their memberships, and one pending join request from
-  `applicant@example.invalid` to AI Society.
-- **Not seeded:** events. Discover is empty until step 3 publishes one, so run the flow in order.
-  Run `scripts/run-app.sh --reset` before each rehearsal to restore the pending request and remove
-  events created earlier.
+  Exchange, Photography Group), their memberships, one pending join request from
+  `applicant@example.invalid` to AI Society, and one published event: **AI Society Code Sprint**,
+  owned by `organizer@example.invalid`. Its "Code competition" activity takes place seven days after
+  the database was created, 14:00–18:00, with the agenda Challenge revealed → Teams implement their
+  solutions → Projects presented → Results announced.
+- Run `scripts/run-app.sh --reset` before each rehearsal to restore the seed state and remove
+  accounts and events created earlier.
+
+Important actions (role changes, rejecting a request, removing a member, leaving an organization,
+publishing, removing an activity, cancelling and deleting) ask for confirmation in a dialog.
 
 ## Flow
 
@@ -69,25 +74,32 @@ member@example.invalid
      again: it succeeds.
    - Sign in as `organizer@example.invalid` with a wrong password: "Invalid email or password.".
 2. **Membership (US-06–US-10).** Sign in as `ai.admin@example.invalid`, open **Organizations**.
-   - Under AI Society, **Pending join requests**: click **Accept** on the applicant's request.
-   - Under **Members**, change a member's role in its dropdown (for example Member → Organizer).
-     Members are listed by user ID.
+   - **My organizations** lists AI Society; **Discover** lists the organizations to join.
+   - Under AI Society, **Pending join requests**: click **Accept** on Demo Applicant's request.
+   - Under **Members**, change a member's role in its dropdown (for example Demo Member → Organizer)
+     and confirm **Change role**.
    - Sign out.
-3. **Authoring (US-14–US-17).** Sign in as `organizer@example.invalid`, open **New event**.
-   - The **Organization** list offers only AI Society, where this user is Organizer (they are a
-     plain member of Robotics Club).
-   - Fill in **Title**, **Description** and **Category**, then click **Create draft**.
+3. **Authoring (US-14–US-17).** Sign in as `organizer@example.invalid`.
+   - Open **My events**: the seeded Code Sprint is listed under Published; open it to show the
+     activity and its agenda.
+   - Open **New event**. The **Organization** list offers only AI Society, where this user is
+     Organizer (they are a plain member of Robotics Club).
+   - Fill in **Title**, **Category** and **Description**, then click **Create draft**. The draft
+     now appears under **My events → Drafts**.
    - **Add activity** twice, so that cancelling one in step 5 leaves the event running. For each:
-     title, description, **Start**/**End** a few days ahead, a **Location** or **Online link**,
-     **Capacity**, and **Registration opens**/**Registration closes** ending before **Start**.
-   - On one activity, **Add agenda item** with an **Agenda time** inside the activity.
-   - Click **Publish event**. If something is missing, the page lists every problem at once.
-4. **Discovery (US-24/US-25).** Open **Discover**: the event is listed. Filter by keyword, date,
-   organization (AI Society) and category, then click the title to open the event page.
+     title, description, a **Start** date and time (the end and registration window are suggested
+     from it), a **Location** or **Online link**, and **Capacity**.
+   - On one activity, add an agenda item: **Agenda time** and **Agenda title**, optionally
+     **+ Add speaker**.
+   - Click **Publish event** and confirm. If something is missing, the page lists every problem at
+     once.
+4. **Discovery (US-24/US-25).** Open **Discover**: upcoming events are listed without searching,
+   the Code Sprint and the new event among them. Filter by keyword, date, organization (AI Society)
+   and category, then click the new event's title to open its page.
 5. **Lifecycle (US-18, US-20–US-22).** On the event page:
    - **Edit event**: change the title, click **Save details**, go back.
    - **Report** shows the event report.
-   - **Cancel activity** on one activity: the event stays published.
+   - **Cancel activity** on one activity and confirm: the event stays published.
    - **Cancel activity** on the other one: the event is cancelled and shows "This event is
      read-only.".
 

@@ -46,6 +46,10 @@ class DraftAuthoringTests {
               public Optional<AuthoringEvent> findById(UUID id) {
                 return Optional.ofNullable(rows.get(id));
               }
+
+              public List<AuthoringEvent> findAllInStates(Set<EventState> states) {
+                return rows.values().stream().filter(e -> states.contains(e.state())).toList();
+              }
             },
             clock);
   }
@@ -232,5 +236,18 @@ class DraftAuthoringTests {
     unavailableTeam = false;
     unavailableOrg = true;
     denied(503, () -> service.getEvent(id));
+  }
+
+  @Test
+  void US14_draftsAreListedForTheirOwnerAndOrgAdminsOnly() {
+    var id = create();
+    assertEquals(List.of(id), service.listEditableEvents().stream().map(v -> v.id()).toList());
+
+    subject = "someone-else";
+    org = OrganizationAccessPort.Role.MEMBER;
+    assertTrue(service.listEditableEvents().isEmpty(), "a plain member does not see the draft");
+
+    org = OrganizationAccessPort.Role.ORG_ADMIN;
+    assertEquals(List.of(id), service.listEditableEvents().stream().map(v -> v.id()).toList());
   }
 }

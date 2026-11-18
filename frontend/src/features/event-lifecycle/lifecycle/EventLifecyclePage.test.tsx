@@ -56,7 +56,6 @@ afterEach(() => {
 describe('EventLifecyclePage', () => {
   it('US-20 cancelling an activity confirms the cascade and shows it cancelled', async () => {
     const user = userEvent.setup()
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
     const cancelled = view()
     cancelled.activities[0] = { ...cancelled.activities[0], state: 'CANCELLED' }
     fetchMock.mockImplementation((_url: string, init?: RequestInit) =>
@@ -68,8 +67,10 @@ describe('EventLifecyclePage', () => {
     expect(within(items[0]).getByText('Scheduled')).toBeInTheDocument()
     expect(within(items[1]).queryByRole('button', { name: 'Cancel activity' })).not.toBeInTheDocument()
     await user.click(within(items[0]).getByRole('button', { name: 'Cancel activity' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Cancel activity?' })
+    expect(dialog).toHaveTextContent('All signups and waitlist entries will be cancelled.')
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel activity' }))
 
-    expect(confirm).toHaveBeenCalledWith(expect.stringContaining('All signups and waitlist entries will be cancelled.'))
     expect(requests()).toContain(`POST /api/lifecycle/activities/${ACT_1}/cancel`)
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Cancel activity' })).not.toBeInTheDocument())
     expect(screen.getAllByText('Cancelled')).toHaveLength(2)
@@ -77,11 +78,12 @@ describe('EventLifecyclePage', () => {
 
   it('US-20 sends no request when the confirmation is declined', async () => {
     const user = userEvent.setup()
-    vi.spyOn(window, 'confirm').mockReturnValue(false)
     fetchMock.mockImplementation(() => jsonResponse(view()))
     renderPage()
 
     await user.click(await screen.findByRole('button', { name: 'Cancel activity' }))
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Keep activity' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(requests()).toEqual([`GET /api/lifecycle/events/${EVENT_ID}`])
   })
 
@@ -105,7 +107,6 @@ describe('EventLifecyclePage', () => {
 
   it('US-21 cancelling the event shows the cancelled read-only state', async () => {
     const user = userEvent.setup()
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
     const cancelled = view({
       state: 'CANCELLED',
       activities: view().activities.map((a) => ({ ...a, state: 'CANCELLED' as const })),
@@ -116,8 +117,10 @@ describe('EventLifecyclePage', () => {
     renderPage()
 
     await user.click(await screen.findByRole('button', { name: 'Cancel event' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Cancel event?' })
+    expect(dialog).toHaveTextContent('All signups and waitlist entries will be cancelled.')
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel event' }))
 
-    expect(confirm).toHaveBeenCalledWith(expect.stringContaining('All signups and waitlist entries will be cancelled.'))
     expect(requests()).toContain(`POST /api/lifecycle/events/${EVENT_ID}/cancel`)
     expect(await screen.findByText('This event is read-only.')).toBeInTheDocument()
     expect(screen.getByText('Event state: Cancelled')).toBeInTheDocument()
@@ -126,7 +129,6 @@ describe('EventLifecyclePage', () => {
 
   it('US-22 delete is offered only for drafts and navigates to the search page', async () => {
     const user = userEvent.setup()
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     const draft = view({ state: 'DRAFT', permissions: { canCancel: false, canDelete: true } })
     fetchMock.mockImplementation((url: string, init?: RequestInit) => {
       if (init?.method === 'DELETE') {
@@ -141,6 +143,7 @@ describe('EventLifecyclePage', () => {
     expect(await screen.findByRole('button', { name: 'Delete draft' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Cancel event' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Delete draft' }))
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Delete draft' }))
 
     expect(requests()).toContain(`DELETE /api/lifecycle/events/${EVENT_ID}`)
     expect(await screen.findByRole('heading', { name: 'Events' })).toBeInTheDocument()
@@ -157,7 +160,6 @@ describe('EventLifecyclePage', () => {
 
   it('US-20 shows the server refusal message', async () => {
     const user = userEvent.setup()
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     fetchMock.mockImplementation((_url: string, init?: RequestInit) =>
       init?.method === 'POST'
         ? jsonResponse({ title: 'Conflict', status: 409, detail: 'The activity has already ended', code: 'ACTIVITY_ENDED' }, 409)
@@ -166,6 +168,7 @@ describe('EventLifecyclePage', () => {
     renderPage()
 
     await user.click(await screen.findByRole('button', { name: 'Cancel activity' }))
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Cancel activity' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('The activity has already ended')
   })
 

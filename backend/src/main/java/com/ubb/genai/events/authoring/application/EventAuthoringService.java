@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,6 +131,25 @@ public class EventAuthoringService {
                 command.category(),
                 clock.instant()));
     return view(event, true);
+  }
+
+  /** Drafts and published events the caller may edit, newest first. */
+  @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
+  public List<EventView> listEditableEvents() {
+    var actor = actor();
+    return repository.findAllInStates(Set.of(EventState.DRAFT, EventState.PUBLISHED)).stream()
+        .filter(event -> mayEdit(actor, event))
+        .map(event -> view(event, true))
+        .toList();
+  }
+
+  /** Like canEdit, but an event the caller may not see is simply left out. */
+  private boolean mayEdit(AuthoringIdentityPort.Actor actor, AuthoringEvent event) {
+    try {
+      return canEdit(actor, event);
+    } catch (AuthoringException hidden) {
+      return false;
+    }
   }
 
   @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)

@@ -41,6 +41,7 @@ export function EventSearchPage() {
   const page = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 0
 
   const [form, setForm] = useState({ q, from, to, organizationId, category })
+  const filtered = Boolean(q || from || to || organizationId || category)
   const [result, setResult] = useState<EventSearchResult | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -150,7 +151,27 @@ export function EventSearchPage() {
         </p>
       )}
 
-      {!error && result && result.items.length === 0 && <Card className="empty"><CardContent><strong>No events match your search.</strong><p>Try a broader keyword or remove a filter.</p></CardContent></Card>}
+      {!error && result && result.items.length === 0 && (
+        <Card className="empty">
+          <CardContent>
+            {filtered ? (
+              <>
+                <strong>No events match your search.</strong>
+                <p>Try a broader keyword or remove a filter.</p>
+              </>
+            ) : (
+              <>
+                <strong>No upcoming events yet.</strong>
+                <p>Published events appear here as soon as they are scheduled.</p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {!error && result && result.items.length > 0 && (
+        <h2 className="mb-2 mt-6 text-lg font-semibold">{filtered ? 'Search results' : 'Upcoming events'}</h2>
+      )}
 
       {!error && result && result.items.length > 0 && (
         <ul className="event-results">

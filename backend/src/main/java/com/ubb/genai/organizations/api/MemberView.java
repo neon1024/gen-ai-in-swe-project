@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record MemberView(
         UUID userId,
+        String displayName,
         OrganizationRole role,
         long eventTeamAssignmentCount,
         boolean ownsActiveEvents) {
