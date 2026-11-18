@@ -3,7 +3,6 @@ package com.ubb.genai.auth.service;
 import com.ubb.genai.auth.domain.VerificationToken;
 import com.ubb.genai.auth.repository.VerificationTokenRepository;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -15,10 +14,13 @@ import java.util.HexFormat;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class TokenService {
     private final SecureRandom secureRandom = new SecureRandom();
     private final VerificationTokenRepository verificationTokenRepository;
+
+    public TokenService(VerificationTokenRepository verificationTokenRepository) {
+        this.verificationTokenRepository = verificationTokenRepository;
+    }
 
     public VerificationToken findByToken(String token) {
         return verificationTokenRepository.findByTokenHash(hashToken(token));

@@ -6,7 +6,6 @@ import com.ubb.genai.auth.domain.User;
 import com.ubb.genai.auth.domain.VerificationToken;
 import com.ubb.genai.auth.domain.exception.UsernameAlreadyExistsException;
 import com.ubb.genai.auth.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,12 +16,19 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final TokenService tokenService;
+
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                       EmailService emailService, TokenService tokenService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
+        this.tokenService = tokenService;
+    }
 
     @Transactional
     public void register(RegisterRequest request) throws UsernameAlreadyExistsException {

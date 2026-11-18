@@ -1,9 +1,6 @@
 package com.ubb.genai.auth.domain;
 
 import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,9 +9,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,6 +29,8 @@ public class User {
     @UpdateTimestamp
     private Instant updatedAt;
 
+    public User() {}
+
     public User(String email, String passwordHash, String username, String displayName) {
         this.email = email;
         this.passwordHash = passwordHash;
@@ -43,4 +39,13 @@ public class User {
         this.status = UserStatus.PENDING;
         this.platformAdmin = false;
     }
+
+    public UUID getId() { return id; }
+    public String getEmail() { return email; }
+    public String getPasswordHash() { return passwordHash; }
+    public String getUsername() { return username; }
+    public String getDisplayName() { return displayName; }
+    public UserStatus getStatus() { return status; }
+    public Boolean getPlatformAdmin() { return platformAdmin; }
+    public void setStatus(UserStatus status) { this.status = status; }
 }
