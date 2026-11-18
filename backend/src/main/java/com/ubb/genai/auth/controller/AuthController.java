@@ -2,6 +2,7 @@ package com.ubb.genai.auth.controller;
 
 import com.ubb.genai.auth.domain.*;
 import com.ubb.genai.auth.service.AuthService;
+import com.ubb.genai.auth.domain.exception.EmailDeliveryException;
 import com.ubb.genai.auth.domain.exception.UsernameAlreadyExistsException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +79,14 @@ public class AuthController {
         SecurityContextHolder.setContext(context);
         new HttpSessionSecurityContextRepository().saveContext(context, httpRequest, httpResponse);
         return ResponseEntity.ok(response);
+    }
+
+    // Without this, the exception reaches the protected /error page and the client sees a misleading 401.
+    @ExceptionHandler(EmailDeliveryException.class)
+    public ResponseEntity<Map<String, String>> emailDeliveryFailed() {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
+                "code", "EMAIL_DELIVERY_FAILED",
+                "detail", "We couldn't send the verification email. Try again later."));
     }
 
     private static ResponseEntity<Map<String, String>> loginRefused(String code, String detail) {

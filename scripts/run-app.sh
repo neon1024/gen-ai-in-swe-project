@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Runs the whole application locally: PostgreSQL (Docker), Spring Boot backend and Vite frontend.
+# Runs the whole application locally: PostgreSQL and Mailpit (Docker), Spring Boot backend and Vite
+# frontend. Emails go to Mailpit unless RESEND_API_KEY is set.
 #
 # Usage:
 #   scripts/run-app.sh          start everything; Ctrl+C stops backend and frontend
-#   scripts/run-app.sh --stop   stop and remove the PostgreSQL container (data is kept in its volume)
-#   scripts/run-app.sh --reset  remove the PostgreSQL container and its data volume
+#   scripts/run-app.sh --stop   stop and remove the PostgreSQL and Mailpit containers (data is kept)
+#   scripts/run-app.sh --reset  remove the containers, the PostgreSQL data volume and caught emails
 #
 # Development only: the database password below is a local default, not a secret.
 set -euo pipefail
@@ -20,6 +21,11 @@ export DB_PASSWORD="${DB_PASSWORD:-ubb-local-dev}"
 export APP_FLYWAY_DEMO_LOCATION=",classpath:db/demo"
 BACKEND_PORT=8080
 LOG_DIR="$ROOT/.cache/run-app"
+# Mailpit catches every outgoing email locally (any address); its inbox is at http://localhost:$MAIL_UI_PORT.
+MAIL_CONTAINER="${MAIL_CONTAINER:-ubb-events-mailpit}"
+MAIL_SMTP_PORT="${MAIL_SMTP_PORT:-1025}"
+MAIL_UI_PORT="${MAIL_UI_PORT:-8025}"
+MAIL_IMAGE="axllent/mailpit:v1.30.2"
 
 log() { printf '\033[1;34m[run-app]\033[0m %s\n' "$*"; }
 fail() { printf '\033[1;31m[run-app]\033[0m %s\n' "$*" >&2; exit 1; }
@@ -27,11 +33,12 @@ fail() { printf '\033[1;31m[run-app]\033[0m %s\n' "$*" >&2; exit 1; }
 case "${1:-}" in
   --stop)
     docker rm -f "$DB_CONTAINER" >/dev/null 2>&1 && log "PostgreSQL stopped." || log "PostgreSQL was not running."
+    docker rm -f "$MAIL_CONTAINER" >/dev/null 2>&1 && log "Mailpit stopped." || true
     exit 0 ;;
   --reset)
-    docker rm -f "$DB_CONTAINER" >/dev/null 2>&1 || true
+    docker rm -f "$DB_CONTAINER" "$MAIL_CONTAINER" >/dev/null 2>&1 || true
     docker volume rm "$DB_VOLUME" >/dev/null 2>&1 || true
-    log "PostgreSQL container and data removed."
+    log "PostgreSQL container and data removed; Mailpit inbox cleared."
     exit 0 ;;
   "") ;;
   *) fail "Unknown option: $1 (use --stop or --reset)" ;;
@@ -76,6 +83,20 @@ for _ in $(seq 1 30); do
 done
 docker exec "$DB_CONTAINER" pg_isready -U "$DB_USERNAME" -d ubb_events >/dev/null 2>&1 || fail "PostgreSQL did not become ready."
 
+# --- Mailpit (local inbox, used unless RESEND_API_KEY is set) ---------------
+if [[ -z "${RESEND_API_KEY:-}" ]]; then
+  if ! docker ps --format '{{.Names}}' | grep -qx "$MAIL_CONTAINER"; then
+    docker rm -f "$MAIL_CONTAINER" >/dev/null 2>&1 || true
+    log "Starting Mailpit (inbox http://localhost:$MAIL_UI_PORT)..."
+    docker run -d --name "$MAIL_CONTAINER" -p "$MAIL_SMTP_PORT:1025" -p "$MAIL_UI_PORT:8025" "$MAIL_IMAGE" >/dev/null \
+      || fail "Mailpit did not start; ports $MAIL_SMTP_PORT/$MAIL_UI_PORT may be in use (set MAIL_SMTP_PORT/MAIL_UI_PORT)."
+  fi
+  export SPRING_MAIL_HOST=localhost SPRING_MAIL_PORT="$MAIL_SMTP_PORT"
+  EMAIL_INFO="Emails    http://localhost:$MAIL_UI_PORT  (Mailpit; any address)"
+else
+  EMAIL_INFO="Emails    sent through Resend (RESEND_API_KEY is set)"
+fi
+
 # --- Backend and frontend --------------------------------------------------
 PIDS=()
 cleanup() {
@@ -97,7 +118,9 @@ for _ in $(seq 1 180); do
 done
 curl -s -o /dev/null "http://localhost:$BACKEND_PORT/v3/api-docs" || fail "Backend did not start in time; see $LOG_DIR/backend.log."
 
-if [[ ! -d "$ROOT/frontend/node_modules" ]]; then
+# npm writes node_modules/.package-lock.json on install; reinstall when package-lock.json is newer.
+if [[ ! -f "$ROOT/frontend/node_modules/.package-lock.json" \
+   || "$ROOT/frontend/package-lock.json" -nt "$ROOT/frontend/node_modules/.package-lock.json" ]]; then
   log "Installing frontend dependencies..."
   (cd "$ROOT/frontend" && npm ci --no-audit --no-fund >/dev/null)
 fi
@@ -109,6 +132,7 @@ sleep 3
 log "Ready:"
 log "  Frontend  http://localhost:5173/events"
 log "  Backend   http://localhost:$BACKEND_PORT  (API docs: /v3/api-docs)"
+log "  $EMAIL_INFO"
 log "Press Ctrl+C to stop."
 wait -n "${PIDS[@]}" || true
 log "A process exited; check the logs in $LOG_DIR."
